@@ -10,23 +10,19 @@ use Illuminate\Support\Facades\Route;
 // Authentication Routes... as guest
 Route::middleware("guest")->group(function () {
    Route::post('/register', [RegisteredUserController::class, 'store'])
-    ->middleware('guest')
     ->name('register');
 
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('guest')
         ->name('login');
 
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->middleware('guest')
         ->name('password.email');
 
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
-        ->middleware('guest')
         ->name('password.store');
 });
 
-Route::middleware(['auth:sanctum'])->group( function (Request $request) {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
