@@ -1,3 +1,3 @@
 module.exports = {
- presets: ['<existing presets>', 'nativewind/babel'],
+ presets: ['babel-preset-expo', 'nativewind/babel'],
 };
