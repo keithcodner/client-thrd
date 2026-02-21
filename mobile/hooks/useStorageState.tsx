@@ -14,7 +14,7 @@ const storage = {
             return null;
         }
     },
-    set: async (key: string, value: string): Promise<void> => {
+    set: async (key: string, value: string | null): Promise<void> => {
         try {
             if (Platform.OS === "web") {
               value === null ? localStorage.removeItem(key) : localStorage.setItem(key, value);
