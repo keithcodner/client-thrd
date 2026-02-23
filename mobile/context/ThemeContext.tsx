@@ -1,63 +1,56 @@
-import React, { createContext, useContext, useState, useEffect, use } from "react";
-import { Appearance, useColorScheme } from "react-native";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useColorScheme } from "react-native";
 import { useStorageState } from "@/hooks/useStorageState";
 
 type ThemeType = "light" | "dark" | "system";
 
 interface ThemeContextType {
-    theme: ThemeType;
-    currentTheme: "light" | "dark";
-    setTheme: (theme: ThemeType) => void;
+  theme: ThemeType;
+  currentTheme: "light" | "dark";
+  setTheme: (theme: ThemeType) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-    theme: "light",
-    currentTheme: "light",
-    setTheme: () => null,
+  theme: "system",
+  currentTheme: "light",
+  setTheme: () => {},
 });
 
 export const useTheme = () => useContext(ThemeContext);
 
-
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const systemColourScheme = useColorScheme() as 'light' | 'dark';
-    const [[, storedTheme], setStorageTheme] = useStorageState("theme");
-    const [theme, setThemeState] = useState<ThemeType>("light");
-    const [currentTheme, setCurrentTheme] = useState<"light" | "dark">('light');
+  const systemColorScheme = useColorScheme() as "light" | "dark" | null;
+  const [[, storedTheme], setStorageTheme] = useStorageState("theme");
 
-    useEffect(() => {
-        if (storedTheme) {
-            setThemeState(storedTheme as ThemeType);
-        }
-    }, [storedTheme]);
+  const [theme, setThemeState] = useState<ThemeType>("system");
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">(
+    systemColorScheme === "dark" ? "dark" : "light"
+  );
 
-    // Update current theme based on selected theme and system preference
-    useEffect(() => {
-        if (theme === 'system') {
-            setCurrentTheme(systemColourScheme || 'dark');
-        } else {
-            setCurrentTheme(theme as "light" | "dark");
-        }
-    }, [theme, systemColourScheme]);
-
-    // Update storage when theme changes
-    useEffect(() => {
-        const subscriptionn = Appearance.addChangeListener(({ colorScheme }) => {
-            if (theme === 'system') {
-                setCurrentTheme((colorScheme as "light" | "dark") || 'dark');
-            }
-        });
-        return () => subscriptionn.remove();
-    }, [theme]);
-
-    const setTheme = (newTheme: ThemeType) => {
-        setThemeState(newTheme);
-        setStorageTheme(newTheme);
+  // Load stored theme
+  useEffect(() => {
+    if (storedTheme) {
+      setThemeState(storedTheme as ThemeType);
     }
+  }, [storedTheme]);
 
-    return(
-        <ThemeContext.Provider value={{ theme, currentTheme, setTheme }}>
-            {children}
-        </ThemeContext.Provider>
-    )
+  // Resolve theme
+  useEffect(() => {
+    if (theme === "system") {
+      setCurrentTheme(systemColorScheme === "dark" ? "dark" : "light");
+    } else {
+      setCurrentTheme(theme);
+    }
+  }, [theme, systemColorScheme]);
+
+  const setTheme = (newTheme: ThemeType) => {
+    setThemeState(newTheme);
+    setStorageTheme(newTheme);
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, currentTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };

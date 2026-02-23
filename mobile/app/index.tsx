@@ -39,6 +39,7 @@ const WelcomeScreen = () => {
   const [showThemeSelection, setShowThemeSelection] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<ThemeMode>("light");
   const { setTheme, currentTheme } = useTheme();
+  
   const lastPressTime = useRef(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   

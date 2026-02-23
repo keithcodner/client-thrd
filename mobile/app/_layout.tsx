@@ -1,9 +1,11 @@
 import { Stack } from "expo-router";
-import "../global.css"
-import { ThemeProvider, DefaultTheme } from "@react-navigation/native";
+import "../global.css";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 export default function RootLayout() {
-  return <ThemeProvider value={DefaultTheme}>
+  return (
+    <ThemeProvider>
       <Stack />
-  </ThemeProvider>;
+    </ThemeProvider>
+  );
 }
