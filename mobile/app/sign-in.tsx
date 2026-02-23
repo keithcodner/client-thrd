@@ -29,7 +29,7 @@ const Login = () => {
 
   const handleChange = (key: string, value: string | any) => {
         setData({ ...data, [key]: value });
-        setErrors({ ...errors, [key]: "" }); // Clear error for this field on change
+        //setErrors({ ...errors, [key]: "" }); // Clear error for this field on change
     };
 
   const handleLogin = async() => {
@@ -83,7 +83,7 @@ const Login = () => {
 
       <Input
           value={data.email}
-          onChange={(value) => handleChange("email", value)}
+          onChangeText={(value) => handleChange("email", value)}
           placeholder="Email"
           keyboardType="email-address"
           autoCapitalize="none"
@@ -91,7 +91,7 @@ const Login = () => {
       />
       <Input
           value={data.password}
-          onChange={(value) => handleChange("password", value)}
+          onChangeText={(value) => handleChange("password", value)}
           placeholder="Password"
           secureTextEntry
           error={errors.password}
