@@ -70,7 +70,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     };
 
 
-    const handleSignIn = (token: string, userData: User) => {
+    const handleSignIn = async (token: string, userData: User) => {
         try {
             await setSession(token);
             await setUser(JSON.stringify(userData));
@@ -81,7 +81,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         }
     };
     
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
        try {
             if (session) {
                 await axiosInstance.post("/auth/logout", null, {

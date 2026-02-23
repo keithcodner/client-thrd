@@ -40,23 +40,31 @@ const SignUp = () => {
         });
 
         try {
-            await axios.post(`${API_BASE_URL}/api/signup`, data);
+            await axios.post(`${API_BASE_URL}/register`, data);
             resetForm();
             setSuccessMessage("Account created successfully! Please log in.");
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 const responseData = error.response?.data;
                 if (responseData?.errors) {
-                    Alert.alert("Error", responseData.errors)
-                } else if(responseData?.message) {
-                    Alert.alert("Error", responseData.message);
+                    // responseData.errors is often an object (map) of arrays — convert to readable string
+                    try {
+                        const firstError = Object.values(responseData.errors).flat()[0];
+                        Alert.alert("Error", String(firstError));
+                    } catch (e) {
+                        Alert.alert("Error", JSON.stringify(responseData.errors));
+                    }
+                } else if (responseData?.message) {
+                    // message may be a string or object — ensure we pass a string
+                    const msg = typeof responseData.message === "string" ? responseData.message : JSON.stringify(responseData.message);
+                    Alert.alert("Error", msg);
                 } else {
                     Alert.alert("Error", 'An unexpected error occurred. Please try again.');
                 }
             } else {
-                console.log("An unexpected error occurred", error); 
+                console.log("An unexpected error occurred", error);
             }
-            
+
         } finally {
             setIsLoading(false);
         }
@@ -80,7 +88,7 @@ const SignUp = () => {
     return(
         <View className={`flex-1 justify-center items-center px-6 ${currentTheme === "dark" ? "bg-gray-900" : "bg-white"}`}>
             <View className="items-center mb-8">
-                <Text className={`text-2xl font-bold mt-4 ${currentTheme === "dark" ? "bg-gray-900" : "bg-white"}`}> Test Text goes here</Text>
+                <Text className={`text-2xl font-bold mt-4 ${currentTheme === "dark" ? "bg-gray-900" : "bg-white"}`}> Sign up Test Text goes here</Text>
             </View>
 
             <Text className={`text-3xl font-bold mt-5 ${currentTheme === "dark" ? "bg-gray-900" : "bg-white"}`}> Sign up</Text>
@@ -119,11 +127,12 @@ const SignUp = () => {
             <Button
                 title="Sign Up"
                 onPress={handleSignup}
-                loading={loading}
+                loading={loading} // show loading indicator when loading
+                disabled={loading} // disabled when loading
                 className="w-full mt-4"
             >
                 <View className="flex-row items-center justify-center">
-                    {loading && <ActivityIndicator size="small" color="#ffffff" className="mr-3" />}
+                    
                     <Text className="text-base font-medium text-white">Sign Up</Text>
                 </View>
             </Button>

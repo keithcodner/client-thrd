@@ -52,21 +52,13 @@ const Button: React.FC<ButtonProps> = ({
         <TouchableOpacity
             onPress={onPress}
             disabled={disabled || loading}
-            className={`rounded-lg px-4 py-2 items-center justify-center ${className} ${disabled || loading ? "opacity-50" : ""}`}
-            style={{ elevation: disabled || loading ? 0 : 2 }}
+            className={`overflow-hidden rounded-2xl  ${disabled ? "opacity-50" : ""} ${className}`}
+            style={{ elevation: 3 }}
         >
             <LinearGradient
                 colors={(disabled ? ['#e0e0e0', '#bdbdbd'] : gradient) as [string, string]}
-                style={{
-                    borderRadius: 8,
-                    width: '100%',
-                    height: '100%',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'row',
-                    paddingVertical: 8,
-                    paddingHorizontal: 16,
-                }}
+                start={{ x:0, y:0 }}
+                end={{ x:1, y:1 }}
             >
                 {loading ? (
                     <ActivityIndicator size="small" color={textColor} />

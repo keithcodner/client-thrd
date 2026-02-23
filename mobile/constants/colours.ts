@@ -33,7 +33,7 @@ export const colours = {
   },
   dark: {
     // Base colors
-    background: '#0c0a09',
+    background: '#15110fff',
     surface: '#1c1917',
     card: '#292524',
     text: '#fafaf9',

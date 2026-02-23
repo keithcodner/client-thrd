@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Text, View, TouchableOpacity, ScrollView, Dimensions, Platform, Animated } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
 import { useThemeColours } from "@/hooks/useThemeColours";
@@ -193,7 +192,7 @@ const WelcomeScreen = () => {
 
   const handleContinue = () => {
     // Theme is already set in handleThemeSelect, just proceed
-    handlePress("/sign-in");
+    handlePress("/signup");
   };
 
   const colors = useThemeColours();
@@ -205,11 +204,11 @@ const WelcomeScreen = () => {
 
   if (showThemeSelection) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
+      <View style={{ flex: 1, backgroundColor: bgColor }}>
         {/* Header with Back Button */}
         <View className="flex-row items-center justify-between px-6 py-4">
           <TouchableOpacity onPress={handleBack} className="p-2">
-            <Text style={{ color: textColor, fontSize: 28, fontWeight: '300' }}>←</Text>
+            <Text className="pt-10" style={{ color: textColor, fontSize: 28, fontWeight: '300' }}>←</Text>
           </TouchableOpacity>
           <View style={{ width: 40 }} />
         </View>
@@ -373,12 +372,12 @@ const WelcomeScreen = () => {
             </Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
+    <View style={{ flex: 1, backgroundColor: bgColor }}>
       {/* Header with Back and Skip Buttons */}
       <View className="flex-row items-center justify-between px-6 py-2">
         <TouchableOpacity 
@@ -387,10 +386,10 @@ const WelcomeScreen = () => {
           disabled={currentPhase === 0}
           style={{ opacity: currentPhase === 0 ? 0.3 : 1 }}
         >
-          <Text style={{ color: textColor, fontSize: 24 }}>←</Text>
+          <Text className="pt-12" style={{ color: textColor, fontSize: 28 }}>←</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSkipIntro} className="p-2">
-          <Text style={{ color: subtitleColor, fontSize: 12, letterSpacing: 1 }}>SKIP INTRO</Text>
+          <Text className="pt-12" style={{ color: subtitleColor, fontSize: 12, letterSpacing: 1 }}>SKIP INTRO</Text>
         </TouchableOpacity>
       </View>
 
@@ -469,7 +468,7 @@ const WelcomeScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
