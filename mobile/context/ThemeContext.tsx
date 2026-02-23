@@ -11,8 +11,8 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-    theme: "system",
-    currentTheme: "dark",
+    theme: "light",
+    currentTheme: "light",
     setTheme: () => null,
 });
 
@@ -22,8 +22,8 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const systemColourScheme = useColorScheme() as 'light' | 'dark';
     const [[, storedTheme], setStorageTheme] = useStorageState("theme");
-    const [theme, setThemeState] = useState<ThemeType>("system");
-    const [currentTheme, setCurrentTheme] = useState<"light" | "dark">('dark');
+    const [theme, setThemeState] = useState<ThemeType>("light");
+    const [currentTheme, setCurrentTheme] = useState<"light" | "dark">('light');
 
     useEffect(() => {
         if (storedTheme) {

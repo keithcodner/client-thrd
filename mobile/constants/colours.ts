@@ -2,45 +2,66 @@ export const colours = {
   light: {
     // Base colors
     background: '#FFFFFF',
-    surface: '#F3F4F6',
-    card: '#FFFFFF',
-    text: '#1F2937',
-    secondaryText: '#4B5563',
-    border: '#E5E7EB',
+    surface: '#fafaf9',
+    card: '#f5f5f4',
+    text: '#1c1917',
+    secondaryText: '#78716c',
+    border: '#e7e5e4',
     
     // UI elements
-    primary: '#059669',
-    primaryLight: '#10B981',
-    primaryDark: '#047857',
-    accent: '#8B5CF6',
-    success: '#10B981',
-    error: '#EF4444',
-    warning: '#F59E0B',
-    info: '#3B82F6',
+    primary: '#ADC178',
+    primaryLight: '#C5D5A4',
+    primaryDark: '#8FA85F',
+    accent: '#ADC178',
+    success: '#ADC178',
+    error: '#dc2626',
+    warning: '#ea580c',
+    info: '#0284c7',
+
+    // Additional stone palette
+    stone50: '#fafaf9',
+    stone100: '#f5f5f4',
+    stone200: '#e7e5e4',
+    stone300: '#d6d3d1',
+    stone400: '#a8a29e',
+    stone500: '#78716c',
+    stone800: '#292524',
+    stone900: '#1c1917',
 
     // Card gradients
-    cardGradient: ['#F3F4F6', '#E5E7EB'],
+    cardGradient: ['#f5f5f4', '#e7e5e4'],
   },
   dark: {
     // Base colors
-    background: '#111827',
-    surface: '#1F2937',
-    card: '#374151',
-    text: '#F9FAFB',
-    secondaryText: '#D1D5DB',
-    border: '#4B5563',
+    background: '#0c0a09',
+    surface: '#1c1917',
+    card: '#292524',
+    text: '#fafaf9',
+    secondaryText: '#a8a29e',
+    border: '#292524',
     
     // UI elements
-    primary: '#10B981',
-    primaryLight: '#34D399',
-    primaryDark: '#059669',
-    accent: '#A78BFA',
-    success: '#10B981',
-    error: '#F87171',
-    warning: '#FBBF24',
-    info: '#60A5FA',
+    primary: '#ADC178',
+    primaryLight: '#C5D5A4',
+    primaryDark: '#8FA85F',
+    accent: '#ADC178',
+    success: '#ADC178',
+    error: '#ef4444',
+    warning: '#f97316',
+    info: '#38bdf8',
+
+    // Additional stone palette
+    stone50: '#fafaf9',
+    stone100: '#f5f5f4',
+    stone200: '#e7e5e4',
+    stone300: '#d6d3d1',
+    stone400: '#a8a29e',
+    stone500: '#78716c',
+    stone800: '#292524',
+    stone900: '#1c1917',
+    stone950: '#0c0a09',
 
     // Card gradients
-    cardGradient: ['#374151', '#1F2937'],
+    cardGradient: ['#292524', '#1c1917'],
   }
 };
