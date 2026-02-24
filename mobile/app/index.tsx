@@ -4,7 +4,9 @@ import { router } from "expo-router";
 import { useTheme } from "@/context/ThemeContext";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import Svg, { Path } from "react-native-svg";
+import ButtoTHRDIconButtonn from "@/components/core/THRDIconButton";
 import { Sun, Moon, Monitor } from 'lucide-react-native';
+import THRDIconButton from "@/components/core/THRDIconButton";
 
 const { width } = Dimensions.get("window");
 
@@ -238,6 +240,15 @@ const WelcomeScreen = () => {
           </Text>
 
           <View className="w-full mb-8">
+
+            <THRDIconButton 
+              title="Light Mode"
+              Icon={Sun}
+              onPress={() => handleThemeSelect("light")}
+              className="mb-4"
+              disabled={selectedTheme === "light"}
+            />
+            
             <TouchableOpacity
               onPress={() => handleThemeSelect("light")}
               style={{

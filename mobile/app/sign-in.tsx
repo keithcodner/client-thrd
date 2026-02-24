@@ -12,6 +12,7 @@ import { API_BASE_URL } from "@/config/env";
 import { useTheme } from "@/context/ThemeContext";
 
 const Login = () => {
+  //Temp cred: codnerkj@gmail.com, 1234qweqwe
 
   const { signIn } = useSession();
   const { currentTheme } = useTheme();
