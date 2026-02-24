@@ -51,7 +51,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     const loadUserInfo = async (userData: any) => {
        try {
            
-            const response = await axiosInstance.post("/auth/user", {
+            const response = await axiosInstance.get("/auth/user", {
                 headers: {
                     Authorization: `Bearer ${session}`,
                 }
