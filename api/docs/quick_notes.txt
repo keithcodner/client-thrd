@@ -1,0 +1,12 @@
+1. Run the API server for phone and web
+` php artisan serve --host=0.0.0.0 --port=8000 `
+
+2. Run the API Web front end for email verifications (other pages)
+` npm run dev `
+
+3. Run the mail server
+`
+cd tools/mailpit-windows-amd64
+./mailpit.exe
+
+`
