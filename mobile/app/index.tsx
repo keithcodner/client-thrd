@@ -248,8 +248,16 @@ const WelcomeScreen = () => {
               className="mb-4"
               disabled={selectedTheme === "light"}
             />
+
+            <THRDIconButton 
+              title="Dark Mode"
+              Icon={Moon}
+              onPress={() => handleThemeSelect("dark")}
+              className="mb-4"
+              disabled={selectedTheme === "dark"}
+            />
             
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => handleThemeSelect("light")}
               style={{
                 borderWidth: 2,
@@ -360,7 +368,7 @@ const WelcomeScreen = () => {
               }}>
                 System Default
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           <TouchableOpacity

@@ -51,11 +51,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     const loadUserInfo = async (userData: any) => {
        try {
            
-            const response = await axiosInstance.get("/auth/user", {
-                headers: {
-                    Authorization: `Bearer ${session}`,
-                }
-            });
+            const response = await axiosInstance.get("/user");
             
             setUser(JSON.stringify(response.data));
        } catch (error) {
@@ -83,12 +79,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
     
     const handleSignOut = async () => {
        try {
-            if (session) {
-                await axiosInstance.post("/auth/logout", null, {
-                    headers: {
-                        Authorization: `Bearer ${session}`,
-                    }
-                });
+                if (session) {
+                await axiosInstance.post("/logout", null);
 
                 setSession(null);
                 setUser(null);
