@@ -6,24 +6,45 @@ import { useThemeColours } from "@/hooks/useThemeColours";
 const TabsLayout = () => {
   const colors = useThemeColours();
 
-  // Show a loading indicator while checking the session
-  if (isLoading) {
-    return (
-      <View className="flex-1 justify-center items-cetner bg white dark:bg-gray-900">
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text className="mt-4 text-gray-500 dark:text-gray-400">Loading...</Text>
-      </View>
-    );
-  }
-
-  // If there's no session, redirect to the login page
-  if (!session) {
-    return <Redirect href="/sign-in" />;
-  }
 
   return (
-    <Tabs>
-      
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.secondaryText,
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
+        },
+        headerShown: false,
+    }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          tabBarLabel: "Home",
+          tabBarIcon: ({ color, size }) => (  
+            <MaterialIcons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="operations"
+        options={{
+          tabBarLabel: "Operations",
+          tabBarIcon: ({ color, size }) => (  
+            <MaterialIcons name="auto-fix-high" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarLabel: "Profile",
+          tabBarIcon: ({ color, size }) => (  
+            <MaterialIcons name="person" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 };

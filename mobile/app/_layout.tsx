@@ -13,7 +13,7 @@ function Header() {
       <>
         <StatusBar style={currentTheme === "dark" ? "light" : "dark"} backgroundColor={currentTheme === 'dark' ? '#15110fff' : '#FFFFFF'} />
         {/* Leave the way it is */}
-        <Redirect href="/(app)" />
+        <Redirect href="/(app)/(tabs)" />
       </>
     );
   } 
