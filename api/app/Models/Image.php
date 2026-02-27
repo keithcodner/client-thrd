@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Images extends Model
+class Image extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class Images extends Model
      *
      * @var string
      */
-    protected $table = 'images_test';
+    protected $table = 'image_test';
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +27,8 @@ class Images extends Model
         'original_image',
         'generated_image_public_id',
         'generated_image',
+        'operation_type',
+        'operation_metadata',
     ];
 
     /**
@@ -37,6 +39,7 @@ class Images extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'operation_metadata' => 'array',
     ];
 
     

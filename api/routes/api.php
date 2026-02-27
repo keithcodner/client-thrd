@@ -4,8 +4,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 // Authentication Routes... as guest
 Route::middleware("guest")->group(function () {
@@ -35,6 +37,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             'operations'=> \App\Enums\OperationEnum::listOfCredits()
         ]);
     });
+
+    Route::post('/image/fill', [ImageController::class, 'fill'])->name('image.fill');
 });
 
 
