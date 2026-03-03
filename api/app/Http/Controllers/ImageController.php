@@ -8,13 +8,16 @@ use App\Models\Image;
 use Cloudinary\Api\Admin\AdminApi;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Asset\Image as CloudinaryImage;
+use Cloudinary\Transformation\Adjust;
 use Cloudinary\Transformation\AspectRatio;
 use Cloudinary\Transformation\Background;
+use Cloudinary\Transformation\Effect;
+use Cloudinary\Transformation\ImproveMode;
 use Cloudinary\Transformation\Resize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
@@ -88,6 +91,170 @@ class ImageController extends Controller
             'transformed_url' => $transformedImageURL,
             'credits' => request()->user()->credits,
             'aspectRatio' => $aspectRatio,
+        ]);
+
+    }
+
+    public function restore(Request $request)
+    {
+        //Rembember to change .env back to local storage after testing with cloudinary!!!!!!
+        $operation = OperationEnum::RESTORE;
+        $this->checkCredits($operation);
+
+        $request->validate([
+            'image' => 'required|image|max:10240',
+        ]);
+
+        $image = $request->file('image');
+
+        //Upload the original image to Cloudinary
+        $originalPublicId = $image->store('uploads');
+
+        // Generate the new image with the specified aspect ratio and generative fill background
+        $generatedImg = (new CloudinaryImage($originalPublicId))->effect(Effect::generativeRestore())->adjust(Adjust::improve()->mode(ImproveMode::indoor())->blend(90));
+
+        // Get the URL of the generated image
+        $transformedImageURL = $generatedImg->toUrl();
+
+        $uploadResult = (new UploadApi())->upload($transformedImageURL, [
+            'folder' => 'transformed/restore', // target folder in Cloudinary
+            //'public_id' => $image->getClientOriginalName(), // optional: use original file name as public ID
+        ]);
+
+        // Get the URL of the uploaded image
+        $uploadedImageURL = $uploadResult['secure_url'];
+
+        // Optionally, you can also get the public ID of the uploaded image
+        $transformedPublicId = 'uploads/' . $uploadResult['public_id'];
+
+        // Save the image operation details to the database
+        $this->saveImageOperation(
+            $originalPublicId,
+            Storage::url($originalPublicId),
+            $transformedPublicId,
+            $uploadedImageURL,
+            OperationEnum::RESTORE->value,
+            []
+        );
+
+        $this->deductCredits($operation);
+
+        return response()->json([
+            'message' => 'Image restored and transformed successfully',
+            'transformed_url' => $transformedImageURL,
+            'credits' => request()->user()->credits,
+        ]);
+
+    }
+
+    public function recolour(Request $request)
+    {
+        //Rembember to change .env back to local storage after testing with cloudinary!!!!!!
+        $operation = OperationEnum::RECOLOUR;
+        $this->checkCredits($operation);
+
+        $request->validate([
+            'image' => 'required|image|max:10240',
+            'colour' => 'string | required',
+            'target_part' => 'string | required',
+        ]);
+
+        $image = $request->file('image');
+        $colour = $request->input('colour');
+        $target_part = $request->input('target_part');
+
+        //Upload the original image to Cloudinary
+        $originalPublicId = $image->store('uploads');
+
+        // Generate the new image with the specified aspect ratio and generative fill background
+        $generatedImg = (new CloudinaryImage( $originalPublicId))
+        ->effect(Effect::generativeRecolor( $target_part, $colour));
+
+        // Get the URL of the generated image
+        $transformedImageURL = $generatedImg->toUrl();
+
+        $uploadResult = (new UploadApi())->upload($transformedImageURL, [
+            'folder' => 'transformed/recolour', // target folder in Cloudinary
+            //'public_id' => $image->getClientOriginalName(), // optional: use original file name as public ID
+        ]);
+
+        // Get the URL of the uploaded image
+        $uploadedImageURL = $uploadResult['secure_url'];
+
+        // Optionally, you can also get the public ID of the uploaded image
+        $transformedPublicId = 'uploads/' . $uploadResult['public_id'];
+
+        // Save the image operation details to the database
+        $this->saveImageOperation(
+            $originalPublicId,
+            Storage::url($originalPublicId),
+            $transformedPublicId,
+            $uploadedImageURL,
+            OperationEnum::RECOLOUR->value,
+            ['colour' => $colour, 'target_part' => $target_part]
+        );
+
+        $this->deductCredits($operation);
+
+        return response()->json([
+            'message' => 'Image recoloured successfully',
+            'transformed_url' => $transformedImageURL,
+            'credits' => request()->user()->credits,
+        ]);
+
+    }
+
+    public function remove(Request $request)
+    {
+        //Rembember to change .env back to local storage after testing with cloudinary!!!!!!
+        $operation = OperationEnum::REMOVE_OBJECTS;
+        $this->checkCredits($operation);
+
+        $request->validate([
+            'image' => 'required|image|max:10240',
+            'prompt' => 'string | required',
+        ]);
+
+        $image = $request->file('image');
+        $prompt = $request->input('prompt');
+
+        //Upload the original image to Cloudinary
+        $originalPublicId = $image->store('uploads');
+
+        // Generate the new image with the specified aspect ratio and generative fill background
+        $generatedImg = (new CloudinaryImage($originalPublicId))
+        ->effect( Effect::generativeRemove()->prompt( $prompt));
+
+        // Get the URL of the generated image
+        $transformedImageURL = $generatedImg->toUrl();
+
+        $uploadResult = (new UploadApi())->upload($transformedImageURL, [
+            'folder' => 'transformed/remove_object', // target folder in Cloudinary
+            //'public_id' => $image->getClientOriginalName(), // optional: use original file name as public ID
+        ]);
+
+        // Get the URL of the uploaded image
+        $uploadedImageURL = $uploadResult['secure_url'];
+
+        // Optionally, you can also get the public ID of the uploaded image
+        $transformedPublicId = 'uploads/' . $uploadResult['public_id'];
+
+        // Save the image operation details to the database
+        $this->saveImageOperation(
+            $originalPublicId,
+            Storage::url($originalPublicId),
+            $transformedPublicId,
+            $uploadedImageURL,
+            OperationEnum::REMOVE_OBJECTS->value,
+            ['prompt' => $prompt]
+        );
+
+        $this->deductCredits($operation);
+
+        return response()->json([
+            'message' => 'Object removed successfully',
+            'transformed_url' => $transformedImageURL,
+            'credits' => request()->user()->credits,
         ]);
 
     }

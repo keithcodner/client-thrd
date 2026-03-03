@@ -78,8 +78,8 @@ const Index = () => {
       title: "Recolour Images",
       description: "Change the colors of your images with AI recoloring.",
       icon: "palette",
-      credits: '/recolour',
-      operationType: 'recolour',
+      credits: '/recolor',
+      operationType: 'recolor',
     },
     {
       title: "Remove Objects",

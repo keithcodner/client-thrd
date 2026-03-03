@@ -40,7 +40,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
     });
 
-    Route::post('/image/fill', [ImageController::class, 'fill'])->name('image.fill');
+    Route::post(uri: '/image/fill', action: [ImageController::class, 'fill']);
+    Route::post(uri: '/image/restore', action: [ImageController::class, 'restore']);
+    Route::post(uri: '/image/recolour', action: [ImageController::class, 'recolour']);
+    Route::post(uri: '/image/remove', action: [ImageController::class, 'remove']);
 
     Route::get('/image/latest-operations', [ImageController::class, 'getLatestOperations']);
     Route::get('/image/operation/{id}', [ImageController::class, 'getOperation']);
