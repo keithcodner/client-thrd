@@ -4,9 +4,11 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CreditPaymentController;
 use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 
 // Authentication Routes... as guest
@@ -39,6 +41,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::post('/image/fill', [ImageController::class, 'fill'])->name('image.fill');
+
+    Route::get('/image/latest-operations', [ImageController::class, 'getLatestOperations']);
+    Route::get('/image/operation/{id}', [ImageController::class, 'getOperation']);
+    Route::delete('/image/operation/{id}', [ImageController::class, 'deleteOperation']);
+
+    Route::post('/payment/create-payment-intent', 
+    action: [CreditPaymentController::class, 'createPaymentIntent']);
+    Route::post('/payment/handle-payment-success', 
+    action: [CreditPaymentController::class, 'handlePaymentSuccess']);
 });
 
 

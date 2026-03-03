@@ -36,9 +36,9 @@ const AspectRatioSelector: React.FC<AspectRatioSelectorProps> = ({
                     height: ratio.height,
                  }}
             />
-            <View className={`text-sm ${selectedRatio === ratio.value ? 'text-primary' : 'text-gray-400'}`}>
-                 {ratio.value}
-            </View>
+              <Text className={`text-sm ${selectedRatio === ratio.value ? 'text-primary' : 'text-gray-400'}`}>
+                  {ratio.value}
+              </Text>
             </TouchableOpacity>
         ))}
         </View> 

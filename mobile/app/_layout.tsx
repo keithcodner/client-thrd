@@ -1,4 +1,4 @@
-import { Stack, Redirect, Slot } from "expo-router";
+import { Stack, Redirect, Slot, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "../global.css";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
@@ -8,7 +8,12 @@ function Header() {
   const { currentTheme } = useTheme();
   const {session, isLoading} = useSession();
 
-  if (session && !isLoading) {
+  // Define the authentication routes
+  const pathname = usePathname();
+  // Check if the current route is an authentication route
+  const isAuthRoute = pathname === "/" || pathname === "/sign-in" || pathname === "/signup" || pathname === "/index";    
+
+  if (session && !isLoading && isAuthRoute) {
     return(
       <>
         <StatusBar style={currentTheme === "dark" ? "light" : "dark"} backgroundColor={currentTheme === 'dark' ? '#15110fff' : '#FFFFFF'} />

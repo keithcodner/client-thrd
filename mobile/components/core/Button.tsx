@@ -7,7 +7,7 @@ interface ButtonProps {
   className?: string;
   disabled?: boolean;
   loading?: boolean;
-  variant?: "primary" | "secondary" | "tertiary";
+  variant?: "primary" | "secondary" | "tertiary" | "danger";
   onPress: () => void;
   children?: React.ReactNode;
 }
@@ -37,6 +37,11 @@ const Button: React.FC<ButtonProps> = ({
                 return {
                     gradient: ["#ffffff", "#ffffff"],
                     textColor: "#1e90ff",
+                };
+            case "danger":
+                return {
+                    gradient: ["#ff4c4c", "#ff1a1a"],
+                    textColor: "#fff",
                 };
             default:
                 return {

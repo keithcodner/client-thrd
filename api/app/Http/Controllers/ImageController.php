@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Enums\OperationEnum;
 use App\Http\Requests;
 use App\Models\Image;
+use Cloudinary\Api\Admin\AdminApi;
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Asset\Image as CloudinaryImage;
 use Cloudinary\Transformation\AspectRatio;
 use Cloudinary\Transformation\Background;
 use Cloudinary\Transformation\Resize;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
 {
@@ -89,10 +92,101 @@ class ImageController extends Controller
 
     }
 
+    public function getLatestOperations(Request $request)
+    {
+        $user = Auth::user();
+        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10);
+
+        $operations = Image::where( 'user_id',  $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        // Add operation credits information
+        $operations->getCollection()->transform(function ($operation){
+            $operationType = $operation->operation_type;
+            $enumType = match ($operationType) {
+                'generative_fill' => OperationEnum::GENERATIVE_FILL,
+                'restore' => OperationEnum::RESTORE,
+                'recolour' => OperationEnum::RECOLOUR,
+                'remove_object' => OperationEnum::REMOVE_OBJECTS,
+                default => null,
+            };
+
+            $operation->credits_user = $enumType ? $enumType->credits() : 0;
+            return $operation;
+        });
+
+        return response()->json([
+            'operations' => $operations->items(),
+            'pagination' => [
+                'current_page' => $operations->currentPage(),
+                'last_page' => $operations->lastPage(),
+                'per_page' => $operations->perPage(),
+                'total' => $operations->total(),
+                'has_more_pages' => $operations->hasMorePages(),
+            ],
+        ]);
+    }
+    public function getOperation($id)
+    {
+        $user = Auth::user();
+        $operation = Image::where('user_id', $user->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        // Add operation credits information
+        $operationType = $operation->operation_type;
+        $enumType = match ($operationType) {
+            'generative_fill' => OperationEnum::GENERATIVE_FILL,
+            'restore' => OperationEnum::RESTORE,
+            'recolour' => OperationEnum::RECOLOUR,
+            'remove_object' => OperationEnum::REMOVE_OBJECTS,
+            default => null,
+        };
+        $operation->credits_user = $enumType ? $enumType->credits() : 0;
+
+        return response()->json([
+            'operation'=> $operation,
+        ]);
+    }
+
+    public function deleteOperation($id)
+    {
+        $user = Auth::user();
+        $operation = Image::where( 'user_id',  $user->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        // Delete images from Cloudinary if they exist
+        try {
+            if ($operation->original_image_public_id) {
+                (new AdminApi())->deleteAssets(publicIds: [
+                    $operation->original_image_public_id
+                ]);
+            }
+
+            if ($operation->generated_image_public_id) {
+                (new AdminApi())->deleteAssets(publicIds: [
+                    $operation->generated_image_public_id
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Log the error but continue with deleting the database record
+            Log::error('Failed to delete images from Cloudinary: ' . $e->getMessage());
+        }
+
+        $operation->delete();
+
+        return response()->json([
+            'message' => 'Operation and associated images deleted successfully',
+        ]);
+    }
+
     private function saveImageOperation(string $originalPublicId, string $originalImageURL, string $generatedPublicId, string $generatedImageURL, string $operationType, array $operationMetadata)
     {
         Image::create([
-            'user_id' => auth()->id,
+            'user_id' => Auth::id(),
             'original_image_public_id' => $originalPublicId,
             'original_image' => $originalImageURL,
             'generated_image_public_id' => $generatedPublicId,

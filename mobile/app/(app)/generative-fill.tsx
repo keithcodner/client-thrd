@@ -23,27 +23,30 @@ import axiosInstance from "@/config/axiosConfig";
 const { width } = Dimensions.get('window');
 
 export default function GenerativeFill() {
-  const { user, updateUser } = useSession();
-  const colours = useThemeColours();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [fullscreenVisible, setFullscreenVisible] = useState(false);
-  const [currentFullscreenIndex, setCurrentFullscreenIndex] = useState(0);
-  const [mediaPermission, setMediaPermission] = useState(false);
-  const [savingImage, setSavingImage] = useState(false);
-  const [selectedRatio, setSelectedRatio] = useState<string>('1:1');
+    const { user, updateUser } = useSession();
+    const colours = useThemeColours();
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+    const [fullscreenVisible, setFullscreenVisible] = useState(false);
+    const [currentFullscreenIndex, setCurrentFullscreenIndex] = useState(0);
+    const [mediaPermission, setMediaPermission] = useState(false);
+    const [savingImage, setSavingImage] = useState(false);
+    const [selectedRatio, setSelectedRatio] = useState<string>('1:1');
 
-  const pagerRef = useRef<PagerView | null>(null);
+    // Refs for pagers
+    const pagerRef = useRef<PagerView | null>(null);
     const fullscreenPagerRef = useRef<PagerView | null>(null);
 
+    // Define aspect ratios for selection
     const ASPECT_RATIOS: AspectRatio[] = [
     { value: '1:1', width: 40, height: 40 },
     { value: '4:3', width: 40, height: 30 },
     { value: '16:9', width: 48, height: 27 },
     ];
 
+    // Request permissions on mount
     useEffect(() => {
     (async () => {
         const { status: imageStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -54,7 +57,9 @@ export default function GenerativeFill() {
     })();
     }, []);
 
+    // Handle image selection from gallery
     const pickImage = async () => {
+        // Check permissions before allowing image selection
         if (hasPermission !== true) {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
@@ -75,6 +80,7 @@ export default function GenerativeFill() {
         }
     };
 
+    // Handle image upload and generative fill
     const handleUpload = async () => {
         if (!selectedImage) {
         Alert.alert('Error', 'Please select an image');
@@ -95,7 +101,7 @@ export default function GenerativeFill() {
         formData.append('aspectRatio', selectedRatio);
 
         try {
-            const response = await axiosInstance.post('/api/image/fill', formData, {
+            const response = await axiosInstance.post('/image/fill', formData, {
                 headers: {
                 'Content-Type': 'multipart/form-data',
                 },
@@ -110,11 +116,12 @@ export default function GenerativeFill() {
                         ...user,
                         credits: response.data.credits,
                     }
-                    Alert.alert(JSON.stringify(updatedUser));
+                    //Alert.alert(JSON.stringify(updatedUser));
                     await updateUser(updatedUser);
                 }
             }
         } catch (error) {
+            console.error('Unexpected error:', error);
             if (axios.isAxiosError(error)) {
                 Alert.alert('Error', error.response?.data?.message || 'An error occurred while generating the image.');
             } else {
@@ -215,130 +222,130 @@ export default function GenerativeFill() {
                                 >
                                     <MaterialIcons name="close" size={20} color="#fff" />
                                 </TouchableOpacity>
+                            </View>
+                            <View className=" items-center mb-3 mt-2">
+                                {/* Aspect Ratio Selection */}
+                                <View className="flex-row items-center mb-3 mt-2" style={{ zIndex: 10 }}>
+                                    <MaterialIcons name="aspect-ratio" size={24} color={colours.primary} />
+                                    <Text className="text-lg font-bold ml-2 text-gray-800 dark:text-white">
+                                        Select Aspect Ratio
+                                    </Text>
+                                </View>
+                                    <View className="w-full mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700" style={{ marginTop: 8 }}>
+                                    <AspectRatioSelector
+                                        ratios={ASPECT_RATIOS}
+                                        selectedRatio={selectedRatio}
+                                        onSelectRatio={setSelectedRatio}
+                                    />
+                                    <Text className="text-gray-500 dark:text-gray-400 text-xs mt-2">
+                                        Select the aspect ratio for your generated image.
+                                    </Text>
+                                </View>
 
-                                <View className="flex-row items-center mb-3 mt-2">
-                                    {/* Aspect Ratio Selection */}
-                                    <View className="flex-row items-center mb-3 mt-2">
-                                        <MaterialIcons name="aspect-ratio" size={24} color={colours.primary} />
-                                        <Text className="text-lg font-bold ml-2 text-gray-800 dark:text-white">
-                                            Select Aspect Ratio
-                                        </Text>
-                                    </View>
-                                    <View className="w-full mb-4 bg-gray-100 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                                        <AspectRatioSelector
-                                            ratios={ASPECT_RATIOS}
-                                            selectedRatio={selectedRatio}
-                                            onSelectRatio={setSelectedRatio}
-                                        />
-                                        <Text className="text-gray-500 dark:text-gray-400 text-xs mt-2">
-                                            Select the aspect ratio for your generated image.
-                                        </Text>
-                                    </View>
-
-                                    {generatedImage && (
-                                        <>
-                                            <View className="flex-row items-center mb-3">
-                                                <MaterialIcons name="compare" size={24} color={colours.primary} />
-                                                <Text className="text-lg font-bold ml-2 text-gray-800 dark:text-white">
-                                                Compare Images
-                                                </Text>
-                                            </View>
-                                            {/* Image comparison with swipe */}
-                                            <View className="relative w-full rounded-xl overflow-hidden mb-4 border border-gray-200 dark:border-gray-700">
-                                                
-                                                <PagerView
-                                                    style={{ width: '100%', height: width * 0.7 }}
-                                                    initialPage={0}
-                                                    ref={pagerRef}
-                                                >
-                                                    {/* Original Image */}
-                                                    <View key="original">
-                                                        <TouchableOpacity
-                                                        activeOpacity={0.9}
-                                                        onPress={() => {
-                                                            setCurrentFullscreenIndex(0);
-                                                            setFullscreenVisible(true);
-                                                        }}
-                                                        style={{ width: '100%', height: '100%' }}
-                                                        >
-                                                            <Image
-                                                            source={{ uri: selectedImage }}
-                                                            style={{ width: '100%', height: '100%' }}
-                                                            resizeMode="cover"
-                                                        />
-                                                        <View className="absolute bottom-2 left-2 bg-black/50 rounded-full px-2 py-1">
-                                                            <Text className="text-white text-xs">Original</Text>
-                                                        </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-
-                                                    {/* Add more images for comparison here */}
-                                                    <View key="generated">
-                                                        <TouchableOpacity
-                                                        activeOpacity={0.9}
-                                                        onPress={() => {
-                                                            setCurrentFullscreenIndex(1);
-                                                            setFullscreenVisible(true);
-                                                        }}
-                                                        style={{ width: '100%', height: '100%' }}
-                                                        >
-                                                        <Image
-                                                            source={{ uri: generatedImage }}
-                                                            style={{ width: '100%', height: '100%' }}
-                                                            resizeMode="cover"
-                                                        />
-                                                        <View className="absolute top-2 left-2 bg-primary/80 rounded-full px-2 py-1 flex-row items-center">
-                                                            <MaterialIcons name="auto-fix-high" size={16} color="#fff" />
-                                                            <Text className="text-white text-xs ml-1 font-medium">AI Generated</Text>
-                                                        </View>
-                                                        </TouchableOpacity>
-                                                    </View>
-                                                </PagerView>
-
-                                                {/* Swipe indicator */}
-                                                <View className="absolute bottom-4 left-0 right-0 flex-row justify-center">
-                                                    <View className="flex-row bg-black/30 rounded-full px-3 py-1.5 items-center">
-                                                        <MaterialIcons name="swipe" size={16} color="#fff" />
-                                                        <Text className="text-white text-xs ml-1">Swipe to compare</Text>
-                                                    </View>
-                                                </View>
-                                            </View>
-                                            {/* Action buttons */}
-                                            <View className="flex-row justify-between mb-6">
-                                                <TouchableOpacity
-                                                    className="flex-1 mr-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl flex-row justify-center items-center"
-                                                    onPress={() => saveImage(generatedImage)}
-                                                    disabled={savingImage}
-                                                >
-                                                    {savingImage ? (
-                                                        <ActivityIndicator size="small" color={colours.primary} />
-                                                        ) : (
-                                                        <>
-                                                            <MaterialIcons name="save-alt" size={20} color={colours.primary} />
-                                                            <Text className="ml-2 text-gray-800 dark:text-white">Save</Text>
-                                                        </>
-                                                    )}
-                                                </TouchableOpacity>
-                                            </View>
-                                        </>
-                                    )}
-
-                                    {/* Saving State */}
-                                    <Button
-                                        onPress={handleUpload}
-                                        className="w-full mt-2"
-                                        disabled={isLoading}
-                                        loading={isLoading}
-                                    >
-                                        <View className="flex-row items-center justify-center">
-                                            <MaterialIcons name="auto-fix-high" size={20} color="#fff" style={{ marginRight: 8 }} />
-                                            <Text className="text-white text-center font-medium">
-                                                {isLoading ? 'Generating Fill...' : 'Generate Fill'}
+                                {generatedImage && (
+                                    <>
+                                        <View className="flex-row items-center mb-3">
+                                            <MaterialIcons name="compare" size={24} color={colours.primary} />
+                                            <Text className="text-lg font-bold ml-2 text-gray-800 dark:text-white">
+                                            Compare Images
                                             </Text>
                                         </View>
-                                    </Button>
-                                </View>
+                                        {/* Image comparison with swipe */}
+                                        <View className="relative w-full rounded-xl overflow-hidden mb-4 border border-gray-200 dark:border-gray-700">
+                                            
+                                            <PagerView
+                                                style={{ width: '100%', height: width * 0.7 }}
+                                                initialPage={0}
+                                                ref={pagerRef}
+                                            >
+                                                {/* Original Image */}
+                                                <View key="original">
+                                                    <TouchableOpacity
+                                                    activeOpacity={0.9}
+                                                    onPress={() => {
+                                                        setCurrentFullscreenIndex(0);
+                                                        setFullscreenVisible(true);
+                                                    }}
+                                                    style={{ width: '100%', height: '100%' }}
+                                                    >
+                                                        <Image
+                                                        source={{ uri: selectedImage }}
+                                                        style={{ width: '100%', height: '100%' }}
+                                                        resizeMode="cover"
+                                                    />
+                                                    <View className="absolute bottom-2 left-2 bg-black/50 rounded-full px-2 py-1">
+                                                        <Text className="text-white text-xs">Original</Text>
+                                                    </View>
+                                                    </TouchableOpacity>
+                                                </View>
+
+                                                {/* Add more images for comparison here */}
+                                                <View key="generated">
+                                                    <TouchableOpacity
+                                                    activeOpacity={0.9}
+                                                    onPress={() => {
+                                                        setCurrentFullscreenIndex(1);
+                                                        setFullscreenVisible(true);
+                                                    }}
+                                                    style={{ width: '100%', height: '100%' }}
+                                                    >
+                                                    <Image
+                                                        source={{ uri: generatedImage }}
+                                                        style={{ width: '100%', height: '100%' }}
+                                                        resizeMode="cover"
+                                                    />
+                                                    <View className="absolute top-2 left-2 bg-primary/80 rounded-full px-2 py-1 flex-row items-center">
+                                                        <MaterialIcons name="auto-fix-high" size={16} color="#fff" />
+                                                        <Text className="text-white text-xs ml-1 font-medium">AI Generated</Text>
+                                                    </View>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </PagerView>
+
+                                            {/* Swipe indicator */}
+                                            <View className="absolute bottom-4 left-0 right-0 flex-row justify-center">
+                                                <View className="flex-row bg-black/30 rounded-full px-3 py-1.5 items-center">
+                                                    <MaterialIcons name="swipe" size={16} color="#fff" />
+                                                    <Text className="text-white text-xs ml-1">Swipe to compare</Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                        {/* Action buttons */}
+                                        <View className="flex-row justify-between mb-6">
+                                            <TouchableOpacity
+                                                className="flex-1 mr-2 bg-gray-100 dark:bg-gray-800 p-3 rounded-xl flex-row justify-center items-center"
+                                                onPress={() => saveImage(generatedImage)}
+                                                disabled={savingImage}
+                                            >
+                                                {savingImage ? (
+                                                    <ActivityIndicator size="small" color={colours.primary} />
+                                                    ) : (
+                                                    <>
+                                                        <MaterialIcons name="save-alt" size={20} color={colours.primary} />
+                                                        <Text className="ml-2 text-gray-800 dark:text-white">Save</Text>
+                                                    </>
+                                                )}
+                                            </TouchableOpacity>
+                                        </View>
+                                    </>
+                                )}
+
+                                {/* Saving State */}
+                                <Button
+                                    onPress={handleUpload}
+                                    className="w-full mt-2"
+                                    disabled={isLoading}
+                                    loading={isLoading}
+                                >
+                                    <View className="flex-row items-center justify-center">
+                                        <MaterialIcons name="auto-fix-high" size={20} color="#fff" style={{ marginRight: 8 }} />
+                                        <Text className="text-white text-center font-medium">
+                                            {isLoading ? 'Generating Fill...' : 'Generate Fill'}
+                                        </Text>
+                                    </View>
+                                </Button>
                             </View>
+                            
                         </View>
                     )}
                     {isLoading && (
@@ -403,7 +410,7 @@ export default function GenerativeFill() {
                                 </View>
                             )}
                         </PagerView>
-                        
+
                         {/* Pagination indicator */}
                         <View className="absolute bottom-10 left-0 right-0 flex-row justify-center">
                             <View className="flex-row">
@@ -416,5 +423,4 @@ export default function GenerativeFill() {
             </Modal>
         </>
     );
-
 }
