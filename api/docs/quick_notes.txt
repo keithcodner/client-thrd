@@ -24,3 +24,380 @@ cd mobile
 npx expo start -c
 
 `
+
+----------------------
+How to install and run Fresh dev instance
+
+Pre-req Steps:
+""""""""""""""
+Step 1: Install PHP and Composer
+For Windows (PHP and Composer install):
+1.Install PHP version 8.3+ - from https://www.php.net/downloads.php or download and install XAMPP
+2. Download and Install composer from https://getcomposer.org/download/
+3. Direct Composer to PHP install folder and php.exe file
+4. Check composer version with ` composer -V ` in command prompt window
+
+For macOS (PHP and Composer install):
+1. Install Brew with ` /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" `
+2. Install PHP version 8.3+ - `brew install php`
+3. Install Composer -  `brew install composer`
+4. Check composer version with ` composer -V ` in command prompt window
+
+
+Step 2: Install Node JS
+1. Download and Install Node JS (v8.19.2+ or higher) and NPM (v18.12.1+ or higher) from https://nodejs.org/en/download/package-manager
+
+Step 3: Install github
+1. Download and Install git from https://git-scm.com/downloads
+
+
+Step 4: Add installs to environment variables
+1. Add each install to your environment variables if necessary via https://www.eukhost.com/kb/how-to-add-to-the-path-on-windows-10-and-windows-11/
+2. This is so they can be accessed from any where in your command prompt
+
+Step 5:
+1. Download and install mySQL database server https://dev.mysql.com/downloads/mysql/
+2. Download mySQL client of your prefrence: ie. https://www.heidisql.com/downloads/releases/HeidiSQL_12.8_64_Portable.zip
+
+Step 6:
+1. Install code editor of your choice; prefereably vscode
+
+
+Install Git repo Steps:
+"""""""""""""""""""""""
+1. Create a folder on your system for your project ie. ` gig-react-test `
+2. Open this folder in a command prompt window ie. ` cd C:\xampp\htdocs\apps\gig-react-test `
+3. Initiate git; Type the command ` git init `
+4. Log into github with required access to https://github.com/gig/keithcodner. Create Personal access token if required
+5. Add remote origin; Type command ` git remote add origin https://github.com/gig/keithcodner.git `
+6. Set url origin with: Type command ` git remote set-url origin https://keithcodner:REPLACE_WITH_PAT@github.com/keithcodner/client-thrd.git
+ `
+7. Add Upstream: Type command ` git remote add upstream https://github.com/gig/keithcodner.git `
+8. Branch main: Type command ` git branch -M main `
+9. Fetch main: Type command ` git fetch ` (it will take time to download)
+10. Checkout main: Type command ` git checkout main `
+11. The project is now on your system
+12. Oopen this project folder in VS Code 
+
+Update .ENV file:
+"""""""""""""""""""""""
+1. In the root of the project rename the file `.env.exmaple` to `.env`
+2. Change the database varable ` DB_DATABASE=laravel ` to ` DB_DATABASE=gig `
+3. Also edit or user name and password for the mysql server you setup
+
+Setup MySQL Database:
+"""""""""""""""""""""""
+1. Go to your mysql client and create a new empty database called ` gig `
+2. Go to the `database/cor_vers` folder from the project root and import latest .SQL dump file or continue to use migrate command
+3. Type command: ` php artisan migrate `
+4. Type command: ` php artisan db:seed `
+
+
+Setup Project for Development:
+"""""""""""""""""""""""""""""""
+1. Install Composer packages: Type command ` composer install ` from root of project. After a vendor folder should be created
+2. Install Nodejs packages: Type command ` npm install ` from root of project. After a node_modules folder should be created
+
+
+Run Webservers Steps:
+"""""""""""""""""""""
+1. To start vite for react front end: Type command: ` npm run dev `
+1. To start laravel server for back end: Type command: ` php artisan serve `
+
+----------------------
+user_settings default:
+
+
+[{"id":1,"name":"enable_sidebar_minified_as_default","value":"off"},{"id":2,"name":"enable_mynetwork_profile","value":"off"},{"id":3,"name":"auto_accept_trade","value":"off"},{"id":4,"name":"auto_decline_trade","value":"off"},{"id":5,"name":"default_trade_list_or_grid_view","value":"grid"},{"id":6,"name":"gig_notifications","value":"on"},{"id":7,"name":"enable_help_text","value":"on"},{"id":8,"name":"hide_wishlist","value":"off"},{"id":9,"name":"locale","value":"en"},{"id":10,"name":"location","value":"on"},{"id":11,"name":"notifications_on_trades","value":"on"},{"id":12,"name":"notification_sounds","value":"off"},{"id":13,"name":"preferred_language","value":"off"},{"id":14,"name":"trade_dashboard_light_or_dark_theme","value":"off"}]
+
+----------------------
+How to run already installed instance (dev & production): Laravel/React
+
+
+--> Run the laravel web dev server (this and the above command are both required to run app with react)
+` php artisan server `
+
+--> Start react front end server
+` npm run dev `
+
+--> Run the websocket pusher server
+` php artisan websockets:serve `
+
+--> Run installed instance of Stripe
+` stripe listen --forward-to localhost:8000/api/stripeHook `
+
+--> Run scheduler for automated work
+` php artisan schedule:work `
+
+--> Custom cmd to start everything at once via concurrently package
+` npm run start-all `
+
+--> Run PHP Unit Tests
+` php artisan test --testsuite=Unit `
+
+--> Run Playwright e2e tests
+` npx playwright test `
+
+
+Server Info: 
+
+--> Websocket Dashboard Link
+http://127.0.0.1:8000/laravel-websockets/statistics
+
+
+
+--------------------------
+Install React commands:
+
+composer require laravel/breeze --dev
+
+php artisan breeze:install react
+
+npm run dev
+
+
+
+--------------------------
+Laravel/React - How to add new pages:
+
+1. Go to 'resources/js/Pages' folder
+2. Create a new folder and a new page ie. Create folder Custom and then create file Welcome_Temp.jsx
+3. You will need to add a new route to view the page
+4. Go to 'routes/web.php' file
+5. Add the following code: (ie. for a new dashboard route) as well as a comment above it for what its for
+
+Route::get('/welcome_temp', [WelcomeController::class, 'index'])->name('welcome_temp');
+
+6. Copy Template_FrontController.php in the directory 'App\Http\Controllers\Front'
+7. Rename the file and class name to your desired name (the conroller name must have 'Controller' suffix in the naming convention ie. ReservationController for Reservation page)
+8. In the controller point the render() function, it references the 'resources/js/Pages' where the the Pages directory acts as the root
+
+public function index()
+{
+    return Inertia::render('Custom/Welcome_Temp', []);
+}
+9. View the page by going to the route and see if it works
+
+
+
+--------------------------
+generate private key commands + setup laravel websockets: test
+
+1. install openssl
+2. run command: openssl
+3. genrsa -out c:\xampp\mykey.pem 1024 //to generate a private key with the size and paths
+4. rsa -in c:\xampp\mykey.pem -pubout -out c:\xampp\mypublickey.pem //to generate a public key using the private key with the size and paths
+
+
+
+--------------------------
+Payment Systems - Setup:
+-> Stripe: https://docs.stripe.com/stripe-cli
+- if you have chocolate for windows installed:
+-->cmd:  ` choco install stripe-cli `
+- Setup proper API key with created stripe account
+- install and setup stripe cli + webhooks. Webhooks will validate that response from portal is legit, but we have to listen to them
+- likely a job will be running always listening to api calls? not sure yet
+- cmd: ` stripe listen --forward-to localhost:8000/api/stripeHook ` //to forward events to server
+
+-> Paypal:
+-> Moneris:
+-> Baintree:
+-> ApplePay:
+
+Test cards:
+Card number: 4242 4242 4242 4242
+
+Use a valid future date, such as 12/34.
+Use any three-digit CVC (four digits for American Express cards).
+Use any value you like for other form fields.
+
+Visa	4242424242424242	Any 3 digits	Any future date
+Visa (debit)	4000056655665556	Any 3 digits	Any future date
+Mastercard	5555555555554444	Any 3 digits	Any future date
+Mastercard (2-series)	2223003122003222	Any 3 digits	Any future date
+Mastercard (debit)	5200828282828210	Any 3 digits	Any future date
+Mastercard (prepaid)	5105105105105100	Any 3 digits	Any future date
+American Express	378282246310005	Any 4 digits	Any future date
+American Express	371449635398431	Any 4 digits	Any future date
+Discover	6011111111111117	Any 3 digits	Any future date
+Discover	6011000990139424	Any 3 digits	Any future date
+Discover (debit)	6011981111111113	Any 3 digits	Any future date
+
+
+--------------------
+
+
+like i mentioned earlier, we'll go through some outstanding items that were either half complete or needs more product input on how it works, the oustanding consist of the following:
+- account settings // done
+- rank (we may not use this feature) //skip for now
+- my profile (requires some more product/team input, as well some search improvements) // skip for now
+- Normal search (needs more improvements to be stream lined) // done (only events)
+- trade service:
+- chat (needs some touch ups)  // next to do, chat between two users (non trade)
+- Log in pages
+- front end
+- post feed (needs some product/team input)
+- trade (trade services/calendar)
+- events/calendar (completed future services and events) - (https://tailwindui.starxg.com/plus/ui-blocks/application-ui/data-display/calendars)
+- admin (very lacking; basically not much has been updated in years; my profile would be the main outstanding item)
+- notifications
+
+
+--- Completed Work while offline
+- add/edit items with services
+- added services to add items/item search
+- consolidated search and item
+- add search by category
+- update home page
+
+--------------TODO-----------------
+- tables to update:
+- files_events
+- events
+- event_groups
+
+-----------Tools-----------
+https://transform.tools/html-to-jsx
+https://codebeautify.org/htmlviewer
+
+-----------------Testing Framework - Jest---------------------
+- Run Tests (.spec.js files)
+-> npx jest
+
+-----------------Commands to Install on Debian Server---------------------
+sudo apt update
+sudo apt upgrade
+sudo apt install php php-fpm php-cli php-mbstring php-curl php-xml php-zip
+apt-get install curl
+sudo apt install php-mysql
+sudo apt install php-curl php-dom php-xml
+apt-get install git
+apt-get install composer
+apt install zip unzip php-zip
+apt install nginx
+sudo apt install mysql-server
+sudo apt install mysql
+sudo apt install nodejs npm
+apt-get install redis-server
+
+sudo systemctl status MySQL
+
+sudo apt update
+
+sudo apt install mariadb-server
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo mysql_secure_installation
+
+CREATE USER 'remote'@'%' IDENTIFIED BY '';
+
+GRANT ALL PRIVILEGES ON *.* TO 'remote'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+sudo nano /etc/nginx/sites-available/client-thrd.ca
+
+server {
+    listen 80;
+    server_name your-domain.com www.your-domain.com;
+    root /path/to/your/laravel/public;
+
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock; # Update PHP version if necessary
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
+#Restart server and fpm
+sudo nginx -t
+sudo systemctl restart nginx
+sudo systemctl restart php7.4-fpm # Replace with your PHP version
+
+#Ensure the storage and bootstrap/cache directories are owned by the web server user (commonly www-data on Debian-based systems):
+sudo chown -R www-data:www-data /var/www/html/gig.ca/storage
+sudo chown -R www-data:www-data /var/www/html/gig.ca/bootstrap/cache
+
+#Set the correct permissions for the storage and bootstrap/cache directories to make them writable:
+sudo chmod -R 775 /var/www/html/gig.ca/storage
+sudo chmod -R 775 /var/www/html/gig.ca/bootstrap/cache
+
+
+
+--------------------- nginx https setup - letsencrpyt and cert-bot ---------------------:
+
+sudo apt update && sudo apt upgrade -y
+
+sudo apt install certbot python3-certbot-nginx -y
+
+//Make sure NGINX is installed and running: (skip)
+sudo apt install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+//1. Place your website's files in /var/www/yourdomain.
+//2 . Configure NGINX with a server block. Example
+server {
+    server_name yourdomain.com www.yourdomain.com;
+
+    root /var/www/yourdomain;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+
+//Enable the configuration
+sudo ln -s /etc/nginx/sites-available/yourdomain /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+//Run Certbot to obtain and configure your SSL certificate:
+sudo certbot --nginx
+
+//Certbot will detect your NGINX configuration and prompt you to select the domain(s) to secure.
+//Choose whether to redirect HTTP to HTTPS.
+
+
+
+// Verify HTTPS Configuration
+// After obtaining the certificate, verify that your site is accessible via HTTPS:
+
+// Open your browser and navigate to https://yourdomain.com.
+// Check the certificate details to confirm it's issued by Let's Encrypt.
+
+
+// Certbot automatically schedules certificate renewal. Test it with:
+sudo certbot renew --dry-run
+
+-----------Styled Pages-----------
+
+http://127.0.0.1:5500/samples/live_designs/user-pages/trades/trade-view.html
+http://127.0.0.1:5500/samples/live_designs/user-pages/trades/trade-view.html
+http://127.0.0.1:5500/samples/live_designs/user-pages/dashboard/dashboard-temp-home.html
+http://127.0.0.1:5500/samples/live_designs/user-pages/account/account-temp-home.html
+http://127.0.0.1:5500/samples/live_designs/user-pages/home/home-temp-after-login.html
+http://127.0.0.1:5500/samples/live_designs/user-pages/feed/feed-temp-home.html
+http://127.0.0.1:5500/samples/live_designs/agora-market-place/agora-temp-category.html#
+
+
+
+--------------DATABASE SUPPORT-------------------
+
+DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci - Current
+
+DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci - Needs to be new Current
+
+We need to change over to utf8mb4 to support emojies and other characters
