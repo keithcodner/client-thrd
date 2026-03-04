@@ -1,73 +1,101 @@
 import React from "react";
-import { Text, View, TouchableOpacity, Animated } from "react-native";
+import { Text, View, TouchableOpacity, Animated, Platform } from "react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { RegisterPhase } from "@/types/register/register";
 
-type WelcomePhasesProps = {
+type RegisterPhasesProps = {
   phases: RegisterPhase[];
   currentPhase: number;
   fadeAnim: Animated.Value;
   onNext: () => void;
   onBack: () => void;
-  onSkipIntro: () => void;
+  canGoNext: boolean;
+  isLastPhase: boolean;
+  children: React.ReactNode;
 };
 
-export const WelcomePhases: React.FC<WelcomePhasesProps> = ({
+export const RegisterPhases: React.FC<RegisterPhasesProps> = ({
   phases,
   currentPhase,
   fadeAnim,
   onNext,
   onBack,
-  onSkipIntro,
+  canGoNext,
+  isLastPhase,
+  children,
 }) => {
   const colors = useThemeColours();
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* Header with Back and Skip Buttons */}
-      <View className="flex-row items-center justify-between px-6 py-2">
+      {/* Header with Back Button */}
+      <View className="flex-row items-center justify-between px-6 py-4">
         <TouchableOpacity 
           onPress={onBack} 
           className="p-2"
           disabled={currentPhase === 0}
           style={{ opacity: currentPhase === 0 ? 0.3 : 1 }}
         >
-          <Text className="pt-12" style={{ color: colors.text, fontSize: 28 }}>←</Text>
+          <Text className="pt-10" style={{ color: colors.text, fontSize: 28, fontWeight: '300' }}>←</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onSkipIntro} className="p-2">
-          <Text className="pt-12" style={{ color: colors.secondaryText, fontSize: 12, letterSpacing: 1 }}>SKIP INTRO</Text>
-        </TouchableOpacity>
+        <View style={{ width: 40 }} />
       </View>
 
-      <View className="flex-1 justify-between px-8 py-8">
-        {/* Animated Wave Lines */}
-
-        {/* Content */}
-        <Animated.View style={{ opacity: fadeAnim }} className="items-center">
+      <View className="flex-1 justify-between px-0 py-8">
+        {/* Title */}
+        <Animated.View style={{ opacity: fadeAnim }} className="items-center px-8 mb-12">
           <Text
-            style={{ color: colors.text }}
-            className="text-4xl font-bold text-center mb-4"
+            style={{ 
+              color: colors.text,
+              fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+              fontSize: 32,
+              fontWeight: '400',
+              marginBottom: phases[currentPhase].subtitle ? 8 : 0,
+              textAlign: 'center'
+            }}
           >
             {phases[currentPhase].title}
           </Text>
-          <Text
-            style={{ color: colors.secondaryText }}
-            className="text-lg text-center italic"
-          >
-            {phases[currentPhase].subtitle}
-          </Text>
+          {phases[currentPhase].subtitle && (
+            <Text
+              style={{ 
+                color: colors.secondaryText,
+                fontSize: 14,
+                textAlign: 'center',
+                marginTop: 8,
+                lineHeight: 20,
+              }}
+            >
+              {phases[currentPhase].subtitle}
+            </Text>
+          )}
         </Animated.View>
 
-        {/* Progress Dots & Button */}
-        <View className="items-center">
+        {/* Content */}
+        <Animated.View style={{ opacity: fadeAnim, flex: 1 }} className="justify-center">
+          {children}
+        </Animated.View>
 
+        {/* Next Button */}
+        <View className="items-center px-8 pt-8">
           <TouchableOpacity
             onPress={onNext}
-            style={{ backgroundColor: colors.text }}
-            className="w-16 h-16 rounded-full items-center justify-center"
+            disabled={!canGoNext}
+            style={{
+              backgroundColor: canGoNext ? colors.text : colors.card,
+              width: '100%',
+              borderRadius: 24,
+              paddingVertical: 16,
+              paddingHorizontal: 32,
+            }}
           >
-            <Text style={{ color: colors.background }} className="text-2xl">
-              →
+            <Text style={{ 
+              color: canGoNext ? colors.background : colors.secondaryText,
+              textAlign: 'center',
+              fontSize: 16,
+              fontWeight: '700'
+            }}>
+              {isLastPhase ? 'Enter your space' : 'Next'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -75,3 +103,4 @@ export const WelcomePhases: React.FC<WelcomePhasesProps> = ({
     </View>
   );
 };
+

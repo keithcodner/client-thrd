@@ -1,42 +1,71 @@
 import { RegisterPhase } from "@/types/register/register";
 
+export const PHASE_ACCOUNT_TYPE = 0;
+export const PHASE_PHONE = 1;
+export const PHASE_SECURITY = 2;
+export const PHASE_IDENTITY = 3;
+export const PHASE_PHOTO = 4;
+export const PHASE_PROFILE = 5;
+export const PHASE_CALENDAR = 6;
+export const PHASE_INFO = 7;
+export const PHASE_SUCCESS = 8;
+
 export const phases: RegisterPhase[] = [
   {
-    title: "Lets setthings up",
+    title: "How will you use THRD?",
     subtitle: "",
   },
   {
-    title: "Security",
-    subtitle: "AI finds the gaps so you can just show up.",
-  },
-  {
-    title: "Your Identity",
+    title: "Let's set things up.",
     subtitle: "",
   },
   {
-    title: "Photo",
+    title: "Security.",
     subtitle: "",
   },
   {
-    title: "Profile Details",
+    title: "Your Identity.",
     subtitle: "",
   },
   {
-    title: "Calendar Sync",
+    title: "Photo.",
     subtitle: "",
   },
   {
-    title: "Verify Email",
+    title: "Profile Details.",
     subtitle: "",
   },
   {
-    title: "You're always in control",
-    subtitle: "Let THRD analyze your busy slots to find the best times for your plans automatically",
+    title: "Calendar Sync.",
+    subtitle: "Let THRD analyze your busy slots to find the best times for your plans automatically.",
   },
   {
-    title: "You're in. 🩵",
-    subtitle: "Your THRD is ready for connection",
+    title: "You're always in control.",
+    subtitle: "",
+  },
+  {
+    title: "You're in. 💙",
+    subtitle: "Your THRD is ready for connection.",
   }
 ];
+
+export type AccountType = "personal" | "community" | "business";
+
+export type RegisterFormData = {
+  accountType: AccountType | null;
+  phone: string;
+  email: string;
+  password: string;
+  fullName: string;
+  photo: string | null;
+  businessName: string;
+  streetAddress: string;
+  hours: string;
+  capacity: string;
+  website: string;
+  instagram: string;
+  tiktok: string;
+  primaryCity: string;
+};
 
 

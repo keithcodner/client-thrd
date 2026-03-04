@@ -1,97 +1,78 @@
 import React from "react";
 import { Text, View, TouchableOpacity, Platform } from "react-native";
-import { Sun, Moon } from "lucide-react-native";
-import THRDIconButton from "@/components/core/THRDIconButton";
+import { User, Calendar, Building2 } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
-import { ThemeMode } from "@/types/welcome/welcome";
+import { AccountType } from "./constants";
 
-type ThemeSelectionProps = {
-  selectedTheme: ThemeMode;
-  onThemeSelect: (theme: ThemeMode) => void;
-  onBack: () => void;
-  onContinue: () => void;
+type AccountTypeSelectionProps = {
+  selectedType: AccountType | null;
+  onTypeSelect: (type: AccountType) => void;
 };
 
-export const ThemeSelection: React.FC<ThemeSelectionProps> = ({
-  selectedTheme,
-  onThemeSelect,
-  onBack,
-  onContinue,
+export const AccountTypeSelection: React.FC<AccountTypeSelectionProps> = ({
+  selectedType,
+  onTypeSelect,
 }) => {
   const colors = useThemeColours();
 
+  const options = [
+    { type: "personal" as AccountType, label: "Personal", icon: User },
+    { type: "community" as AccountType, label: "Community Host", icon: Calendar },
+    { type: "business" as AccountType, label: "Business Venue", icon: Building2 },
+  ];
+
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* Header with Back Button */}
-      <View className="flex-row items-center justify-between px-6 py-4">
-        <TouchableOpacity onPress={onBack} className="p-2">
-          <Text className="pt-10" style={{ color: colors.text, fontSize: 28, fontWeight: '300' }}>←</Text>
-        </TouchableOpacity>
-        <View style={{ width: 40 }} />
-      </View>
-
-      <View className="flex-1 justify-center items-center px-8">
-        <Text
-          style={{ 
-            color: colors.text,
-            fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-            fontSize: 28,
-            fontWeight: '500',
-            marginBottom: 8,
-            textAlign: 'center'
-          }}
-        >
-          Make THRD feel like yours.
-        </Text>
-        <Text
-          style={{ 
-            color: colors.secondaryText,
-            fontSize: 14,
-            textAlign: 'center',
-            marginBottom: 48
-          }}
-        >
-          Choose how you want your space to feel.
-        </Text>
-
-        <View className="w-full mb-8">
-          <THRDIconButton 
-            title="Light Mode"
-            Icon={Sun}
-            onPress={() => onThemeSelect("light")}
-            className="mb-4"
-            disabled={selectedTheme === "light"}
-          />
-
-          <THRDIconButton 
-            title="Dark Mode"
-            Icon={Moon}
-            onPress={() => onThemeSelect("dark")}
-            className="mb-4"
-            disabled={selectedTheme === "dark"}
-          />
-        </View>
-
-        <TouchableOpacity
-          onPress={onContinue}
-          style={{
-            backgroundColor: colors.text,
-            width: '100%',
-            borderRadius: 24,
-            paddingVertical: 16,
-            paddingHorizontal: 32,
-          }}
-        >
-          <Text style={{ 
-            color: colors.background,
-            textAlign: 'center',
-            fontSize: 16,
-            fontWeight: '700'
-          }}>
-            Continue
-          </Text>
-        </TouchableOpacity>
-      </View>
+    <View className="w-full px-8">
+      {options.map((option) => {
+        const Icon = option.icon;
+        const isSelected = selectedType === option.type;
+        
+        return (
+          <TouchableOpacity
+            key={option.type}
+            onPress={() => onTypeSelect(option.type)}
+            style={{
+              backgroundColor: colors.background,
+              borderWidth: 2,
+              borderColor: isSelected ? '#C4F547' : colors.border || '#333',
+              borderRadius: 24,
+              paddingVertical: 20,
+              paddingHorizontal: 24,
+              marginBottom: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+            className={isSelected ? 'shadow-lg' : ''}
+          >
+            <View 
+              style={{
+                backgroundColor: isSelected ? '#C4F547' : colors.card,
+                borderRadius: 12,
+                width: 48,
+                height: 48,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: 16,
+              }}
+            >
+              <Icon 
+                size={24} 
+                color={isSelected ? '#000' : colors.text}
+                strokeWidth={2}
+              />
+            </View>
+            <Text
+              style={{
+                color: colors.text,
+                fontSize: 18,
+                fontWeight: '600',
+              }}
+            >
+              {option.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
