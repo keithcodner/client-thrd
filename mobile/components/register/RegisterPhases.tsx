@@ -32,18 +32,19 @@ export const RegisterPhases: React.FC<RegisterPhasesProps> = ({
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Progress Bar */}
-      <View
-        style={{
+      <View 
+        className="pt-6"
+        style={{ 
           height: 6,
-          backgroundColor: 'rgba(255,255,255,0.1)', // track
+          backgroundColor: '#C4F547',
           width: '100%',
           overflow: 'hidden',
         }}
       >
-        <View
-          style={{
+        <View 
+          style={{ 
             height: '100%',
-            backgroundColor: '#C4F547', // progress
+            backgroundColor: '#C4F547',
             width: `${progress}%`,
           }}
         />
@@ -62,9 +63,9 @@ export const RegisterPhases: React.FC<RegisterPhasesProps> = ({
         </TouchableOpacity>
       </View>
 
-      <View className="flex-1 justify-between px-0 py-8">
+      <View className="flex-1 justify-center px-0">
         {/* Title */}
-        <Animated.View style={{ opacity: fadeAnim }} className="items-center px-8 mb-4">
+        <Animated.View style={{ opacity: fadeAnim }} className="items-center px-8 mb-8">
           <Text
             style={{ 
               color: colors.text,
@@ -93,12 +94,12 @@ export const RegisterPhases: React.FC<RegisterPhasesProps> = ({
         </Animated.View>
 
         {/* Content */}
-        <Animated.View style={{ opacity: fadeAnim, flex: 1 }} className="justify-center">
+        <Animated.View style={{ opacity: fadeAnim }}>
           {children}
         </Animated.View>
 
         {/* Next Button */}
-        <View className="items-center px-8 pt-16 pb-8">
+        <View className="items-center px-8 pt-6">
           <TouchableOpacity
             onPress={onNext}
             disabled={!canGoNext}

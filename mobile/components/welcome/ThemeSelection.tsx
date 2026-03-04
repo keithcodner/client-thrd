@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, View, TouchableOpacity, Platform } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Sun, Moon } from "lucide-react-native";
 import THRDIconButton from "@/components/core/THRDIconButton";
 import { useThemeColours } from "@/hooks/useThemeColours";
@@ -21,11 +22,11 @@ export const ThemeSelection: React.FC<ThemeSelectionProps> = ({
   const colors = useThemeColours();
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header with Back Button */}
       <View className="flex-row items-center justify-between px-6 py-4">
         <TouchableOpacity onPress={onBack} className="p-2">
-          <Text className="pt-10" style={{ color: colors.text, fontSize: 28, fontWeight: '300' }}>←</Text>
+          <Text style={{ color: colors.text, fontSize: 28, fontWeight: '300' }}>←</Text>
         </TouchableOpacity>
         <View style={{ width: 40 }} />
       </View>
@@ -92,6 +93,6 @@ export const ThemeSelection: React.FC<ThemeSelectionProps> = ({
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };

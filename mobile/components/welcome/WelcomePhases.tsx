@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, View, TouchableOpacity, Animated } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { AnimatedWaves } from "./AnimatedWaves";
 import { ProgressDots } from "./ProgressDots";
@@ -33,7 +34,7 @@ export const WelcomePhases: React.FC<WelcomePhasesProps> = ({
   const colors = useThemeColours();
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header with Back and Skip Buttons */}
       <View className="flex-row items-center justify-between px-6 py-2">
         <TouchableOpacity 
@@ -42,10 +43,10 @@ export const WelcomePhases: React.FC<WelcomePhasesProps> = ({
           disabled={currentPhase === 0}
           style={{ opacity: currentPhase === 0 ? 0.3 : 1 }}
         >
-          <Text className="pt-12" style={{ color: colors.text, fontSize: 28 }}>←</Text>
+          <Text style={{ color: colors.text, fontSize: 28 }}>←</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onSkipIntro} className="p-2">
-          <Text className="pt-12" style={{ color: colors.secondaryText, fontSize: 12, letterSpacing: 1 }}>SKIP INTRO</Text>
+          <Text style={{ color: colors.secondaryText, fontSize: 12, letterSpacing: 1 }}>SKIP INTRO</Text>
         </TouchableOpacity>
       </View>
 
@@ -96,6 +97,6 @@ export const WelcomePhases: React.FC<WelcomePhasesProps> = ({
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };

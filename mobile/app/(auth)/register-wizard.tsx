@@ -57,7 +57,7 @@ const RegisterWizard = () => {
   };
 
   const handleGoToLogin = () => {
-     router.push("/(auth)/login" as any);
+     router.push("/(auth)/sign-in" as any);
   }
 
   // Register wizard handlers
