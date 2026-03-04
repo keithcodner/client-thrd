@@ -34,7 +34,7 @@ export const AccountTypeSelection: React.FC<AccountTypeSelectionProps> = ({
             style={{
               backgroundColor: colors.background,
               borderWidth: 2,
-              borderColor: isSelected ? '#C4F547' : colors.border || '#333',
+              borderColor: isSelected ? '#C4F547' : colors.stone800,
               borderRadius: 24,
               paddingVertical: 20,
               paddingHorizontal: 24,

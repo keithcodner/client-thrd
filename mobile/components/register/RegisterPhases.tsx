@@ -25,9 +25,27 @@ export const RegisterPhases: React.FC<RegisterPhasesProps> = ({
   children,
 }) => {
   const colors = useThemeColours();
+  const progress = ((currentPhase + 1) / phases.length) * 100;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Progress Bar */}
+      <View 
+        style={{ 
+          height: 3,
+          backgroundColor: colors.border,
+          width: '100%',
+        }}
+      >
+        <View 
+          style={{ 
+            height: '100%',
+            backgroundColor: '#C4F547',
+            width: `${progress}%`,
+          }}
+        />
+      </View>
+
       {/* Header with Back Button */}
       <View className="flex-row items-center justify-between px-6 py-4">
         <TouchableOpacity 
