@@ -65,14 +65,14 @@ Step 6:
 
 Install Git repo Steps:
 """""""""""""""""""""""
-1. Create a folder on your system for your project ie. ` gig-react-test `
-2. Open this folder in a command prompt window ie. ` cd C:\xampp\htdocs\apps\gig-react-test `
+1. Create a folder on your system for your project ie. ` thrd-react-test `
+2. Open this folder in a command prompt window ie. ` cd C:\xampp\htdocs\apps\thrd-react-test `
 3. Initiate git; Type the command ` git init `
-4. Log into github with required access to https://github.com/gig/keithcodner. Create Personal access token if required
-5. Add remote origin; Type command ` git remote add origin https://github.com/gig/keithcodner.git `
+4. Log into github with required access to https://github.com/thrd/keithcodner. Create Personal access token if required
+5. Add remote origin; Type command ` git remote add origin https://github.com/thrd/keithcodner.git `
 6. Set url origin with: Type command ` git remote set-url origin https://keithcodner:REPLACE_WITH_PAT@github.com/keithcodner/client-thrd.git
  `
-7. Add Upstream: Type command ` git remote add upstream https://github.com/gig/keithcodner.git `
+7. Add Upstream: Type command ` git remote add upstream https://github.com/thrd/keithcodner.git `
 8. Branch main: Type command ` git branch -M main `
 9. Fetch main: Type command ` git fetch ` (it will take time to download)
 10. Checkout main: Type command ` git checkout main `
@@ -82,12 +82,12 @@ Install Git repo Steps:
 Update .ENV file:
 """""""""""""""""""""""
 1. In the root of the project rename the file `.env.exmaple` to `.env`
-2. Change the database varable ` DB_DATABASE=laravel ` to ` DB_DATABASE=gig `
+2. Change the database varable ` DB_DATABASE=laravel ` to ` DB_DATABASE=thrd `
 3. Also edit or user name and password for the mysql server you setup
 
 Setup MySQL Database:
 """""""""""""""""""""""
-1. Go to your mysql client and create a new empty database called ` gig `
+1. Go to your mysql client and create a new empty database called ` thrd `
 2. Go to the `database/cor_vers` folder from the project root and import latest .SQL dump file or continue to use migrate command
 3. Type command: ` php artisan migrate `
 4. Type command: ` php artisan db:seed `
@@ -108,7 +108,7 @@ Run Webservers Steps:
 user_settings default:
 
 
-[{"id":1,"name":"enable_sidebar_minified_as_default","value":"off"},{"id":2,"name":"enable_mynetwork_profile","value":"off"},{"id":3,"name":"auto_accept_trade","value":"off"},{"id":4,"name":"auto_decline_trade","value":"off"},{"id":5,"name":"default_trade_list_or_grid_view","value":"grid"},{"id":6,"name":"gig_notifications","value":"on"},{"id":7,"name":"enable_help_text","value":"on"},{"id":8,"name":"hide_wishlist","value":"off"},{"id":9,"name":"locale","value":"en"},{"id":10,"name":"location","value":"on"},{"id":11,"name":"notifications_on_trades","value":"on"},{"id":12,"name":"notification_sounds","value":"off"},{"id":13,"name":"preferred_language","value":"off"},{"id":14,"name":"trade_dashboard_light_or_dark_theme","value":"off"}]
+[{"id":1,"name":"enable_sidebar_minified_as_default","value":"off"},{"id":2,"name":"enable_mynetwork_profile","value":"off"},{"id":3,"name":"auto_accept_trade","value":"off"},{"id":4,"name":"auto_decline_trade","value":"off"},{"id":5,"name":"default_trade_list_or_grid_view","value":"grid"},{"id":6,"name":"thrd_notifications","value":"on"},{"id":7,"name":"enable_help_text","value":"on"},{"id":8,"name":"hide_wishlist","value":"off"},{"id":9,"name":"locale","value":"en"},{"id":10,"name":"location","value":"on"},{"id":11,"name":"notifications_on_trades","value":"on"},{"id":12,"name":"notification_sounds","value":"off"},{"id":13,"name":"preferred_language","value":"off"},{"id":14,"name":"trade_dashboard_light_or_dark_theme","value":"off"}]
 
 ----------------------
 How to run already installed instance (dev & production): Laravel/React
@@ -326,12 +326,12 @@ sudo systemctl restart nginx
 sudo systemctl restart php7.4-fpm # Replace with your PHP version
 
 #Ensure the storage and bootstrap/cache directories are owned by the web server user (commonly www-data on Debian-based systems):
-sudo chown -R www-data:www-data /var/www/html/gig.ca/storage
-sudo chown -R www-data:www-data /var/www/html/gig.ca/bootstrap/cache
+sudo chown -R www-data:www-data /var/www/html/thrd.ca/storage
+sudo chown -R www-data:www-data /var/www/html/thrd.ca/bootstrap/cache
 
 #Set the correct permissions for the storage and bootstrap/cache directories to make them writable:
-sudo chmod -R 775 /var/www/html/gig.ca/storage
-sudo chmod -R 775 /var/www/html/gig.ca/bootstrap/cache
+sudo chmod -R 775 /var/www/html/thrd.ca/storage
+sudo chmod -R 775 /var/www/html/thrd.ca/bootstrap/cache
 
 
 
