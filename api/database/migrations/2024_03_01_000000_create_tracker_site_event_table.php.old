@@ -1,0 +1,50 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateTrackerStatsTrackingTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('tracker_stats_tracking', function (Blueprint $table) {
+            $table->bigInteger('id')->autoIncrement();
+            $table->string('stat_tr_an_id', 85);
+            $table->dateTime('stat_tr_date');
+            $table->string('stat_tr_usr_alpha_num_id', 50);
+            $table->string('stat_tr_video_external_id', 55);
+            $table->string('stat_tr_usr_who_i_sub_to_count', 15);
+            $table->string('stat_tr_usr_who_sub_to_me_count', 15);
+            $table->string('stat_tr_usr_channel_hits', 15);
+            $table->string('stat_tr_video_hits', 15);
+            $table->string('stat_tr_video_likes', 15);
+            $table->string('stat_tr_video_dislikes', 15);
+            $table->string('stat_tr_total_comments_per_vid', 15);
+            $table->string('stat_tr_total_inquiries', 15);
+            $table->string('stat_tr_total_orders', 15);
+            $table->string('stat_tr_total_videos', 15);
+            $table->string('stat_tr_total_users', 15);
+            $table->string('stat_tr_total_comments', 15);
+            $table->string('stat_tr_total_revenue', 15);
+
+            // Indexes
+            //$table->primary(['id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('tracker_stats_tracking');
+    }
+}
