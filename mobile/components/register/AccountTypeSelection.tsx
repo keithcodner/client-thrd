@@ -41,8 +41,12 @@ export const AccountTypeSelection: React.FC<AccountTypeSelectionProps> = ({
               marginBottom: 16,
               flexDirection: 'row',
               alignItems: 'center',
+              shadowColor: isSelected ? '#C4F547' : 'transparent',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: isSelected ? 0.3 : 0,
+              shadowRadius: isSelected ? 8 : 0,
+              elevation: isSelected ? 4 : 0,
             }}
-            className={isSelected ? 'shadow-lg' : ''}
           >
             <View 
               style={{

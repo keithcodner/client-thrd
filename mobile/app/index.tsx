@@ -155,8 +155,8 @@ const WelcomeScreen = () => {
   };
 
   const handleContinue = () => {
-    // Theme is already set in handleThemeSelect, just proceed
-    handlePress("/signup");
+    // Theme is already set in handleThemeSelect, just proceed to register wizard
+    handlePress("/(auth)/register-wizard");
   };
 
   if (showThemeSelection) {

@@ -1,14 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Animated } from "react-native";
 import { router } from "expo-router";
-import { useTheme } from "@/context/ThemeContext";
-import { 
-  ThemeSelection, 
-  WelcomePhases, 
-  phases as welcomePhases, 
-  waveTargets,
-  type ThemeMode 
-} from "@/components/welcome";
 import {
   RegisterPhases,
   AccountTypeSelection,
@@ -34,14 +26,7 @@ import {
   type AccountType,
 } from "@/components/register";
 
-const WelcomeScreen = () => {
-  // Welcome/Theme selection state
-  const [currentWelcomePhase, setCurrentWelcomePhase] = useState(0);
-  const [showThemeSelection, setShowThemeSelection] = useState(false);
-  const [showRegisterWizard, setShowRegisterWizard] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState<ThemeMode>("light");
-  const { setTheme } = useTheme();
-  
+const RegisterWizard = () => {
   // Register wizard state
   const [currentPhase, setCurrentPhase] = useState(0);
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -63,12 +48,6 @@ const WelcomeScreen = () => {
   
   const lastPressTime = useRef(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  
-  // Animation values for wave control points (welcome screens)
-  const wave1Y1 = useRef(new Animated.Value(50)).current;
-  const wave1Y2 = useRef(new Animated.Value(100)).current;
-  const wave2Y1 = useRef(new Animated.Value(170)).current;
-  const wave2Y2 = useRef(new Animated.Value(120)).current;
 
   const handlePress = (route: string) => {
     const now = Date.now();
@@ -77,122 +56,9 @@ const WelcomeScreen = () => {
     router.push(route as any);
   };
 
-  // Welcome phase handlers
-  const handleWelcomeNext = () => {
-    if (currentWelcomePhase < welcomePhases.length - 1) {
-      const nextPhase = currentWelcomePhase + 1;
-      
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-
-      Animated.parallel([
-        Animated.spring(wave1Y1, {
-          toValue: waveTargets[nextPhase].wave1Y1,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-        Animated.spring(wave1Y2, {
-          toValue: waveTargets[nextPhase].wave1Y2,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-        Animated.spring(wave2Y1, {
-          toValue: waveTargets[nextPhase].wave2Y1,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-        Animated.spring(wave2Y2, {
-          toValue: waveTargets[nextPhase].wave2Y2,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-      ]).start();
-
-      setCurrentWelcomePhase(nextPhase);
-    } else {
-      setShowThemeSelection(true);
-    }
-  };
-
-  const handleWelcomeBack = () => {
-    if (showThemeSelection) {
-      setShowThemeSelection(false);
-      setCurrentWelcomePhase(welcomePhases.length - 1);
-    } else if (currentWelcomePhase > 0) {
-      const prevPhase = currentWelcomePhase - 1;
-      
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-
-      Animated.parallel([
-        Animated.spring(wave1Y1, {
-          toValue: waveTargets[prevPhase].wave1Y1,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-        Animated.spring(wave1Y2, {
-          toValue: waveTargets[prevPhase].wave1Y2,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-        Animated.spring(wave2Y1, {
-          toValue: waveTargets[prevPhase].wave2Y1,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-        Animated.spring(wave2Y2, {
-          toValue: waveTargets[prevPhase].wave2Y2,
-          tension: 40,
-          friction: 8,
-          useNativeDriver: false,
-        }),
-      ]).start();
-
-      setCurrentWelcomePhase(prevPhase);
-    }
-  };
-
-  const handleSkipIntro = () => {
-    setShowThemeSelection(true);
-  };
-
-  const handleThemeSelect = (theme: ThemeMode) => {
-    setSelectedTheme(theme);
-    setTheme(theme);
-  };
-
-  const handleThemeContinue = () => {
-    // Move to register wizard
-    setShowRegisterWizard(true);
-    fadeAnim.setValue(1);
-  };
+  const handleGoToLogin = () => {
+     router.push("/(auth)/login" as any);
+  }
 
   // Register wizard handlers
   const handleRegisterNext = () => {
@@ -238,9 +104,8 @@ const WelcomeScreen = () => {
 
       setCurrentPhase(prevPhase);
     } else {
-      // Go back to theme selection
-      setShowRegisterWizard(false);
-      setShowThemeSelection(true);
+      // Go back to welcome/theme selection screen
+      router.back();
     }
   };
 
@@ -370,47 +235,20 @@ const WelcomeScreen = () => {
   };
 
   // Render appropriate screen
-  if (showRegisterWizard) {
-    return (
-      <RegisterPhases
-        phases={registerPhases}
-        currentPhase={currentPhase}
-        fadeAnim={fadeAnim}
-        onNext={handleRegisterNext}
-        onBack={handleRegisterBack}
-        canGoNext={canGoNext()}
-        isLastPhase={currentPhase === PHASE_SUCCESS}
-      >
-        {renderPhaseContent()}
-      </RegisterPhases>
-    );
-  }
-
-  if (showThemeSelection) {
-    return (
-      <ThemeSelection
-        selectedTheme={selectedTheme}
-        onThemeSelect={handleThemeSelect}
-        onBack={handleWelcomeBack}
-        onContinue={handleThemeContinue}
-      />
-    );
-  }
-
   return (
-    <WelcomePhases
-      phases={welcomePhases}
-      currentPhase={currentWelcomePhase}
+    <RegisterPhases
+      phases={registerPhases}
+      currentPhase={currentPhase}
       fadeAnim={fadeAnim}
-      wave1Y1={wave1Y1}
-      wave1Y2={wave1Y2}
-      wave2Y1={wave2Y1}
-      wave2Y2={wave2Y2}
-      onNext={handleWelcomeNext}
-      onBack={handleWelcomeBack}
-      onSkipIntro={handleSkipIntro}
-    />
+      onNext={handleRegisterNext}
+      onBack={handleRegisterBack}
+      goToLogin={handleGoToLogin}
+      canGoNext={canGoNext()}
+      isLastPhase={currentPhase === PHASE_SUCCESS}
+    >
+      {renderPhaseContent()}
+    </RegisterPhases>
   );
 };
 
-export default WelcomeScreen;
+export default RegisterWizard;

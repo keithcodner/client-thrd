@@ -3,7 +3,7 @@ import { Text, View, TouchableOpacity, Animated } from "react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { AnimatedWaves } from "./AnimatedWaves";
 import { ProgressDots } from "./ProgressDots";
-import { Phase } from "./types";
+import { Phase } from "@/types/welcome/welcome";
 
 type WelcomePhasesProps = {
   phases: Phase[];
