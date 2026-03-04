@@ -34,36 +34,41 @@ const THRDIconButton: React.FC<TIconButtonProps> = ({
     const accentColor = colors.accent;
     const borderColor = colors.border;
     
+    // Use disabled state to determine if this button is selected/active
+    const isSelected = disabled;
+    
     return (
        <TouchableOpacity
               onPress={onPress}
+              disabled={disabled}
               style={{
                 borderWidth: 2,
-                borderColor: currentTheme === "light" ? accentColor : borderColor,
-                backgroundColor: currentTheme === "light" ? accentColor : colors.card,
+                borderColor: isSelected ? accentColor : borderColor,
+                backgroundColor: isSelected ? accentColor : colors.card,
                 borderRadius: 32,
                 paddingVertical: 16,
                 paddingHorizontal: 24,
                 marginBottom: 16,
                 flexDirection: 'row',
-                alignItems: 'center'
+                alignItems: 'center',
+                opacity: disabled ? 1 : 1,
               }}
             >
               <View style={{
                 width: 40,
                 height: 40,
                 borderRadius: 12,
-                backgroundColor: currentTheme === "light" ? colors.background : colors.card,
+                backgroundColor: isSelected ? colors.background : colors.card,
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginRight: 16
               }}>
                 {/* Icon */}
-                {Icon ? <Icon size={20} color={currentTheme === "light" ? accentColor : textColor} strokeWidth={2} /> : null}
+                {Icon ? <Icon size={20} color={isSelected ? accentColor : colors.secondaryText} strokeWidth={2} /> : null}
                 
               </View>
               <Text style={{ 
-                color: currentTheme === "light" ? colors.background : textColor,
+                color: isSelected ? colors.background : textColor,
                 fontSize: 16,
                 fontWeight: '600'
               }}>

@@ -5,7 +5,7 @@ import Input from "@/components/core/Input";
 import Button from "@/components/core/Button";
 
 import axios from "axios";
-import axiosInstance from "../config/axiosConfig";
+import axiosInstance from "../../config/axiosConfig";
 import { useRouter, Link, router } from "expo-router";
 import { useSession } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/config/env";
