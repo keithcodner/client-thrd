@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
-import { Animated } from "react-native";
+import { Animated, Alert } from "react-native";
 import { router } from "expo-router";
+import axios from "axios";
+import axiosInstance from "@/config/axiosConfig";
 import {
   RegisterPhases,
   AccountTypeSelection,
@@ -29,6 +31,7 @@ import {
 const RegisterWizard = () => {
   // Register wizard state
   const [currentPhase, setCurrentPhase] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<RegisterFormData>({
     accountType: null,
     phone: "",
@@ -78,10 +81,65 @@ const RegisterWizard = () => {
         }),
       ]).start();
 
-      setCurrentPhase(nextPhase);
+      if (nextPhase === PHASE_INFO) {
+        // Before showing info screen, submit registration
+        handleSignup();
+      } else {
+        setCurrentPhase(nextPhase);
+      }
     } else {
       // Final step - navigate to main app
       handlePress("/(app)");
+    }
+  };
+
+  const handleSignup = async() => {
+    setIsLoading(true);
+
+    try {
+      const registrationData = {
+        account_type: formData.accountType,
+        phone: formData.phone,
+        email: formData.email,
+        password: formData.password,
+        name: formData.fullName,
+        photo: formData.photo,
+        business_name: formData.businessName,
+        street_address: formData.streetAddress,
+        hours: formData.hours,
+        capacity: formData.capacity,
+        website: formData.website,
+        instagram: formData.instagram,
+        tiktok: formData.tiktok,
+        primary_city: formData.primaryCity,
+      };
+
+      const response = await axiosInstance.post(`/register`, registrationData);
+      
+      // Navigate to success phase
+      setCurrentPhase(PHASE_SUCCESS);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const responseData = error.response?.data;
+        if (responseData?.errors) {
+          try {
+            const firstError = Object.values(responseData.errors).flat()[0];
+            Alert.alert("Registration Error", String(firstError));
+          } catch (e) {
+            Alert.alert("Registration Error", JSON.stringify(responseData.errors));
+          }
+        } else if (responseData?.message) {
+          const msg = typeof responseData.message === "string" ? responseData.message : JSON.stringify(responseData.message);
+          Alert.alert("Registration Error", msg);
+        } else {
+          Alert.alert("Registration Error", 'An unexpected error occurred. Please try again.');
+        }
+      } else {
+        console.error("Registration error:", error);
+        Alert.alert("Registration Error", 'Unable to connect to the server');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
