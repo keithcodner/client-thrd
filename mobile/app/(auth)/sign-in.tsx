@@ -3,6 +3,7 @@ import { Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator, Plat
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import axios from "axios";
+import axiosInstance from "@/config/axiosConfig";
 import { useRouter, router } from "expo-router";
 import { useSession } from "@/context/AuthContext";
 import { useThemeColours } from "@/hooks/useThemeColours";
@@ -34,7 +35,7 @@ const Login = () => {
     });
 
     try {
-        const response = await axios.post(`${API_BASE_URL}/login`, {
+        const response = await axiosInstance.post(`${API_BASE_URL}/login`, {
           email: data.username,
           password: data.password
         });
