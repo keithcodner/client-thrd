@@ -19,11 +19,20 @@ const TabsLayout = () => {
         headerShown: false,
     }}>
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (  
             <MaterialIcons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="discover"
+        options={{
+          tabBarLabel: "Discover",
+          tabBarIcon: ({ color, size }) => (  
+            <MaterialIcons name="explore" size={size} color={color} />
           ),
         }}
       />
