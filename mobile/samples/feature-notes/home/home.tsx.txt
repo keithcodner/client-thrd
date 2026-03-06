@@ -1,0 +1,421 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  StyleSheet,
+  Pressable,
+} from "react-native";
+
+import {
+  Bell,
+  ChevronRight,
+  MessageCircle,
+  MapPin,
+  ArrowRight,
+  Plus,
+  Sparkles,
+  HelpCircle,
+  Lightbulb,
+  Pin,
+  Film,
+  Eye,
+  Star,
+  X,
+  User,
+  HeartHandshake,
+  Smile,
+  Frown,
+  Meh,
+} from "lucide-react-native";
+
+import { format, isValid, subDays, isSameDay } from "date-fns";
+import { parseSmartDate } from "@/services/calendarService";
+
+export const Home = ({
+  currentUser,
+  spaces = [],
+  groups = [],
+  todos = [],
+  notificationsCount = 0,
+  onNavigate,
+  onOpenProfile,
+  onSelectGroup,
+  onSelectSpace,
+  onOpenNotifications,
+  onAddEvent,
+  onHostEvent,
+  onCreateGroup,
+  showHint,
+}) => {
+  const [logoClicks, setLogoClicks] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [reflectionTodo, setReflectionTodo] = useState(null);
+
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  const firstName = (currentUser?.name || "Friend").split(" ")[0];
+
+  const trendingSpace =
+    spaces.length > 0
+      ? spaces.find((s) => s.trendingScore > 80) || spaces[0]
+      : null;
+
+  const mySpaces = spaces.filter((s) => s.ownerId === currentUser?.id);
+
+  const recentGroups = [...groups]
+    .sort((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1))
+    .slice(0, 8);
+
+  const upcomingTodos = todos.filter((t) => t.status === "confirmed").slice(0, 4);
+
+  useEffect(() => {
+    const yesterday = subDays(new Date(), 1);
+
+    const completedYesterday = todos.find((t) => {
+      if (!t.date || t.reflection) return false;
+      const parsed = parseSmartDate(t.date);
+      return isSameDay(parsed, yesterday) && t.status === "confirmed";
+    });
+
+    if (completedYesterday) setReflectionTodo(completedYesterday);
+  }, [todos]);
+
+  const handleLogoClick = () => {
+    const next = logoClicks + 1;
+    if (next >= 5) {
+      console.log("Secret admin triggered");
+      setLogoClicks(0);
+    } else {
+      setLogoClicks(next);
+    }
+  };
+
+  const getTodoDisplayInfo = (todo) => {
+    let dateDisplay = "Soon";
+    let timeDisplay = "";
+
+    if (todo.date) {
+      const parsed = new Date(todo.date);
+
+      if (isValid(parsed)) {
+        dateDisplay = format(parsed, "EEE, MMM d");
+        timeDisplay = format(parsed, "h:mm a");
+      }
+    }
+
+    const associatedGroup = groups.find((g) =>
+      (todo.taggedGroupIds || []).includes(g.id)
+    );
+
+    return {
+      date: dateDisplay,
+      time: timeDisplay,
+      circleName: associatedGroup?.name || "Personal Plan",
+    };
+  };
+
+  return (
+    <View style={styles.container}>
+      <ScrollView>
+
+        {/* HEADER */}
+        <View style={styles.header}>
+          <Pressable style={styles.logo} onPress={handleLogoClick}>
+            <View style={styles.logoBox}>
+              <Text style={styles.logoText}>T</Text>
+            </View>
+            <Text style={styles.logoWord}>THRD</Text>
+          </Pressable>
+
+          <View style={styles.headerActions}>
+            <Pressable onPress={() => onNavigate?.("resources")}>
+              <HelpCircle size={22} color="#444" />
+            </Pressable>
+
+            <Pressable onPress={onOpenNotifications}>
+              <Bell size={22} color="#444" />
+            </Pressable>
+
+            <Pressable onPress={onOpenProfile}>
+              {currentUser?.avatar ? (
+                <Image source={{ uri: currentUser.avatar }} style={styles.avatar} />
+              ) : (
+                <User size={22} />
+              )}
+            </Pressable>
+          </View>
+        </View>
+
+        {/* GREETING */}
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greeting}>
+            {greeting},{"\n"}
+            <Text style={styles.name}>{firstName}</Text>
+          </Text>
+        </View>
+
+        {/* DISCOVER CARD */}
+        <Pressable
+          style={styles.discoverCard}
+          onPress={() => onNavigate?.("discover")}
+        >
+          {trendingSpace?.image && (
+            <Image
+              source={{ uri: trendingSpace.image }}
+              style={styles.discoverImage}
+            />
+          )}
+
+          <View style={styles.discoverOverlay} />
+
+          <View style={styles.discoverContent}>
+            <Text style={styles.discoverTitle}>
+              Discover what's happening this week.
+            </Text>
+
+            <View style={styles.discoverFooter}>
+              <Text style={styles.discoverSubtitle}>
+                {trendingSpace
+                  ? `Check out ${trendingSpace.name}`
+                  : "See local spaces"}
+              </Text>
+
+              <ArrowRight size={22} color="#fff" />
+            </View>
+          </View>
+        </Pressable>
+
+        {/* MY CIRCLES */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Circles</Text>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {recentGroups.map((group) => (
+              <Pressable
+                key={group.id}
+                style={styles.groupItem}
+                onPress={() => onSelectGroup?.(group.id)}
+              >
+                <View style={styles.groupAvatar}>
+                  {group.customization?.headerBanner ? (
+                    <Image
+                      source={{ uri: group.customization.headerBanner }}
+                      style={styles.groupAvatarImage}
+                    />
+                  ) : (
+                    <MessageCircle size={24} />
+                  )}
+                </View>
+
+                <Text numberOfLines={1} style={styles.groupName}>
+                  {group.name}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* UPCOMING PLANS */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Upcoming Plans</Text>
+
+          {upcomingTodos.map((todo) => {
+            const display = getTodoDisplayInfo(todo);
+
+            return (
+              <Pressable key={todo.id} style={styles.todoCard}>
+                <View style={styles.todoDate}>
+                  <Text style={styles.todoDateText}>
+                    {display.date.split(" ")[1]}
+                  </Text>
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.todoTitle}>{todo.title}</Text>
+                  <Text style={styles.todoMeta}>
+                    {display.circleName} • {display.time}
+                  </Text>
+                </View>
+
+                <ChevronRight size={18} color="#999" />
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <View style={{ height: 120 }} />
+      </ScrollView>
+
+      {/* FLOATING ACTION BUTTON */}
+      <Pressable
+        style={styles.fab}
+        onPress={() => setIsMenuOpen(!isMenuOpen)}
+      >
+        {isMenuOpen ? <X size={28} color="#fff" /> : <Plus size={28} color="#fff" />}
+      </Pressable>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff" },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    alignItems: "center",
+  },
+
+  logo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  logoBox: {
+    width: 32,
+    height: 32,
+    backgroundColor: "#234d3c",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 8,
+  },
+
+  logoText: { color: "#fff", fontWeight: "700" },
+
+  logoWord: { fontWeight: "700", fontSize: 18 },
+
+  headerActions: {
+    flexDirection: "row",
+    gap: 18,
+    alignItems: "center",
+  },
+
+  avatar: { width: 36, height: 36, borderRadius: 18 },
+
+  greetingContainer: { paddingHorizontal: 20, marginTop: 10 },
+
+  greeting: { fontSize: 34, fontWeight: "500" },
+
+  name: { color: "#234d3c" },
+
+  discoverCard: {
+    height: 240,
+    borderRadius: 28,
+    margin: 20,
+    overflow: "hidden",
+  },
+
+  discoverImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+
+  discoverOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
+
+  discoverContent: {
+    flex: 1,
+    justifyContent: "flex-end",
+    padding: 24,
+  },
+
+  discoverTitle: {
+    color: "#fff",
+    fontSize: 26,
+    fontWeight: "600",
+  },
+
+  discoverFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+    alignItems: "center",
+  },
+
+  discoverSubtitle: { color: "#eee" },
+
+  section: { marginTop: 24 },
+
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: 12,
+    paddingHorizontal: 20,
+  },
+
+  groupItem: {
+    alignItems: "center",
+    marginHorizontal: 10,
+  },
+
+  groupAvatar: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "#eee",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  groupAvatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 35,
+  },
+
+  groupName: {
+    marginTop: 6,
+    fontSize: 12,
+    maxWidth: 70,
+    textAlign: "center",
+  },
+
+  todoCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    elevation: 2,
+  },
+
+  todoDate: {
+    width: 44,
+    height: 44,
+    backgroundColor: "#111",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+
+  todoDateText: { color: "#fff", fontWeight: "700" },
+
+  todoTitle: { fontWeight: "600" },
+
+  todoMeta: { color: "#888", fontSize: 12 },
+
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#111",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 6,
+  },
+});

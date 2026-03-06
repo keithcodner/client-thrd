@@ -1,24 +1,108 @@
-import React from "react";
-import { View, Text, ScrollView } from "react-native";
-import { useThemeColours } from "@/hooks/useThemeColours";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
+import { useSession } from "@/context/AuthContext";
+import Home  from "./home";
+import axiosInstance from "@/config/axiosConfig";
 
-const Home = () => {
-  const colours = useThemeColours();
+const HomeScreen = () => {
+  const router = useRouter();
+  const { user: currentUser } = useSession();
+  
+  const [spaces, setSpaces] = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [todos, setTodos] = useState([]);
+  const [notificationsCount, setNotificationsCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch home feed data
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch spaces, groups, and todos in parallel
+        const [spacesRes, groupsRes, todosRes] = await Promise.all([
+          axiosInstance.get('/spaces').catch(() => ({ data: [] })),
+          axiosInstance.get('/groups').catch(() => ({ data: [] })),
+          axiosInstance.get('/todos?per_page=4').catch(() => ({ data: [] })),
+        ]);
+
+        setSpaces(spacesRes.data.data || spacesRes.data || []);
+        setGroups(groupsRes.data.data || groupsRes.data || []);
+        setTodos(todosRes.data.data || todosRes.data || []);
+        
+        // Fetch notification count
+        try {
+          const notifRes = await axiosInstance.get('/notifications/unread-count');
+          setNotificationsCount(notifRes.data.count || 0);
+        } catch (e) {
+          setNotificationsCount(0);
+        }
+      } catch (error) {
+        console.error('Error fetching home data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (currentUser) {
+      fetchHomeData();
+    }
+  }, [currentUser]);
+
+  const handleNavigate = (screen: string) => {
+    router.push(`/(app)/(tabs)/(${screen})/`);
+  };
+
+  const handleOpenProfile = () => {
+    router.push('/(app)/(tabs)/(profile)/');
+  };
+
+  const handleSelectGroup = (groupId: string) => {
+    router.push(`/(app)/(tabs)/(chat)/${groupId}`);
+  };
+
+  const handleSelectSpace = (spaceId: string) => {
+    router.push(`/(app)/(tabs)/(explore)/${spaceId}`);
+  };
+
+  const handleOpenNotifications = () => {
+    router.push('/(app)/notifications');
+  };
+
+  const handleAddEvent = () => {
+    // TODO: Open calendar modal to add event
+    console.log('Add event');
+  };
+
+  const handleHostEvent = () => {
+    // TODO: Open host event wizard
+    console.log('Host event');
+  };
+
+  const handleCreateGroup = () => {
+    // TODO: Open create group modal
+    console.log('Create group');
+  };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900">
-      <ScrollView className="flex-1">
-        <View className="p-4 mt-10">
-          <Text className="text-2xl font-bold text-gray-800 dark:text-white">
-            Home
-          </Text>
-          <Text className="text-gray-600 dark:text-gray-400 mt-2">
-            Welcome to THRD Home Section
-          </Text>
-        </View>
-      </ScrollView>
-    </View>
+    <Home
+    //   currentUser={currentUser}
+    //   spaces={spaces}
+    //   groups={groups}
+    //   todos={todos}
+    //   notificationsCount={notificationsCount}
+    //   onNavigate={handleNavigate}
+    //   onOpenProfile={handleOpenProfile}
+    //   onSelectGroup={handleSelectGroup}
+    //   onSelectSpace={handleSelectSpace}
+    //   onOpenNotifications={handleOpenNotifications}
+    //   onAddEvent={handleAddEvent}
+    //   onHostEvent={handleHostEvent}
+    //   onCreateGroup={handleCreateGroup}
+    //   showHint={false}
+    />
   );
 };
 
-export default Home;
+export default HomeScreen;
