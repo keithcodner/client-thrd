@@ -33,12 +33,12 @@ export const RegisterPhases: React.FC<RegisterPhasesProps> = ({
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Progress Bar */}
       <View 
-        className="pt-6"
         style={{ 
-          height: 6,
-          backgroundColor: '#C4F547',
+          height: 4,
+          backgroundColor: colors.card,
           width: '100%',
           overflow: 'hidden',
+          marginTop: 48,
         }}
       >
         <View 
