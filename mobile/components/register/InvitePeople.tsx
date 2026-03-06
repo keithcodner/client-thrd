@@ -50,31 +50,6 @@ export const InvitePeople: React.FC<InvitePeopleProps> = ({
         </View>
       </View>
 
-      {/* Title */}
-      <Text
-        style={{
-          color: colors.text,
-          fontSize: 24,
-          fontWeight: '700',
-          textAlign: 'center',
-          marginBottom: 8,
-        }}
-      >
-        Invite your people.
-      </Text>
-
-      {/* Subtitle */}
-      <Text
-        style={{
-          color: colors.secondaryText,
-          fontSize: 14,
-          textAlign: 'center',
-          marginBottom: 32,
-        }}
-      >
-        Invite up to 3 friends to get started.
-      </Text>
-
       {/* Invite Slots */}
       <View
         style={{
@@ -114,44 +89,6 @@ export const InvitePeople: React.FC<InvitePeopleProps> = ({
         ))}
       </View>
 
-      {/* Continue Button */}
-      <TouchableOpacity
-        onPress={onContinue}
-        style={{
-          backgroundColor: colors.text,
-          width: '100%',
-          borderRadius: 24,
-          paddingVertical: 16,
-          paddingHorizontal: 32,
-          marginBottom: 16,
-        }}
-      >
-        <Text
-          style={{
-            color: colors.background,
-            textAlign: 'center',
-            fontSize: 16,
-            fontWeight: '700',
-          }}
-        >
-          Continue
-        </Text>
-      </TouchableOpacity>
-
-      {/* Skip Link */}
-      <TouchableOpacity onPress={onSkip}>
-        <Text
-          style={{
-            color: colors.secondaryText,
-            fontSize: 12,
-            fontWeight: '600',
-            letterSpacing: 1,
-            textAlign: 'center',
-          }}
-        >
-          SKIP FOR NOW
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };

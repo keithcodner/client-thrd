@@ -39,6 +39,7 @@ const RegisterWizard = () => {
     phone: "",
     email: "",
     password: "",
+    confirmPassword: "",
     fullName: "",
     photo: null,
     businessName: "",
@@ -63,6 +64,14 @@ const RegisterWizard = () => {
 
   const handleGoToLogin = () => {
      router.push("/(auth)/sign-in" as any);
+  }
+
+  const requiresSkip = () => {
+    return currentPhase === PHASE_PHOTO || currentPhase === PHASE_CALENDAR || currentPhase === PHASE_INVITE_PEOPLE;
+  }
+
+  const canHideContinue = () => {
+    return currentPhase === PHASE_CALENDAR ;
   }
 
   // Register wizard handlers
@@ -104,6 +113,7 @@ const RegisterWizard = () => {
         phone: formData.phone,
         email: formData.email,
         password: formData.password,
+        password_confirmation: formData.confirmPassword,
         name: formData.fullName,
         photo: formData.photo,
         business_name: formData.businessName,
@@ -182,7 +192,7 @@ const RegisterWizard = () => {
       case PHASE_PHONE:
         return formData.phone.length >= 10;
       case PHASE_SECURITY:
-        return formData.email.length > 0 && formData.password.length > 0;
+        return formData.email.length > 0 && formData.password.length > 0 && formData.password === formData.confirmPassword;
       case PHASE_IDENTITY:
         return formData.fullName.length > 0;
       case PHASE_PHOTO:
@@ -226,8 +236,10 @@ const RegisterWizard = () => {
           <Security
             email={formData.email}
             password={formData.password}
+            confirmPassword={formData.confirmPassword}
             onEmailChange={(email) => updateFormData("email", email)}
             onPasswordChange={(password) => updateFormData("password", password)}
+            onConfirmPasswordChange={(confirmPassword) => updateFormData("confirmPassword", confirmPassword)}
           />
         );
       
@@ -314,6 +326,9 @@ const RegisterWizard = () => {
       onBack={handleRegisterBack}
       goToLogin={handleGoToLogin}
       canGoNext={canGoNext()}
+      onSkip={handleRegisterNext}
+      requiresSkip={requiresSkip()}
+      canHideContinue={canHideContinue()}
       isLastPhase={currentPhase === PHASE_SUCCESS}
     >
       {renderPhaseContent()}

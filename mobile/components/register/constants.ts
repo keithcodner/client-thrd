@@ -37,12 +37,12 @@ export const phases: RegisterPhase[] = [
     subtitle: "",
   },
   {
-    title: "Calendar Sync.",
-    subtitle: "Let THRD analyze your busy slots to find the best times for your plans automatically.",
-  },
-  {
     title: "Invite your people.",
     subtitle: "Invite up to 3 friends to get started.",
+  },
+  {
+    title: "Calendar Sync.",
+    subtitle: "Let THRD analyze your busy slots to find the best times for your plans automatically.",
   },
   {
     title: "You're always in control.",
@@ -61,6 +61,7 @@ export type RegisterFormData = {
   phone: string;
   email: string;
   password: string;
+  confirmPassword: string;
   fullName: string;
   photo: string | null;
   businessName: string;

@@ -48,24 +48,6 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           <Camera size={20} color={colors.background} strokeWidth={2} />
         </View>
       </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={onSkip}
-        style={{
-          paddingVertical: 12,
-        }}
-      >
-        <Text
-          style={{
-            color: colors.secondaryText,
-            fontSize: 12,
-            fontWeight: '600',
-            letterSpacing: 1,
-          }}
-        >
-          SKIP FOR NOW
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };
