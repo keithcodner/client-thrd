@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useThemeColours } from "@/hooks/useThemeColours";
 
 
@@ -19,38 +19,47 @@ const TabsLayout = () => {
         headerShown: false,
     }}>
       <Tabs.Screen
-        name="home"
+        name="(home)"
         options={{
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (  
-            <MaterialIcons name="home" size={size} color={color} />
+            <Feather name="home" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="discover"
+        name="(explore)"
         options={{
-          tabBarLabel: "Discover",
+          tabBarLabel: "Explore",
           tabBarIcon: ({ color, size }) => (  
-            <MaterialIcons name="explore" size={size} color={color} />
+            <Feather name="search" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="operations"
+        name="(calendar)"
         options={{
-          tabBarLabel: "Operations",
+          tabBarLabel: "Calendar",
           tabBarIcon: ({ color, size }) => (  
-            <MaterialIcons name="auto-fix-high" size={size} color={color} />
+            <Feather name="calendar" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="(chat)"
+        options={{
+          tabBarLabel: "Chat",
+          tabBarIcon: ({ color, size }) => (  
+            <Feather name="message-circle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(profile)"
         options={{
           tabBarLabel: "Profile",
           tabBarIcon: ({ color, size }) => (  
-            <MaterialIcons name="person" size={size} color={color} />
+            <Feather name="user" size={size} color={color} />
           ),
         }}
       />
