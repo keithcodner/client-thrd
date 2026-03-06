@@ -49,7 +49,7 @@ export const InfoScreen: React.FC = () => {
                 marginRight: 16,
               }}
             >
-              <Icon size={24} color={colors.text} strokeWidth={2} />
+              <Icon size={24} color={colors.accent} strokeWidth={2} />
             </View>
             <Text
               style={{

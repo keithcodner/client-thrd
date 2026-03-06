@@ -33,6 +33,7 @@ import {
 const RegisterWizard = () => {
   // Register wizard state
   const [currentPhase, setCurrentPhase] = useState(0);
+  const [userCreated, setUserCreated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<RegisterFormData>({
     accountType: null,
@@ -92,8 +93,8 @@ const RegisterWizard = () => {
         }),
       ]).start();
 
-      if (nextPhase === PHASE_INFO) {
-        // Before showing info screen, submit registration
+      if (nextPhase === PHASE_SUCCESS) {
+        // Before showing success screen, submit registration
         handleSignup();
       } else {
         setCurrentPhase(nextPhase);
@@ -106,6 +107,11 @@ const RegisterWizard = () => {
 
   const handleSignup = async() => {
     setIsLoading(true);
+    
+    if(userCreated){
+      setCurrentPhase(PHASE_SUCCESS);
+      return;
+    }
 
     try {
       const registrationData = {
@@ -127,10 +133,12 @@ const RegisterWizard = () => {
       };
 
       const response = await axiosInstance.post(`/register`, registrationData);
-      
+      setUserCreated(true);
       // Navigate to success phase
       setCurrentPhase(PHASE_SUCCESS);
     } catch (error) {
+      setUserCreated(false);
+
       if (axios.isAxiosError(error)) {
         const responseData = error.response?.data;
         if (responseData?.errors) {
@@ -150,7 +158,9 @@ const RegisterWizard = () => {
         console.error("Registration error:", error);
         Alert.alert("Registration Error", 'Unable to connect to the server');
       }
+      
     } finally {
+      
       setIsLoading(false);
     }
   };
