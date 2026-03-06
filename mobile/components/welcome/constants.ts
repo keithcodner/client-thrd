@@ -1,4 +1,4 @@
-import { Phase, WaveTargets } from "./types";
+import { Phase, WaveTargets } from "@/types/welcome/welcome";
 
 export const phases: Phase[] = [
   {

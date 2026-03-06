@@ -91,7 +91,7 @@ export const WelcomePhases: React.FC<WelcomePhasesProps> = ({
             style={{ backgroundColor: colors.text }}
             className="w-16 h-16 rounded-full items-center justify-center"
           >
-            <Text style={{ color: colors.background }} className="text-2xl">
+            <Text style={{ color: colors.background }} className="text-3xl mb-3 font-bold">
               →
             </Text>
           </TouchableOpacity>

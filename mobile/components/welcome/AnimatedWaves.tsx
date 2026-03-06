@@ -29,12 +29,12 @@ export const AnimatedWaves: React.FC<AnimatedWavesProps> = ({
           d={wave1Y1.interpolate({
             inputRange: [0, 200],
             outputRange: [
-              `M 0 100 Q ${width / 4} 0, ${width / 2} 100 T ${width - 64} 100`,
-              `M 0 100 Q ${width / 4} 200, ${width / 2} 100 T ${width - 64} 100`
+              `M 0 100 Q ${width / 4} 0, ${width / 2} 150 T ${width - 64} 100`,
+              `M 0 100 Q ${width / 4} 230, ${width / 2} 160 T ${width - 64} 100`
             ]
           }) as any}
           stroke={accentColor}
-          strokeWidth="3"
+          strokeWidth="2"
           fill="none"
         />
         <AnimatedPath
@@ -42,7 +42,7 @@ export const AnimatedWaves: React.FC<AnimatedWavesProps> = ({
             inputRange: [0, 200],
             outputRange: [
               `M 0 120 Q ${width / 4} 0, ${width / 2} 120 T ${width - 64} 120`,
-              `M 0 120 Q ${width / 4} 200, ${width / 2} 120 T ${width - 64} 120`
+              `M 0 120 Q ${width / 4} 200, ${width / 2} 100 T ${width - 64} 120`
             ]
           }) as any}
           stroke={borderColor}
