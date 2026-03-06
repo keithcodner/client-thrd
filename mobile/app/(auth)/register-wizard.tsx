@@ -139,7 +139,6 @@ const RegisterWizard = () => {
         const response = await axiosInstance.post(`/register`, registrationData);
       }
 
-      
       // Navigate to success phase
       setCurrentPhase(PHASE_SUCCESS);
     } catch (error) {
