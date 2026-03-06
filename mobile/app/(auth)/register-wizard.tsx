@@ -107,7 +107,7 @@ const RegisterWizard = () => {
 
   const handleSignup = async() => {
     setIsLoading(true);
-    
+
     if(userCreated){
       setCurrentPhase(PHASE_SUCCESS);
       return;
@@ -132,8 +132,14 @@ const RegisterWizard = () => {
         primary_city: formData.primaryCity,
       };
 
-      const response = await axiosInstance.post(`/register`, registrationData);
-      setUserCreated(true);
+      if(userCreated){
+        setCurrentPhase(PHASE_SUCCESS);
+        return;
+      }else{
+        const response = await axiosInstance.post(`/register`, registrationData);
+      }
+
+      
       // Navigate to success phase
       setCurrentPhase(PHASE_SUCCESS);
     } catch (error) {
