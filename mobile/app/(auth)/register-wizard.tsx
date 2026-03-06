@@ -12,6 +12,7 @@ import {
   PhotoUpload,
   ProfileDetails,
   CalendarSync,
+  InvitePeople,
   InfoScreen,
   SuccessScreen,
   phases as registerPhases,
@@ -22,6 +23,7 @@ import {
   PHASE_PHOTO,
   PHASE_PROFILE,
   PHASE_CALENDAR,
+  PHASE_INVITE_PEOPLE,
   PHASE_INFO,
   PHASE_SUCCESS,
   type RegisterFormData,
@@ -189,6 +191,8 @@ const RegisterWizard = () => {
         return formData.businessName.length > 0 || formData.accountType !== "business";
       case PHASE_CALENDAR:
         return true; // Calendar is optional
+      case PHASE_INVITE_PEOPLE:
+        return true; // Invites are optional
       case PHASE_INFO:
         return true;
       case PHASE_SUCCESS:
@@ -277,6 +281,14 @@ const RegisterWizard = () => {
               console.log("Connect calendar");
               handleRegisterNext();
             }}
+            onSkip={handleRegisterNext}
+          />
+        );
+      
+      case PHASE_INVITE_PEOPLE:
+        return (
+          <InvitePeople
+            onContinue={handleRegisterNext}
             onSkip={handleRegisterNext}
           />
         );
