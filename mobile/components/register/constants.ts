@@ -6,8 +6,8 @@ export const PHASE_SECURITY = 2;
 export const PHASE_IDENTITY = 3;
 export const PHASE_PHOTO = 4;
 export const PHASE_PROFILE = 5;
-export const PHASE_CALENDAR = 6;
-export const PHASE_INVITE_PEOPLE = 7;
+export const PHASE_INVITE_PEOPLE = 6;
+export const PHASE_CALENDAR = 7;
 export const PHASE_INFO = 8;
 export const PHASE_SUCCESS = 9;
 

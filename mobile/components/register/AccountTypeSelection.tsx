@@ -34,14 +34,14 @@ export const AccountTypeSelection: React.FC<AccountTypeSelectionProps> = ({
             style={{
               backgroundColor: colors.background,
               borderWidth: 2,
-              borderColor: isSelected ? '#C4F547' : colors.stone800,
+              borderColor: isSelected ? '#ADC178' : colors.stone800,
               borderRadius: 24,
               paddingVertical: 20,
               paddingHorizontal: 24,
               marginBottom: 16,
               flexDirection: 'row',
               alignItems: 'center',
-              shadowColor: isSelected ? '#C4F547' : 'transparent',
+              shadowColor: isSelected ? '#ADC178' : 'transparent',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: isSelected ? 0.3 : 0,
               shadowRadius: isSelected ? 8 : 0,
@@ -50,7 +50,7 @@ export const AccountTypeSelection: React.FC<AccountTypeSelectionProps> = ({
           >
             <View 
               style={{
-                backgroundColor: isSelected ? '#C4F547' : colors.card,
+                backgroundColor: isSelected ? '#ADC178' : colors.card,
                 borderRadius: 12,
                 width: 48,
                 height: 48,
