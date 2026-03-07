@@ -15,16 +15,14 @@ import { useSession } from "@/context/AuthContext";
 interface ProfileOverlayProps {
   visible: boolean;
   onClose: () => void;
-  onSignOut?: () => void;
 }
 
 export const ProfileOverlay = ({
   visible,
   onClose,
-  onSignOut = () => {},
 }: ProfileOverlayProps) => {
   const colors = useThemeColours();
-  const { user, signOut } = useSession();
+  const { user } = useSession();
 
   const userName = user?.name || "James";
   const userHandle = user?.email?.split("@")[0] || "jbond";
@@ -35,10 +33,6 @@ export const ProfileOverlay = ({
     .toUpperCase();
 
   const isDark = colors.background === "#15110fff";
-
-  const handleSignOut = () => {
-    onSignOut();
-  };
 
   return (
     <Modal transparent animationType="slide" visible={visible}>
@@ -196,7 +190,7 @@ export const ProfileOverlay = ({
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.signOut} onPress={handleSignOut}>
+            <TouchableOpacity style={styles.signOut}>
               <Text style={[styles.signOutText, { color: colors.error }]}>SIGN OUT</Text>
             </TouchableOpacity>
 
@@ -217,6 +211,7 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxHeight: "85%",
+    backgroundColor: "transparent",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
