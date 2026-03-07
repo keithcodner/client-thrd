@@ -1,61 +1,49 @@
-import React from "react";
-import { View, Button, Text, ScrollView, Platform, Alert, TouchableOpacity } from "react-native";
-import { useThemeColours } from "@/hooks/useThemeColours";
-import { useSession } from '@/context/AuthContext';
+import React, { useState } from "react";
+import { useRouter } from "expo-router";
+import { Platform, Alert } from "react-native";
+import { useSession } from "@/context/AuthContext";
+import { ProfileOverlay } from "./profile";
 
 const Profile = () => {
-  const colours = useThemeColours();
+  const router = useRouter();
+  const { signOut } = useSession();
 
-  const { user, signOut } = useSession();
-  const colors = useThemeColours();
+  const handleCloseProfileOverlay = () => {
+    router.back();
+  };
 
-  const handleLogout = () => {
-    if (Platform.OS === 'web') {
-      // For web browsers
-      if (window.confirm('Are you sure you want to logout?')) {
+  const handleSignOut = () => {
+    if (Platform.OS === "web") {
+      if (window.confirm("Are you sure you want to logout?")) {
         signOut?.();
       }
     } else {
-      // Logic for other platforms goes here
-      // For mobile devices
       Alert.alert(
-        'Logout',
-        'Are you sure you want to logout?',
+        "Logout",
+        "Are you sure you want to logout?",
         [
           {
-            text: 'Cancel',
-            style: 'cancel',
+            text: "Cancel",
+            style: "cancel",
           },
           {
-            text: 'Logout',
-            style: 'destructive',
-            onPress: () => signOut?.(),
-          }
-        ],
+            text: "Logout",
+            style: "destructive",
+            onPress: () => {
+              signOut?.();
+            },
+          },
+        ]
       );
     }
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900">
-      <ScrollView className="flex-1">
-        <View className="p-4 mt-10">
-          <Text className="text-2xl font-bold text-gray-800 dark:text-white">
-            Profile
-          </Text>
-          <Text className="text-gray-600 dark:text-gray-400 mt-2">
-            Welcome to THRD Profile Section
-          </Text>
-
-          <TouchableOpacity
-            onPress={handleLogout}
-            className="rounded-2xl shadow-lg"
-            >
-                <Text className="text-lg font-bold">Logout</Text>
-        </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+    <ProfileOverlay
+      visible={true}
+      onClose={handleCloseProfileOverlay}
+      onSignOut={handleSignOut}
+    />
   );
 };
 
