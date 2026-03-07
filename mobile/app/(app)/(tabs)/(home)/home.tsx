@@ -235,7 +235,7 @@ export const Home = ({
           notificationsCount={notificationsCount}
           onNavigate={onNavigate}
           onOpenNotifications={onOpenNotifications}
-          onOpenProfile={() => onNavigate("profile")}
+          onOpenProfile={onOpenProfile}
         />
 
         <HomeGreeting

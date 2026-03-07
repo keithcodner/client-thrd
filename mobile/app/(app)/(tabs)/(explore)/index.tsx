@@ -13,7 +13,7 @@ const Explore = () => {
             Explore
           </Text>
           <Text className="text-gray-600 dark:text-gray-400 mt-2">
-            Welcome to THRD Explore Section
+            Welcome to 3rd Explore Section
           </Text>
         </View>
       </ScrollView>

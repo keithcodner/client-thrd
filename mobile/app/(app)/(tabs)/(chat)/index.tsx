@@ -13,7 +13,7 @@ const Chat = () => {
             Chat
           </Text>
           <Text className="text-gray-600 dark:text-gray-400 mt-2">
-            Welcome to THRD Chat Section
+            Welcome to 3rd Chat Section
           </Text>
         </View>
       </ScrollView>

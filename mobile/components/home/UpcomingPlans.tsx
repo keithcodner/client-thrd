@@ -66,8 +66,8 @@ export const UpcomingPlans = ({
               key={todo.id}
               style={[styles.todoCard, { backgroundColor: colors.card }]}
             >
-              <View style={[styles.todoDate, { backgroundColor: colors.surface }]}>
-                <Text style={[styles.todoDateText, { color: colors.text }]}>
+              <View style={[styles.todoDate, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.surface }]}>
+                <Text style={[styles.todoDateText, { color: colors.accent }]}>
                   {display.date.split(" ")[1]}
                 </Text>
               </View>
@@ -81,7 +81,7 @@ export const UpcomingPlans = ({
                 </Text>
               </View>
 
-              <ChevronRight size={18} color={colors.secondaryText} />
+              <ChevronRight size={18} color={colors.accent} />
             </Pressable>
           );
         })
@@ -126,7 +126,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 10,
     padding: 14,
-    borderRadius: 16,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "#34422a",
   },
 
   todoDate: {
@@ -145,12 +147,13 @@ const styles = StyleSheet.create({
 
   todoTitle: {
     fontWeight: "600",
-    fontSize: 14,
-    marginBottom: 2,
+    fontSize: 15,
+    marginBottom: 4,
   },
 
   todoMeta: {
-    fontSize: 11,
+    fontSize: 12,
+    fontWeight: "500",
   },
 
   emptyState: {

@@ -13,7 +13,7 @@ const Calendar = () => {
             Calendar
           </Text>
           <Text className="text-gray-600 dark:text-gray-400 mt-2">
-            Welcome to THRD Calendar Section
+            Welcome to 3rds Calendar Section
           </Text>
         </View>
       </ScrollView>
