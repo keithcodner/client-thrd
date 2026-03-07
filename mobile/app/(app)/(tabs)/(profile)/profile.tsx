@@ -10,7 +10,17 @@ import {
   Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import { Edit2, X, ListTodo, Clock, Bookmark, HelpCircle, MessageSquare, Shield, ChevronRight } from "lucide-react-native";
+import {
+  Edit2,
+  X,
+  ListTodo,
+  Clock,
+  Bookmark,
+  HelpCircle,
+  MessageSquare,
+  Shield,
+  ChevronRight,
+} from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { useSession } from "@/context/AuthContext";
 
@@ -19,22 +29,18 @@ interface ProfileOverlayProps {
   onClose: () => void;
 }
 
-export const ProfileOverlay = ({
-  visible,
-  onClose,
-}: ProfileOverlayProps) => {
+export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
   const colors = useThemeColours();
   const { user, signOut } = useSession();
 
   const userName = user?.name || "James";
   const userHandle = user?.email?.split("@")[0] || "jbond";
+
   const initials = userName
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase();
-
-  const isDark = colors.background === "#15110fff";
 
   const handleSignOut = () => {
     if (Platform.OS === "web") {
@@ -42,191 +48,106 @@ export const ProfileOverlay = ({
         signOut?.();
       }
     } else {
-      Alert.alert(
-        "Logout",
-        "Are you sure you want to logout?",
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "Logout",
-            style: "destructive",
-            onPress: () => signOut?.(),
-          },
-        ]
-      );
+      Alert.alert("Logout", "Are you sure you want to logout?", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Logout", style: "destructive", onPress: () => signOut?.() },
+      ]);
     }
   };
 
   return (
-    <Modal 
-      transparent 
-      animationType="fade" 
-      visible={visible}
-      statusBarTranslucent
-    >
-      <BlurView 
-        intensity={100} 
-        tint="dark"
-        style={styles.blurContainer}
-      >
+    <Modal transparent animationType="fade" visible={visible}>
+      <BlurView intensity={100} tint="dark" style={styles.blurContainer}>
         <View style={styles.modalContent}>
           {/* Top Buttons */}
           <View style={styles.topButtons}>
-            <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.card }]}>
-              <Edit2 size={18} color={colors.text} />
+            <TouchableOpacity style={styles.iconButton}>
+              <Edit2 size={18} color="#fff" />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.iconButton, { backgroundColor: colors.card }]}
-              onPress={onClose}
-            >
-              <X size={20} color={colors.text} />
+            <TouchableOpacity style={styles.iconButton} onPress={onClose}>
+              <X size={20} color="#fff" />
             </TouchableOpacity>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
             {/* Profile Header */}
             <View style={styles.profileSection}>
-              <View style={[styles.avatar, { borderColor: colors.border }]}>
-                <Text style={[styles.avatarText, { color: colors.text }]}>
-                  {initials}
-                </Text>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{initials}</Text>
               </View>
 
-              <Text style={[styles.name, { color: colors.text }]}>{userName}</Text>
-              <Text style={[styles.username, { color: colors.secondaryText }]}>
-                @{userHandle}
-              </Text>
+              <Text style={styles.name}>{userName}</Text>
+              <Text style={styles.username}>@{userHandle}</Text>
 
-              <Text style={[styles.member, { color: colors.secondaryText }]}>
-                MEMBER
-              </Text>
-
-              <TouchableOpacity
-                style={[
-                  styles.exploreButton,
-                  { backgroundColor: colors.card, borderColor: colors.border },
-                ]}
-              >
-                <Text style={[styles.exploreText, { color: colors.primary }]}>
-                  EXPLORE NOW
-                </Text>
-              </TouchableOpacity>
+              <Text style={styles.member}>MEMBER</Text>
             </View>
 
             {/* Action Buttons */}
             <View style={styles.actionsRow}>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  { borderColor: colors.border, backgroundColor: colors.card },
-                ]}
-              >
-                <ListTodo size={20} color={colors.primary} />
-                <Text style={[styles.actionText, { color: colors.secondaryText }]}>
-                  MY PLANNER
-                </Text>
+              <TouchableOpacity style={styles.actionButton}>
+                <View style={styles.iconCircleGreen}>
+                  <ListTodo size={18} color="#34D399" />
+                </View>
+                <Text style={styles.actionText}>MY PLANNER</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  { borderColor: colors.border, backgroundColor: colors.card },
-                ]}
-              >
-                <Clock size={20} color={colors.info} />
-                <Text style={[styles.actionText, { color: colors.secondaryText }]}>
-                  SUPPORT
-                </Text>
+              <TouchableOpacity style={styles.actionButton}>
+                <View style={styles.iconCircleBlue}>
+                  <Clock size={18} color="#3BA6FF" />
+                </View>
+                <Text style={styles.actionText}>SUPPORT</Text>
               </TouchableOpacity>
             </View>
 
             {/* Saved Collection */}
             <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.secondaryText }]}>
-                SAVED COLLECTION
-              </Text>
-              <Text style={[styles.discovery, { color: colors.primary }]}>
-                DISCOVERY ›
-              </Text>
+              <Text style={styles.sectionTitle}>SAVED COLLECTION</Text>
+              <Text style={styles.discovery}>DISCOVERY ›</Text>
             </View>
 
-            <View
-              style={[
-                styles.collectionCard,
-                {
-                  borderColor: colors.border,
-                  backgroundColor: colors.card,
-                },
-              ]}
-            >
-              <Bookmark size={30} color={colors.secondaryText} />
-              <Text style={[styles.collectionText, { color: colors.secondaryText }]}>
+            <View style={styles.collectionCard}>
+              <Bookmark size={28} color="#aaa" />
+
+              <Text style={styles.collectionText}>
                 NOTHING IN COLLECTION YET
               </Text>
 
-              <TouchableOpacity
-                style={[
-                  styles.exploreButton,
-                  { backgroundColor: colors.background, borderColor: colors.border },
-                ]}
-              >
-                <Text style={[styles.exploreText, { color: colors.primary }]}>
-                  EXPLORE NOW
-                </Text>
+              <TouchableOpacity style={styles.exploreButton}>
+                <Text style={styles.exploreText}>EXPLORE NOW</Text>
               </TouchableOpacity>
             </View>
 
             {/* Control Center */}
-            <Text
-              style={[
-                styles.controlTitle,
-                { color: colors.secondaryText },
-              ]}
-            >
-              CONTROL CENTER
-            </Text>
+            <Text style={styles.controlTitle}>CONTROL CENTER</Text>
 
-            <View
-              style={[
-                styles.controlBox,
-                { borderColor: colors.border, backgroundColor: colors.card },
-              ]}
-            >
+            <View style={styles.controlBox}>
               <TouchableOpacity style={styles.controlItem}>
-                <HelpCircle size={20} color={colors.info} />
-                <Text style={[styles.controlText, { color: colors.text }]}>
-                  Help Centre
-                </Text>
-                <ChevronRight size={18} color={colors.secondaryText} />
+                <HelpCircle size={20} color="#3BA6FF" />
+                <Text style={styles.controlText}>Help Centre</Text>
+                <ChevronRight size={18} color="#888" />
               </TouchableOpacity>
 
-              <View style={[styles.controlDivider, { borderColor: colors.border }]} />
+              <View style={styles.controlDivider} />
 
               <TouchableOpacity style={styles.controlItem}>
-                <MessageSquare size={20} color={colors.primary} />
-                <Text style={[styles.controlText, { color: colors.text }]}>
-                  Share feedback
-                </Text>
-                <ChevronRight size={18} color={colors.secondaryText} />
+                <MessageSquare size={20} color="#34D399" />
+                <Text style={styles.controlText}>Share feedback</Text>
+                <ChevronRight size={18} color="#888" />
               </TouchableOpacity>
 
-              <View style={[styles.controlDivider, { borderColor: colors.border }]} />
+              <View style={styles.controlDivider} />
 
               <TouchableOpacity style={styles.controlItem}>
-                <Shield size={20} color={colors.warning} />
-                <Text style={[styles.controlText, { color: colors.text }]}>
-                  Submit a Claim
-                </Text>
-                <ChevronRight size={18} color={colors.secondaryText} />
+                <Shield size={20} color="#F59E0B" />
+                <Text style={styles.controlText}>Submit a Claim</Text>
+                <ChevronRight size={18} color="#888" />
               </TouchableOpacity>
             </View>
 
+            {/* Sign Out */}
             <TouchableOpacity style={styles.signOut} onPress={handleSignOut}>
-              <Text style={[styles.signOutText, { color: colors.error }]}>SIGN OUT</Text>
+              <Text style={styles.signOutText}>SIGN OUT</Text>
             </TouchableOpacity>
 
             <View style={{ height: 40 }} />
@@ -240,26 +161,34 @@ export const ProfileOverlay = ({
 const styles = StyleSheet.create({
   blurContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.65)",
+    padding: 16,
   },
 
   modalContent: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 60,
+    borderRadius: 28,
+    paddingHorizontal: 22,
+    paddingTop: 36,
     paddingBottom: 20,
+    overflow: "hidden",
+
+    backgroundColor: "rgba(18,18,18,0.92)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
   },
 
   topButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 12,
   },
 
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255,255,255,0.05)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -270,123 +199,159 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 2,
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
     justifyContent: "center",
     alignItems: "center",
+    marginBottom: 10,
   },
 
   avatarText: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 30,
+    fontWeight: "500",
+    color: "#fff",
   },
 
   name: {
-    fontSize: 22,
-    fontWeight: "600",
-    marginTop: 16,
+    fontSize: 26,
+    fontWeight: "500",
+    marginTop: 6,
+    color: "#fff",
   },
 
   username: {
-    marginTop: 4,
-    fontSize: 14,
+    marginTop: 2,
+    fontSize: 13,
+    color: "#aaa",
   },
 
   member: {
     marginTop: 8,
-    fontSize: 11,
-    letterSpacing: 1,
-    fontWeight: "600",
-  },
-
-  exploreButton: {
-    marginTop: 16,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-
-  exploreText: {
-    fontSize: 12,
+    fontSize: 10,
+    letterSpacing: 1.6,
     fontWeight: "700",
-    letterSpacing: 0.8,
+    color: "#777",
   },
 
   actionsRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     gap: 12,
-    marginTop: 28,
+    marginTop: 20,
   },
 
   actionButton: {
     flex: 1,
-    borderRadius: 20,
+    borderRadius: 26,
     borderWidth: 1,
-    padding: 20,
+    borderColor: "rgba(255,255,255,0.08)",
+    paddingVertical: 22,
     alignItems: "center",
-    gap: 8,
+    justifyContent: "center",
+    gap: 10,
+    backgroundColor: "rgba(255,255,255,0.02)",
   },
 
   actionText: {
     fontSize: 11,
     fontWeight: "700",
-    letterSpacing: 0.8,
+    letterSpacing: 1,
+    color: "#aaa",
+  },
+
+  iconCircleGreen: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: "rgba(52,211,153,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  iconCircleBlue: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: "rgba(59,166,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 32,
+    marginTop: 30,
     marginBottom: 12,
-    paddingHorizontal: 4,
   },
 
   sectionTitle: {
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1.2,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.8,
+    color: "#777",
   },
 
   discovery: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
+    color: "#A3E635",
   },
 
   collectionCard: {
     borderWidth: 1,
-    borderRadius: 20,
-    paddingVertical: 40,
+    borderStyle: "dashed",
+    borderColor: "rgba(255,255,255,0.12)",
+    borderRadius: 22,
+    paddingVertical: 42,
     paddingHorizontal: 24,
     alignItems: "center",
     marginBottom: 28,
+    backgroundColor: "rgba(255,255,255,0.02)",
   },
 
   collectionText: {
     marginTop: 16,
-    marginBottom: 20,
+    marginBottom: 18,
     fontSize: 12,
     fontWeight: "600",
-    letterSpacing: 0.8,
+    letterSpacing: 1,
+    color: "#aaa",
+  },
+
+  exploreButton: {
+    paddingHorizontal: 26,
+    paddingVertical: 10,
+    borderRadius: 22,
+    backgroundColor: "#0E0E0E",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+  },
+
+  exploreText: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1,
+    color: "#fff",
   },
 
   controlTitle: {
-    fontSize: 11,
-    fontWeight: "800",
-    letterSpacing: 1.2,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.8,
+    color: "#777",
     marginBottom: 12,
-    paddingHorizontal: 4,
   },
 
   controlBox: {
     borderWidth: 1,
-    borderRadius: 20,
+    borderColor: "rgba(255,255,255,0.06)",
+    borderRadius: 22,
     marginBottom: 28,
     overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.02)",
   },
 
   controlItem: {
@@ -394,30 +359,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 18,
     paddingVertical: 18,
-    gap: 12,
+    gap: 14,
   },
 
   controlDivider: {
     height: 1,
-    marginHorizontal: 18,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    marginLeft: 52,
   },
 
   controlText: {
     flex: 1,
     fontSize: 14,
-    fontWeight: "500",
+    color: "#fff",
   },
 
   signOut: {
     paddingVertical: 16,
     alignItems: "center",
-    marginBottom: 12,
   },
 
   signOutText: {
     fontWeight: "700",
     fontSize: 12,
-    letterSpacing: 0.8,
+    letterSpacing: 1,
+    color: "#ef4444",
   },
 });
 

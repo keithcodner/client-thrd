@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
 import { HeartHandshake, ArrowRight, Plus } from "lucide-react-native";
 
 interface MindSpaceCardProps {
@@ -21,19 +21,20 @@ export const MindSpaceCard = ({
       </View>
 
       <View style={styles.mindSpaceContent}>
-        <Text style={[styles.mindSpaceTitle, { color: colors.text }]}>
+        <Text style={[styles.mindSpaceTitle, { color: colors.text, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', }]}>
           Mind Space
         </Text>
-        <Text style={[styles.mindSpaceSubtitle, { color: colors.secondaryText }]}>
+        <Text className="italic" style={[styles.mindSpaceSubtitle, { color: colors.secondaryText }]}>
           Quiet support for how time actually feels
         </Text>
+        
       </View>
 
-      <ArrowRight size={20} color={colors.secondaryText} />
+      <ArrowRight  size={20} color={colors.accent} />
 
-      <Pressable style={[styles.mindSpacePlusButton, { backgroundColor: colors.surface }]}>
+      {/* <Pressable style={[styles.mindSpacePlusButton, { backgroundColor: colors.surface }]}>
         <Plus size={20} color={colors.text} />
-      </Pressable>
+      </Pressable> */}
     </Pressable>
   );
 };
@@ -45,8 +46,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 12,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 15,
     gap: 12,
+    borderWidth: 1,
+    borderColor: "#34422a",
   },
 
   mindSpaceIcon: {
