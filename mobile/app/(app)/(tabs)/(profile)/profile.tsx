@@ -36,8 +36,8 @@ export const ProfileOverlay = ({
 
   return (
     <Modal transparent animationType="slide" visible={visible}>
-      <BlurView intensity={70} tint={isDark ? "dark" : "light"} style={styles.blurContainer}>
-        <View style={[styles.card, { backgroundColor: colors.background }]}>
+      <BlurView intensity={90} tint={isDark ? "dark" : "light"} style={styles.blurContainer}>
+        <View style={styles.card}>
           {/* Top Buttons */}
           <View style={styles.topButtons}>
             <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.card }]}>
@@ -52,7 +52,7 @@ export const ProfileOverlay = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+          <ScrollView showsVerticalScrollIndicator={false} bounces={false} style={{ backgroundColor: colors.background, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
             {/* Profile Header */}
             <View style={styles.profileSection}>
               <View style={[styles.avatar, { borderColor: colors.border }]}>

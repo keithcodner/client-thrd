@@ -13,7 +13,6 @@ import { DiscoverCard } from "@/components/home/DiscoverCard";
 import { MyCircles } from "@/components/home/MyCircles";
 import { UpcomingPlans } from "@/components/home/UpcomingPlans";
 import { MindSpaceCard } from "@/components/home/MindSpaceCard";
-import { ProfileOverlay } from "@/app/(app)/(tabs)/(profile)/profile";
 
 interface HomeProps {
   currentUser?: any;
@@ -172,7 +171,6 @@ export const Home = ({
 }: HomeProps = {}) => {
   const colors = useThemeColours();
   const [reflectionTodo, setReflectionTodo] = useState(null);
-  const [profileOverlayVisible, setProfileOverlayVisible] = useState(false);
   const firstName = (currentUser?.name || "Friend").split(" ")[0];
   const hour = new Date().getHours();
   const greeting =
@@ -237,7 +235,7 @@ export const Home = ({
           notificationsCount={notificationsCount}
           onNavigate={onNavigate}
           onOpenNotifications={onOpenNotifications}
-          onOpenProfile={() => setProfileOverlayVisible(true)}
+          onOpenProfile={() => onNavigate("profile")}
         />
 
         <HomeGreeting
@@ -273,11 +271,6 @@ export const Home = ({
 
         <View style={{ height: 120 }} />
       </ScrollView>
-
-      <ProfileOverlay
-        visible={profileOverlayVisible}
-        onClose={() => setProfileOverlayVisible(false)}
-      />
     </View>
   );
 };
