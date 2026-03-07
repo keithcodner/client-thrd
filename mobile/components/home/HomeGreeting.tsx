@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 
 interface HomeGreetingProps {
   colors: any;
@@ -14,10 +14,10 @@ export const HomeGreeting = ({
 }: HomeGreetingProps) => {
   return (
     <View style={styles.greetingContainer}>
-      <Text style={[styles.greeting, { color: colors.text }]}>
+      <Text style={[styles.greeting, {fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.text }]}>
         {greeting},
         {"\n"}
-        <Text style={[styles.name, { color: colors.primary }]}>
+        <Text style={[styles.name, {fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.primary }]}>
           {firstName}
         </Text>
       </Text>

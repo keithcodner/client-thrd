@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
 import { Bell, Settings, User } from "lucide-react-native";
 
 interface HomeHeaderProps {
@@ -18,17 +18,17 @@ export const HomeHeader = ({
   onOpenProfile = () => {},
 }: HomeHeaderProps) => {
   return (
-    <View style={styles.header}>
+    <View style={styles.header} className="mt-8">
       <Pressable style={styles.logo}>
         <View style={[styles.logoBox, { backgroundColor: colors.primary }]}>
           <Text
-            style={[styles.logoText, { color: colors.background }]}
+            style={[styles.logoText, { fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.background }]}
             className="font-serif"
           >
             T
           </Text>
         </View>
-        <Text style={[styles.logoWord, { color: colors.text }]}>THRD</Text>
+        <Text style={[styles.logoWord, {fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif', color: colors.text }]}>THRD</Text>
       </Pressable>
 
       <View style={styles.headerActions}>

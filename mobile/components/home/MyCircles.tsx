@@ -50,6 +50,7 @@ export const MyCircles = ({
               key={group.id}
               style={styles.groupItem}
               onPress={() => onSelectGroup(group.id)}
+              className="mt-2"
             >
               <View
                 style={[
