@@ -1,18 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { Tabs } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ProfileOverlay } from "@/app/(app)/(tabs)/(profile)/profile";
+import { ProfileOverlayProvider, useProfileOverlay } from "@/context/ProfileOverlayContext";
 
-const TabsLayout = () => {
+const TabsLayoutContent = () => {
   const colors = useThemeColours();
-  const [profileOverlayVisible, setProfileOverlayVisible] = useState(false);
+  const { isVisible, openProfileOverlay, closeProfileOverlay } = useProfileOverlay();
 
   return (
     <>
       <ProfileOverlay
-        visible={profileOverlayVisible}
-        onClose={() => setProfileOverlayVisible(false)}
+        visible={isVisible}
+        onClose={closeProfileOverlay}
       />
       <Tabs
         initialRouteName="(home)"
@@ -24,6 +25,15 @@ const TabsLayout = () => {
               borderTopColor: colors.border,
             },
             headerShown: false,
+        }}
+        screenListeners={{
+          tabPress: (e) => {
+            // Intercept profile tab press
+            if (e.target?.includes('(profile)')) {
+              e.preventDefault();
+              openProfileOverlay();
+            }
+          },
         }}>
         <Tabs.Screen
           name="(calendar)"
@@ -74,6 +84,14 @@ const TabsLayout = () => {
       </Tabs>
     </>
     
+  );
+};
+
+const TabsLayout = () => {
+  return (
+    <ProfileOverlayProvider>
+      <TabsLayoutContent />
+    </ProfileOverlayProvider>
   );
 };
 

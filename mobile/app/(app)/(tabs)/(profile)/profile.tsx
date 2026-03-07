@@ -61,9 +61,18 @@ export const ProfileOverlay = ({
   };
 
   return (
-    <Modal transparent animationType="slide" visible={visible}>
-      <BlurView intensity={70} style={[styles.blurContainer, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
-        <View style={[styles.card, { backgroundColor: colors.background }]}>
+    <Modal 
+      transparent 
+      animationType="fade" 
+      visible={visible}
+      statusBarTranslucent
+    >
+      <BlurView 
+        intensity={100} 
+        tint="dark"
+        style={styles.blurContainer}
+      >
+        <View style={styles.modalContent}>
           {/* Top Buttons */}
           <View style={styles.topButtons}>
             <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.card }]}>
@@ -231,18 +240,14 @@ export const ProfileOverlay = ({
 const styles = StyleSheet.create({
   blurContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
 
-  card: {
-    width: "100%",
-    maxHeight: "85%",
-    backgroundColor: "transparent",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+  modalContent: {
+    flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
 
   topButtons: {

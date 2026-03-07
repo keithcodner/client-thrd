@@ -1,20 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
-import { ProfileOverlay } from "./profile";
+import { useProfileOverlay } from "@/context/ProfileOverlayContext";
 
 const Profile = () => {
   const router = useRouter();
+  const { openProfileOverlay } = useProfileOverlay();
 
-  const handleCloseProfileOverlay = () => {
-    router.push("/(app)/(tabs)/(home)");
-  };
+  useEffect(() => {
+    // Open overlay and navigate back to home
+    openProfileOverlay();
+    router.replace("/(app)/(tabs)/(home)");
+  }, []);
 
-  return (
-    <ProfileOverlay
-      visible={true}
-      onClose={handleCloseProfileOverlay}
-    />
-  );
+  return <View />;
 };
 
 export default Profile;

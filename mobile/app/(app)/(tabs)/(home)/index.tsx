@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { useSession } from "@/context/AuthContext";
+import { useProfileOverlay } from "@/context/ProfileOverlayContext";
 import Home  from "./home";
 import axiosInstance from "@/config/axiosConfig";
 
 const HomeScreen = () => {
   const router = useRouter();
   const { user: currentUser } = useSession();
+  const { openProfileOverlay } = useProfileOverlay();
   
   const [spaces, setSpaces] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -55,7 +57,7 @@ const HomeScreen = () => {
   };
 
   const handleOpenProfile = () => {
-    router.push('/(app)/(tabs)/(profile)/');
+    openProfileOverlay();
   };
 
   const handleSelectGroup = (groupId: string) => {
