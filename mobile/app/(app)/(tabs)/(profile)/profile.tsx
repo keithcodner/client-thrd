@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Platform,
+  Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { Edit2, X, ListTodo, Clock, Bookmark, HelpCircle, MessageSquare, Shield, ChevronRight } from "lucide-react-native";
@@ -22,7 +24,7 @@ export const ProfileOverlay = ({
   onClose,
 }: ProfileOverlayProps) => {
   const colors = useThemeColours();
-  const { user } = useSession();
+  const { user, signOut } = useSession();
 
   const userName = user?.name || "James";
   const userHandle = user?.email?.split("@")[0] || "jbond";
@@ -34,10 +36,34 @@ export const ProfileOverlay = ({
 
   const isDark = colors.background === "#15110fff";
 
+  const handleSignOut = () => {
+    if (Platform.OS === "web") {
+      if (window.confirm("Are you sure you want to logout?")) {
+        signOut?.();
+      }
+    } else {
+      Alert.alert(
+        "Logout",
+        "Are you sure you want to logout?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Logout",
+            style: "destructive",
+            onPress: () => signOut?.(),
+          },
+        ]
+      );
+    }
+  };
+
   return (
     <Modal transparent animationType="slide" visible={visible}>
-      <BlurView intensity={90} tint={isDark ? "dark" : "light"} style={styles.blurContainer}>
-        <View style={styles.card}>
+      <BlurView intensity={70} style={[styles.blurContainer, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
+        <View style={[styles.card, { backgroundColor: colors.background }]}>
           {/* Top Buttons */}
           <View style={styles.topButtons}>
             <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.card }]}>
@@ -52,7 +78,7 @@ export const ProfileOverlay = ({
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} bounces={false} style={{ backgroundColor: colors.background, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+          <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
             {/* Profile Header */}
             <View style={styles.profileSection}>
               <View style={[styles.avatar, { borderColor: colors.border }]}>
@@ -190,7 +216,7 @@ export const ProfileOverlay = ({
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.signOut}>
+            <TouchableOpacity style={styles.signOut} onPress={handleSignOut}>
               <Text style={[styles.signOutText, { color: colors.error }]}>SIGN OUT</Text>
             </TouchableOpacity>
 
