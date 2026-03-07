@@ -70,7 +70,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
         try {
             await setSession(token);
             await setUser(JSON.stringify(userData));
-            //router.replace("/home");    
         } catch (error) {
             console.error("Error during sign in:", error);
             throw error;

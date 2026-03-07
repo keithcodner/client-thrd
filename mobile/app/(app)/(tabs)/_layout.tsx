@@ -9,21 +9,22 @@ const TabsLayout = () => {
 
   return (
     <Tabs
+      initialRouteName="(home)"
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.secondaryText,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
-        },
-        headerShown: false,
-    }}>
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.secondaryText,
+          tabBarStyle: {
+            backgroundColor: colors.background,
+            borderTopColor: colors.border,
+          },
+          headerShown: false,
+      }}>
       <Tabs.Screen
-        name="(home)"
+        name="(calendar)"
         options={{
-          tabBarLabel: "Home",
+          tabBarLabel: "Calendar",
           tabBarIcon: ({ color, size }) => (  
-            <Feather name="home" size={size} color={color} />
+            <Feather name="calendar" size={size} color={color} />
           ),
         }}
       />
@@ -37,14 +38,15 @@ const TabsLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="(calendar)"
+        name="(home)"
         options={{
-          tabBarLabel: "Calendar",
+          tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (  
-            <Feather name="calendar" size={size} color={color} />
+            <Feather name="home" size={size} color={color} />
           ),
         }}
       />
+      
       <Tabs.Screen
         name="(chat)"
         options={{

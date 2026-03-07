@@ -87,20 +87,20 @@ const HomeScreen = () => {
 
   return (
     <Home
-    //   currentUser={currentUser}
-    //   spaces={spaces}
-    //   groups={groups}
-    //   todos={todos}
-    //   notificationsCount={notificationsCount}
-    //   onNavigate={handleNavigate}
-    //   onOpenProfile={handleOpenProfile}
-    //   onSelectGroup={handleSelectGroup}
-    //   onSelectSpace={handleSelectSpace}
-    //   onOpenNotifications={handleOpenNotifications}
-    //   onAddEvent={handleAddEvent}
-    //   onHostEvent={handleHostEvent}
-    //   onCreateGroup={handleCreateGroup}
-    //   showHint={false}
+      currentUser={currentUser}
+      spaces={spaces.length > 0 ? spaces : undefined}
+      groups={groups.length > 0 ? groups : undefined}
+      todos={todos.length > 0 ? todos : undefined}
+      notificationsCount={notificationsCount}
+      onNavigate={handleNavigate}
+      onOpenProfile={handleOpenProfile}
+      onSelectGroup={handleSelectGroup}
+      onSelectSpace={handleSelectSpace}
+      onOpenNotifications={handleOpenNotifications}
+      onAddEvent={handleAddEvent}
+      onHostEvent={handleHostEvent}
+      onCreateGroup={handleCreateGroup}
+      showHint={false}
     />
   );
 };
