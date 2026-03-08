@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ProfileOverlay } from "@/app/(app)/(tabs)/(profile)/profile";
 import { ProfileOverlayProvider, useProfileOverlay } from "@/context/ProfileOverlayContext";
+import { FABProvider } from "@/context/FABContext";
 
 const TabsLayoutContent = () => {
   const colors = useThemeColours();
@@ -89,9 +90,11 @@ const TabsLayoutContent = () => {
 
 const TabsLayout = () => {
   return (
-    <ProfileOverlayProvider>
-      <TabsLayoutContent />
-    </ProfileOverlayProvider>
+    <FABProvider>
+      <ProfileOverlayProvider>
+        <TabsLayoutContent />
+      </ProfileOverlayProvider>
+    </FABProvider>
   );
 };
 

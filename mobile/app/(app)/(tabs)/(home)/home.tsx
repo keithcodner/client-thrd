@@ -13,6 +13,7 @@ import { DiscoverCard } from "@/components/home/DiscoverCard";
 import { MyCircles } from "@/components/home/MyCircles";
 import { UpcomingPlans } from "@/components/home/UpcomingPlans";
 import { MindSpaceCard } from "@/components/home/MindSpaceCard";
+import { FAB } from "@/components/FAB";
 
 interface HomeProps {
   currentUser?: any;
@@ -271,6 +272,12 @@ export const Home = ({
 
         <View style={{ height: 120 }} />
       </ScrollView>
+
+      <FAB
+        colors={colors}
+        onCoordinate={() => onAddEvent?.()}
+        onCreateCircle={() => onCreateGroup?.()}
+      />
     </View>
   );
 };
