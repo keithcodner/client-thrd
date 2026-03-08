@@ -1,16 +1,31 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Pressable, Text, StyleSheet, Animated } from 'react-native';
-import { Plus, X } from 'lucide-react-native';
+import { Plus, X, Sparkle } from 'lucide-react-native';
 import { useFAB } from '@/context/FABContext';
+
+export interface FABAction {
+  id: string;
+  label: string;
+  icon?: React.ComponentType<any>;
+  onPress: () => void;
+  color?: string; // Optional custom color for text or icon
+}
 
 interface FABProps {
   colors: any;
+  actions?: FABAction[];
   onCoordinate?: () => void;
   onCreateCircle?: () => void;
 }
 
-export const FAB = ({ colors, onCoordinate = () => {}, onCreateCircle = () => {} }: FABProps) => {
+export const FAB = ({ 
+  colors, 
+  actions,
+  onCoordinate = () => {}, 
+  onCreateCircle = () => {} 
+}: FABProps) => {
   const { isExpanded, toggleFAB, closeFAB } = useFAB();
+  const animatedValues = useRef<Animated.Value[]>([]).current;
 
   const handleCoordinate = () => {
     onCoordinate();
@@ -22,36 +37,142 @@ export const FAB = ({ colors, onCoordinate = () => {}, onCreateCircle = () => {}
     closeFAB();
   };
 
+  // Default actions if none provided
+  const defaultActions: FABAction[] = [
+    {
+      id: 'coordinate',
+      label: 'Coordinate',
+      icon: Sparkle,
+      onPress: handleCoordinate,
+    },
+    {
+      id: 'create-circle',
+      label: 'Create Circle',
+      icon: Plus,
+      onPress: handleCreateCircle,
+    },
+  ];
+
+  const displayActions = actions || defaultActions;
+
+  // Initialize animated values for each action
+  useEffect(() => {
+    if (animatedValues.length === 0) {
+      animatedValues.push(
+        ...displayActions.map(() => new Animated.Value(0))
+      );
+    }
+  }, [displayActions.length]);
+
+  // Animate actions when expanded/collapsed
+  useEffect(() => {
+    if (isExpanded) {
+      // Stagger animation for each action
+      Animated.stagger(
+        80,
+        animatedValues.map((anim) =>
+          Animated.timing(anim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          })
+        )
+      ).start();
+    } else {
+      // Reverse animation
+      Animated.parallel(
+        animatedValues.map((anim) =>
+          Animated.timing(anim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          })
+        )
+      ).start();
+    }
+  }, [isExpanded]);
+
   return (
     <View style={styles.fabContainer}>
       {isExpanded && (
         <>
           {/* Backdrop */}
-          <Pressable 
-            style={styles.backdrop} 
-            onPress={closeFAB}
-          />
-
-          {/* Create Circle Button */}
-          <Pressable
-            style={[styles.fabOption, { backgroundColor: colors.card, borderColor: colors.border }]}
-            onPress={handleCreateCircle}
+          <Animated.View
+            style={[
+              styles.backdrop,
+              {
+                opacity: animatedValues[0] || 0.3,
+              },
+            ]}
           >
-            <Text style={[styles.fabOptionText, { color: colors.text }]}>
-              Create Circle
-            </Text>
-            <Plus size={18} color={colors.accent} />
-          </Pressable>
+            <Pressable 
+              style={{ flex: 1 }}
+              onPress={closeFAB}
+            />
+          </Animated.View>
 
-          {/* Coordinate Button */}
-          <Pressable
-            style={[styles.fabOption, { backgroundColor: colors.card, borderColor: colors.border }]}
-            onPress={handleCoordinate}
-          >
-            <Text style={[styles.fabOptionText, { color: colors.text }]}>
-              Coordinate
-            </Text>
-          </Pressable>
+          {/* Action Buttons */}
+          {displayActions.map((action, index) => {
+            const Icon = action.icon;
+            const bottomOffset = 70 + (index * 60);
+            const animValue = animatedValues[index] || new Animated.Value(0);
+
+            const animatedStyle = {
+              opacity: animValue,
+              transform: [
+                {
+                  scale: animValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1],
+                  }),
+                },
+                {
+                  translateY: animValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [-20, 0],
+                  }),
+                },
+              ],
+            };
+
+            return (
+              <Animated.View
+                key={action.id}
+                style={[
+                  styles.fabOptionContainer,
+                  { 
+                    bottom: bottomOffset,
+                  },
+                  animatedStyle
+                ]}
+              >
+                <Pressable
+                  style={[
+                    styles.fabOption, 
+                    { 
+                      backgroundColor: colors.background, 
+                      borderColor: colors.border,
+                    }
+                  ]}
+                  onPress={() => {
+                    action.onPress();
+                    closeFAB();
+                  }}
+                >
+                  <Text style={[styles.fabOptionText, { color: colors.text }]}>
+                    {action.label}
+                  </Text>
+
+                  {/* If icon exists */}
+                  {Icon && (
+                    <View style={[styles.iconCircle, { backgroundColor: '#292525' }]}>
+                      <Icon size={15} color={action.color} />
+                    </View>
+                  )}
+                </Pressable>
+              </Animated.View>
+            );
+          })}
         </>
       )}
 
@@ -60,15 +181,15 @@ export const FAB = ({ colors, onCoordinate = () => {}, onCreateCircle = () => {}
         style={[
           styles.fabButton,
           {
-            backgroundColor: colors.accent,
+            backgroundColor: '#171d0a',
           },
         ]}
         onPress={toggleFAB}
       >
         {isExpanded ? (
-          <X size={24} color={colors.background} />
+          <X size={24} color="#dae0e6" />
         ) : (
-          <Plus size={24} color={colors.background} />
+          <Plus size={24} color="#dae0e6" />
         )}
       </Pressable>
     </View>
@@ -79,11 +200,16 @@ const styles = StyleSheet.create({
   fabContainer: {
     position: 'absolute',
     bottom: 20,
-    right: 20,
+    right: 25,
   },
 
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
 
   fabButton: {
@@ -93,25 +219,42 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 100,
+    borderWidth: 1,
+    borderColor: '#41464c',
   },
 
   fabOption: {
-    position: 'absolute',
-    bottom: 70,
-    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingVertical: 15,
+    borderRadius: 20,
     borderWidth: 1,
-    gap: 8,
-    minWidth: 140,
+    gap: 2,
+    minWidth: 125,
+    borderColor: '#41464c',
+  },
+
+  fabOptionContainer: {
+    position: 'absolute',
+    right: 0,
+    zIndex: 99,
+    borderWidth: 1,
+    borderColor: '#41464c',
+    borderRadius: 20,
   },
 
   fabOptionText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
     flex: 1,
+  },
+
+  iconCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

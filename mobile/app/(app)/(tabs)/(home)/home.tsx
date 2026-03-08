@@ -13,7 +13,8 @@ import { DiscoverCard } from "@/components/home/DiscoverCard";
 import { MyCircles } from "@/components/home/MyCircles";
 import { UpcomingPlans } from "@/components/home/UpcomingPlans";
 import { MindSpaceCard } from "@/components/home/MindSpaceCard";
-import { FAB } from "@/components/FAB";
+import { FAB, FABAction } from "@/components/FAB";
+import { Plus, Sparkle } from "lucide-react-native";
 
 interface HomeProps {
   currentUser?: any;
@@ -275,8 +276,22 @@ export const Home = ({
 
       <FAB
         colors={colors}
-        onCoordinate={() => onAddEvent?.()}
-        onCreateCircle={() => onCreateGroup?.()}
+        actions={[
+          {
+            id: 'create-circle',
+            label: 'Create Circle',
+            icon: Plus,
+            color: '#4c8bf5',
+            onPress: () => onCreateGroup?.(),
+          },
+          {
+            id: 'coordinate',
+            label: 'Coordinate',
+            icon: Sparkle,
+            color: colors.accent,
+            onPress: () => onAddEvent?.(),
+          }
+        ]}
       />
     </View>
   );
