@@ -1,0 +1,52 @@
+-----3/10/2026-----
+
+-> create `roles ` table
+-> create `permissions ` table
+-> updated `user_roles` table
+
+Here is what the rows would look like across your four tables to give them their specific powers.
+1. users Table
+This stores your basic identity.
+id	username	email
+1	Alice	alice@example.com
+2	Bob	bob@example.com
+
+2. roles Table
+This defines the "buckets" of permissions.
+id	name	slug
+10	Administrator	admin
+11	Editor	editor
+
+3. permissions Table
+These are the granular actions available in your app.
+id	action_name	slug
+100	Create Post	post.create
+101	Delete Post	post.delete
+102	Manage Users	user.manage
+
+4. role_permissions (The Logic)
+This defines what each role is allowed to do. Notice that "Admin" gets everything, while "Editor" only gets to create.
+role_id	permission_id	Notes (Mental Only)
+10	100	(Admin can Create)
+10	101	(Admin can Delete)
+10	102	(Admin can Manage Users)
+11	100	(Editor can Create)
+
+5. user_roles (The Assignment)
+This defines who has which role.
+user_id	role_id	Resulting Power
+1	10	Alice is an Admin (Full access)
+2	11	Bob is an Editor (Create only)
+
+
+-----3/11/2026-----
+
+-> create `circles` table
+-> create `circle_details` table
+
+-> create `roles ` model/migration
+-> create `permissions ` model/migration
+-> updated `user_roles` model/migration
+
+-> create `circles` model/migration
+-> create `circle_details` model/migration
