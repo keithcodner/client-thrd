@@ -219,7 +219,7 @@ class SiteSettingsController extends Controller
     private function validateValueTypeSetting($setting, $value)
     {
         switch ($setting->name) {
-            case 'trade_who_initiates_offer':
+            case 'circle_who_initiates_offer':
                 return in_array($value, ['initiator', 'prospect', 'both']) ? $value : $setting->value;
                 
             default:

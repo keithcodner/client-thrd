@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use League\CommonMark\Util\ArrayCollection;
-use App\Http\Controllers\Core\NewsTradeFeedController;
+use App\Http\Controllers\Core\NewsCircleFeedController;
 use App\Http\Controllers\Core\NotificationsController;
 use Inertia\Inertia;
 

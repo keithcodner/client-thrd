@@ -38,7 +38,7 @@ return new class extends Migration
             $table->longText ('history')->nullable()->default(null);
             $table->longText ('friend_list')->nullable()->default(null);
             $table->longText ('vid_fav')->nullable()->default(null);
-            $table->longText ('trade_fav')->nullable()->default(null);
+            $table->longText ('circle_fav')->nullable()->default(null);
             $table->string('phone_num', 50)->nullable()->default(null);
             $table->string('isStoreOpen', 50)->nullable()->default(null);
             $table->string('identity', 50)->nullable()->default('anonymous');

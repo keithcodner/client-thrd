@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Trade;
+namespace App\Enums\TypesAndStatus\Circle;
 
-enum TradeStatus: string
+enum CircleStatus: string
 {
     case Completed = 'completed';
     case Aborted = 'aborted';
@@ -10,14 +10,14 @@ enum TradeStatus: string
     case Archived = 'archived';
 }
 
-enum TradeSecondStatus: string
+enum CircleSecondStatus: string
 {
     case ProspectAccepted = 'prospect_accepted';
     case InitiatorDenied = 'initiator_denied';
     case ProspectIncoming = 'prospect_incoming';
 }
 
-enum TradeDisplayStatus: string
+enum CircleDisplayStatus: string
 {
     case Completed = 'completed';
     case Aborted = 'aborted';
@@ -25,12 +25,12 @@ enum TradeDisplayStatus: string
     case Negotiate = 'negotiate';
 }
 
-enum TradeTimeStatusType: string
+enum CircleTimeStatusType: string
 {
     case NormalTime = 'normal_time';
 }
 
-enum TradeThemeCode: string
+enum CircleThemeCode: string
 {
     case Style1 = 'style1';
     case Style2 = 'style2';

@@ -17,7 +17,7 @@ class ConversationCategory extends Model
         --> user creates category, that belongs to this user(user can have multiple categories)
         --> this appears in their chat window (with no current chats added)...other than archived
         --> when a new conversation is created; it is uncategorized BUT can be added to the archived category disignated for this user
-        -->when a trade is completed or aborted, its automatically added to the archived conversation category
+        -->when a circle is completed or aborted, its automatically added to the archived conversation category
         --> we need proper validation that a user is not managing another persons categories
 
         CORE RULES:

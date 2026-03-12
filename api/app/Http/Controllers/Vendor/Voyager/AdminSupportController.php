@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Vendor\Voyager;
 
-use App\Models\TradeTransactions\TradeTransaction;
+use App\Models\CircleTransactions\CircleTransaction;
 use App\Models\PaymentTransactions\PaymentTransaction;
 use App\Models\Event\Event;
 use App\Models\Ranking\Ranking;
@@ -30,13 +30,13 @@ class AdminSupportController extends Controller
 
     public function index()
     {
-        // Trade Transaction Analytics
-        $tradeStats = [
-            'total' => TradeTransaction::count(),
-            'completed' => TradeTransaction::where('trade_status', 'completed')->count(),
-            'pending' => TradeTransaction::whereIn('trade_status', ['pending', 'prospect_incoming', 'initiator_incoming'])->count(),
-            'disputed' => TradeTransaction::where('trade_isInDispute', 'true')->count(),
-            'thisMonth' => TradeTransaction::whereMonth('created_at', Carbon::now()->month)->count(),
+        // Circle Transaction Analytics
+        $circleStats = [
+            'total' => CircleTransaction::count(),
+            'completed' => CircleTransaction::where('circle_status', 'completed')->count(),
+            'pending' => CircleTransaction::whereIn('circle_status', ['pending', 'prospect_incoming', 'initiator_incoming'])->count(),
+            'disputed' => CircleTransaction::where('circle_isInDispute', 'true')->count(),
+            'thisMonth' => CircleTransaction::whereMonth('created_at', Carbon::now()->month)->count(),
         ];
 
         // Payment Transaction Analytics
@@ -82,7 +82,7 @@ class AdminSupportController extends Controller
             $date = Carbon::now()->subMonths($i);
             $monthlyTrends[] = [
                 'month' => $date->format('M Y'),
-                'trades' => TradeTransaction::whereYear('created_at', $date->year)
+                'circles' => CircleTransaction::whereYear('created_at', $date->year)
                     ->whereMonth('created_at', $date->month)->count(),
                 'payments' => PaymentTransaction::whereYear('created_at', $date->year)
                     ->whereMonth('created_at', $date->month)->count(),
@@ -101,15 +101,15 @@ class AdminSupportController extends Controller
             
             $weeklyActivity[] = [
                 'week' => $startOfWeek->format('M j') . ' - ' . $endOfWeek->format('M j'),
-                'trades' => TradeTransaction::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
+                'circles' => CircleTransaction::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
                 'payments' => PaymentTransaction::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
                 'profileViews' => MyNetworkUserProfileAnalytics::whereBetween('updated_at', [$startOfWeek, $endOfWeek])
                     ->sum('profile_views_count'),
             ];
         }
 
-        // Recent trade transactions
-        $recentTrades = TradeTransaction::with(['initiator:id,name,firstname,lastname', 'prospect:id,name,firstname,lastname'])
+        // Recent circle transactions
+        $recentCircles = CircleTransaction::with(['initiator:id,name,firstname,lastname', 'prospect:id,name,firstname,lastname'])
             ->latest()
             ->take(10)
             ->get();
@@ -120,12 +120,12 @@ class AdminSupportController extends Controller
             ->take(10)
             ->get();
 
-        // Trade status distribution
-        $tradeStatusDistribution = TradeTransaction::select('trade_status', DB::raw('count(*) as count'))
-            ->groupBy('trade_status')
+        // Circle status distribution
+        $circleStatusDistribution = CircleTransaction::select('circle_status', DB::raw('count(*) as count'))
+            ->groupBy('circle_status')
             ->get()
             ->mapWithKeys(function ($item) {
-                return [$item->trade_status => $item->count];
+                return [$item->circle_status => $item->count];
             });
 
         // Payment status distribution
@@ -137,16 +137,16 @@ class AdminSupportController extends Controller
             });
 
         return Inertia::render('Admin/Analytics/Analytics', [
-            'tradeStats' => $tradeStats,
+            'circleStats' => $circleStats,
             'paymentStats' => $paymentStats,
             'eventStats' => $eventStats,
             'profileViewStats' => $profileViewStats,
             'rankingStats' => $rankingStats,
             'monthlyTrends' => $monthlyTrends,
             'weeklyActivity' => $weeklyActivity,
-            'recentTrades' => $recentTrades,
+            'recentCircles' => $recentCircles,
             'recentPayments' => $recentPayments,
-            'tradeStatusDistribution' => $tradeStatusDistribution,
+            'circleStatusDistribution' => $circleStatusDistribution,
             'paymentStatusDistribution' => $paymentStatusDistribution,
         ]);
     }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Vendor\Voyager;
 
-use App\Models\TradeTransactions\TradeTransaction;
+use App\Models\CircleTransactions\CircleTransaction;
 use App\Models\PaymentTransactions\PaymentTransaction;
 use App\Models\Event\Event;
 use App\Models\Ranking\Ranking;
@@ -57,12 +57,12 @@ class AdminReportsController extends Controller
 
         // 3. TRADING ACTIVITY KPIs
         $tradingKpis = [
-            'totalTrades' => TradeTransaction::count(),
-            'completedTrades' => TradeTransaction::where('trade_status', 'completed')->count(),
-            'successfulTradeRate' => $this->calculateTradeSuccessRate(),
-            'averageTradeCompletionTime' => $this->calculateAverageTradeTime(),
-            'tradesThisMonth' => TradeTransaction::whereMonth('created_at', Carbon::now()->month)->count(),
-            'disputedTrades' => TradeTransaction::where('trade_isInDispute', 'true')->count(),
+            'totalCircles' => CircleTransaction::count(),
+            'completedCircles' => CircleTransaction::where('circle_status', 'completed')->count(),
+            'successfulCircleRate' => $this->calculateCircleSuccessRate(),
+            'averageCircleCompletionTime' => $this->calculateAverageCircleTime(),
+            'circlesThisMonth' => CircleTransaction::whereMonth('created_at', Carbon::now()->month)->count(),
+            'disputedCircles' => CircleTransaction::where('circle_isInDispute', 'true')->count(),
             'disputeRate' => $this->calculateDisputeRate(),
             'topTradingUsers' => $this->getTopTradingUsers(),
         ];
@@ -117,7 +117,7 @@ class AdminReportsController extends Controller
         $detailedReports = [
             'topPerformingContent' => $this->getTopPerformingContent(),
             'userActivityPatterns' => $this->getUserActivityPatterns(),
-            'tradeFlowAnalysis' => $this->getTradeFlowAnalysis(),
+            'circleFlowAnalysis' => $this->getCircleFlowAnalysis(),
             'revenueBreakdown' => $this->getRevenueBreakdown(),
         ];
 
@@ -174,52 +174,52 @@ class AdminReportsController extends Controller
         return round($totalEngagements / $totalPosts, 2);
     }
 
-    private function calculateTradeSuccessRate()
+    private function calculateCircleSuccessRate()
     {
-        $totalTrades = TradeTransaction::count();
-        if ($totalTrades === 0) return 0;
+        $totalCircles = CircleTransaction::count();
+        if ($totalCircles === 0) return 0;
         
-        $completedTrades = TradeTransaction::where('trade_status', 'completed')->count();
-        return round(($completedTrades / $totalTrades) * 100, 2);
+        $completedCircles = CircleTransaction::where('circle_status', 'completed')->count();
+        return round(($completedCircles / $totalCircles) * 100, 2);
     }
 
-    private function calculateAverageTradeTime()
+    private function calculateAverageCircleTime()
     {
-        $completedTrades = TradeTransaction::where('trade_status', 'completed')
-            ->whereNotNull('trade_initiation_date')
-            ->whereNotNull('trade_completion_date')
+        $completedCircles = CircleTransaction::where('circle_status', 'completed')
+            ->whereNotNull('circle_initiation_date')
+            ->whereNotNull('circle_completion_date')
             ->get();
 
-        if ($completedTrades->count() === 0) return 0;
+        if ($completedCircles->count() === 0) return 0;
 
         $totalDays = 0;
-        foreach ($completedTrades as $trade) {
-            $initiation = Carbon::parse($trade->trade_initiation_date);
-            $completion = Carbon::parse($trade->trade_completion_date);
+        foreach ($completedCircles as $circle) {
+            $initiation = Carbon::parse($circle->circle_initiation_date);
+            $completion = Carbon::parse($circle->circle_completion_date);
             $totalDays += $initiation->diffInDays($completion);
         }
 
-        return round($totalDays / $completedTrades->count(), 1);
+        return round($totalDays / $completedCircles->count(), 1);
     }
 
     private function calculateDisputeRate()
     {
-        $totalTrades = TradeTransaction::count();
-        if ($totalTrades === 0) return 0;
+        $totalCircles = CircleTransaction::count();
+        if ($totalCircles === 0) return 0;
         
-        $disputedTrades = TradeTransaction::where('trade_isInDispute', 'true')->count();
-        return round(($disputedTrades / $totalTrades) * 100, 2);
+        $disputedCircles = CircleTransaction::where('circle_isInDispute', 'true')->count();
+        return round(($disputedCircles / $totalCircles) * 100, 2);
     }
 
     private function getTopTradingUsers()
     {
-        return User::select('users.*', DB::raw('COUNT(trade_transaction.id) as trade_count'))
-            ->leftJoin('trade_transaction', function($join) {
-                $join->on('users.id', '=', 'trade_transaction.trade_id_initiator')
-                     ->orOn('users.id', '=', 'trade_transaction.trade_id_prospect');
+        return User::select('users.*', DB::raw('COUNT(circle_transaction.id) as circle_count'))
+            ->leftJoin('circle_transaction', function($join) {
+                $join->on('users.id', '=', 'circle_transaction.circle_id_initiator')
+                     ->orOn('users.id', '=', 'circle_transaction.circle_id_prospect');
             })
             ->groupBy('users.id')
-            ->orderByDesc('trade_count')
+            ->orderByDesc('circle_count')
             ->take(10)
             ->get();
     }
@@ -285,7 +285,7 @@ class AdminReportsController extends Controller
                 'month' => $date->format('M Y'),
                 'newUsers' => User::whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->count(),
                 'newPosts' => Posts::whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->count(),
-                'newTrades' => TradeTransaction::whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->count(),
+                'newCircles' => CircleTransaction::whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->count(),
                 'revenue' => PaymentTransaction::where('status', 'completed')
                     ->whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->sum('amount'),
             ];
@@ -364,22 +364,22 @@ class AdminReportsController extends Controller
             $patterns[] = [
                 'hour' => $hour,
                 'posts' => Posts::whereRaw('HOUR(created_at) = ?', [$hour])->count(),
-                'trades' => TradeTransaction::whereRaw('HOUR(created_at) = ?', [$hour])->count(),
+                'circles' => CircleTransaction::whereRaw('HOUR(created_at) = ?', [$hour])->count(),
             ];
         }
         return $patterns;
     }
 
-    private function getTradeFlowAnalysis()
+    private function getCircleFlowAnalysis()
     {
         return [
-            'statusDistribution' => TradeTransaction::select('trade_status', DB::raw('COUNT(*) as count'))
-                ->whereNotNull('trade_status')
-                ->groupBy('trade_status')
+            'statusDistribution' => CircleTransaction::select('circle_status', DB::raw('COUNT(*) as count'))
+                ->whereNotNull('circle_status')
+                ->groupBy('circle_status')
                 ->get(),
-            'averageNegotiationTime' => $this->calculateAverageTradeTime(),
-            'topTradedCategories' => Item::select('ip_category', DB::raw('COUNT(*) as count'))
-                ->whereHas('tradeTransactionProspect')
+            'averageNegotiationTime' => $this->calculateAverageCircleTime(),
+            'topCircledCategories' => Item::select('ip_category', DB::raw('COUNT(*) as count'))
+                ->whereHas('circleTransactionProspect')
                 ->whereNotNull('ip_category')
                 ->groupBy('ip_category')
                 ->orderByDesc('count')

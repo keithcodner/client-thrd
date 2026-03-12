@@ -17,7 +17,7 @@ class CreateTrackerCommentUserVideoTable extends Migration
             $table->bigInteger('id')->autoIncrement();
             $table->bigInteger('user_id')->nullable()->default(null);
             $table->bigInteger('video_id')->nullable()->default(null);
-            $table->bigInteger('trade_item_id')->nullable()->default(null);
+            $table->bigInteger('circle_item_id')->nullable()->default(null);
             $table->string('tcuvt_comment_an_id', 50)->nullable()->default(null);
             $table->string('tcuvt_video_an_id', 50)->nullable()->default(null);
             $table->string('tcuvt_user_an_id', 50)->nullable()->default(null);

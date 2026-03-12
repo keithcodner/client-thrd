@@ -58,7 +58,7 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
     
             $table->foreign('item_id')
                 ->references('id')
-                ->on('trade_item_post')
+                ->on('circle_item_post')
                 ->onDelete('cascade');
 
             $table->foreign('user_id')
@@ -93,12 +93,12 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
     
             $table->foreign('file_store_an_id')
                 ->references('file_stored_an_id')
-                ->on('trade_item_post')
+                ->on('circle_item_post')
                 ->onDelete('cascade');
 
-            $table->foreign('trade_item_post_id')
+            $table->foreign('circle_item_post_id')
                 ->references('id')
-                ->on('trade_item_post')
+                ->on('circle_item_post')
                 ->onDelete('cascade');
         });
 
@@ -222,11 +222,11 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
                 ->onDelete('cascade');
         });
 
-        Schema::table('trade_item_post', function (Blueprint $table) {
+        Schema::table('circle_item_post', function (Blueprint $table) {
     
-            $table->foreign('trade_item_type_id')
+            $table->foreign('circle_item_type_id')
                 ->references('id')
-                ->on('trade_item_type')
+                ->on('circle_item_type')
                 ->onDelete('cascade');
 
             $table->foreign('user_id')
@@ -235,39 +235,39 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
                 ->onDelete('cascade');
         });
 
-        Schema::table('trade_transaction', function (Blueprint $table) {
+        Schema::table('circle_transaction', function (Blueprint $table) {
     
-            $table->foreign('trade_conversation_id')
+            $table->foreign('circle_conversation_id')
                 ->references('id')
                 ->on('conversations')
                 ->onDelete('cascade');
 
-            $table->foreign('trade_id_prospect_item')
+            $table->foreign('circle_id_prospect_item')
                 ->references('id')
-                ->on('trade_item_post')
+                ->on('circle_item_post')
                 ->onDelete('cascade');
 
-            $table->foreign('trade_id_initiator_item')
+            $table->foreign('circle_id_initiator_item')
                 ->references('id')
-                ->on('trade_item_post')
+                ->on('circle_item_post')
                 ->onDelete('cascade');
 
-            $table->foreign('trade_id_initiator')
+            $table->foreign('circle_id_initiator')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
 
-            $table->foreign('trade_id_prospect')
+            $table->foreign('circle_id_prospect')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
         });
 
-        Schema::table('trade_transaction_history', function (Blueprint $table) {
+        Schema::table('circle_transaction_history', function (Blueprint $table) {
     
-            $table->foreign('trade_trans_id')
+            $table->foreign('circle_trans_id')
                 ->references('id')
-                ->on('trade_transaction')
+                ->on('circle_transaction')
                 ->onDelete('cascade');
         });
 
@@ -310,9 +310,9 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
 
         Schema::table('videos', function (Blueprint $table) {
     
-            $table->foreign('trade_item_id')
+            $table->foreign('circle_item_id')
                 ->references('id')
-                ->on('trade_item_post')
+                ->on('circle_item_post')
                 ->onDelete('cascade');
 
             $table->foreign('user_id')
@@ -322,63 +322,63 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
         });
 
 
-        Schema::table('trade_transaction_insight', function (Blueprint $table) {
+        Schema::table('circle_transaction_insight', function (Blueprint $table) {
             $table->foreign('insight_campaign_answer_id')
                 ->references('id')
-                ->on('trade_transaction_insight_campaign_questions')
+                ->on('circle_transaction_insight_campaign_questions')
                 ->onDelete('cascade');
 
             $table->foreign('insight_type_id')
                 ->references('id')
-                ->on('trade_transaction_insight_type')
+                ->on('circle_transaction_insight_type')
                 ->onDelete('cascade');
         });
 
-        Schema::table('trade_transaction_insight_campaign_answers', function (Blueprint $table) {
+        Schema::table('circle_transaction_insight_campaign_answers', function (Blueprint $table) {
             $table->foreign('giving_insight_user_id', 'fk_insight_campaign_answers_giving')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
 
-            $table->foreign('trade_id', 'fk_insight_campaign_answers_trade')
+            $table->foreign('circle_id', 'fk_insight_campaign_answers_circle')
                 ->references('id')
-                ->on('trade_transaction')
+                ->on('circle_transaction')
                 ->onDelete('cascade');
 
             $table->foreign('insight_campaign_question_id', 'fk_insight_campaign_answers_question')
                 ->references('id')
-                ->on('trade_transaction_insight_campaign_questions')
+                ->on('circle_transaction_insight_campaign_questions')
                 ->onDelete('cascade');
         });
 
-        Schema::table('trade_transaction_insight_content', function (Blueprint $table) {
+        Schema::table('circle_transaction_insight_content', function (Blueprint $table) {
             $table->foreign('campaign_question_id', 'fk_insight_content_question')
                 ->references('id')
-                ->on('trade_transaction_insight_campaign_questions')
+                ->on('circle_transaction_insight_campaign_questions')
                 ->onDelete('cascade');
 
             $table->foreign('insight_type_id', 'fk_insight_content_insight_type')
                 ->references('id')
-                ->on('trade_transaction_insight_type')
+                ->on('circle_transaction_insight_type')
                 ->onDelete('cascade');
         });
 
-        Schema::table('trade_transaction_insight_answer_options', function (Blueprint $table) {
+        Schema::table('circle_transaction_insight_answer_options', function (Blueprint $table) {
             $table->foreign('question_content_id', 'fk_insight_content_answer_options')
                 ->references('id')
-                ->on('trade_transaction_insight_content')
+                ->on('circle_transaction_insight_content')
                 ->onDelete('cascade');
         });
 
-        Schema::table('trade_transaction_review', function (Blueprint $table) {
-            $table->foreign('trade_transaction_id', 'FK_trade_review_transaction')
+        Schema::table('circle_transaction_review', function (Blueprint $table) {
+            $table->foreign('circle_transaction_id', 'FK_circle_review_transaction')
                 ->references('id')
-                ->on('trade_transaction')
+                ->on('circle_transaction')
                 ->onDelete('cascade');
 
-            $table->foreign('item_id', 'FK_trade_transaction_review_trade_item_post')
+            $table->foreign('item_id', 'FK_circle_transaction_review_circle_item_post')
                 ->references('id')
-                ->on('trade_item_post')
+                ->on('circle_item_post')
                 ->onDelete('cascade');
         });
 
@@ -433,7 +433,7 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
         Schema::table('files_stored', function (Blueprint $table) {
     
             $table->dropForeign(['file_store_an_id']);
-            $table->dropForeign(['trade_item_post_id']);
+            $table->dropForeign(['circle_item_post_id']);
         });
 
         Schema::table('files_user_stored', function (Blueprint $table) {
@@ -504,26 +504,26 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
 
         });
 
-        Schema::table('trade_item_post', function (Blueprint $table) {
+        Schema::table('circle_item_post', function (Blueprint $table) {
     
-            $table->dropForeign(['trade_item_type_id']);
+            $table->dropForeign(['circle_item_type_id']);
 
         });
 
-        Schema::table('trade_transaction', function (Blueprint $table) {
+        Schema::table('circle_transaction', function (Blueprint $table) {
     
             
-            $table->dropForeign(['trade_conversation_id']);
-            // $table->dropForeign(['trade_id_prospect_item']);
-            // $table->dropForeign(['trade_id_initiator_item']);
-            // $table->dropForeign(['trade_id_initiator']);
-            // $table->dropForeign(['trade_id_prospect']);
+            $table->dropForeign(['circle_conversation_id']);
+            // $table->dropForeign(['circle_id_prospect_item']);
+            // $table->dropForeign(['circle_id_initiator_item']);
+            // $table->dropForeign(['circle_id_initiator']);
+            // $table->dropForeign(['circle_id_prospect']);
         });
 
-        Schema::table('trade_transaction_history', function (Blueprint $table) {
+        Schema::table('circle_transaction_history', function (Blueprint $table) {
     
             
-            $table->dropForeign(['trade_trans_id']);
+            $table->dropForeign(['circle_trans_id']);
         });
 
         Schema::table('trxn_address_billing', function (Blueprint $table) {
@@ -550,14 +550,14 @@ class CreateWebsocketsStatisticsEntriesTable extends Migration
 
         Schema::table('videos', function (Blueprint $table) {
     
-            $table->dropForeign(['trade_item_id']);
+            $table->dropForeign(['circle_item_id']);
 
             $table->dropForeign(['user_id']);
         });
 
-        Schema::table('trade_transaction_review', function (Blueprint $table) {
+        Schema::table('circle_transaction_review', function (Blueprint $table) {
     
-            $table->dropForeign(['trade_transaction_id']);
+            $table->dropForeign(['circle_transaction_id']);
             $table->dropForeign(['prospect_id']);
             $table->dropForeign(['initiator_id']);
             $table->dropForeign(['item_id']);

@@ -23,7 +23,7 @@ class CreatePronetworkUserProfileTable extends Migration
             $table->string('general_location_city', 255)->nullable();
             $table->string('general_location_country', 255)->nullable();
             $table->string('general_location_state_province', 255)->nullable();
-            $table->string('general_trade', 255)->nullable();
+            $table->string('general_circle', 255)->nullable();
             $table->string('general_profession', 255)->nullable();
             $table->string('website_link', 1000)->nullable();
             $table->string('social_media_link1', 500)->nullable();

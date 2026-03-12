@@ -13,11 +13,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use League\CommonMark\Util\ArrayCollection;
-use App\Http\Controllers\Core\NewsTradeFeedController;
+use App\Http\Controllers\Core\NewsCircleFeedController;
 use App\Http\Controllers\Core\NotificationsController;
 use Inertia\Inertia;
 
-class ValidateTradeImagesController extends Controller
+class ValidateCircleImagesController extends Controller
 {
     public function __construct()
     {
@@ -41,7 +41,7 @@ class ValidateTradeImagesController extends Controller
                     ->orWhere('incident_status', 'unread');
             })->paginate($pagination_delimit);
 
-            return Inertia::render('Admin/ContentManagement/ValidateTradeImageContent', [
+            return Inertia::render('Admin/ContentManagement/ValidateCircleImageContent', [
                 'incidents' => $incidents->items(),
                 'active_status' => $active_status,
                 'pagination' => [
@@ -57,7 +57,7 @@ class ValidateTradeImagesController extends Controller
                 $q->where('incident_status', 'closed');
             })->paginate($pagination_delimit);
 
-            return Inertia::render('Admin/ContentManagement/ValidateTradeImageContent', [
+            return Inertia::render('Admin/ContentManagement/ValidateCircleImageContent', [
                 'incidents' => $incidents->items(),
                 'active_status' => $active_status,
                 'pagination' => [
@@ -74,7 +74,7 @@ class ValidateTradeImagesController extends Controller
                     ->orWhere('incident_status', 'unread');
             })->paginate($pagination_delimit);
 
-            return Inertia::render('Admin/ContentManagement/ValidateTradeImageContent', [
+            return Inertia::render('Admin/ContentManagement/ValidateCircleImageContent', [
                 'incidents' => $incidents->items(),
                 'active_status' => $active_status,
                 'pagination' => [

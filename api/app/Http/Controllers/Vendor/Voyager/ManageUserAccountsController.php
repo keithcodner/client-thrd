@@ -164,7 +164,7 @@ class ManageUserAccountsController extends Controller
 
                         app(NotificationsController::class)->generateSiteNotification(
                             $user->firstname . ' ' . $user->lastname . ' your credentials have been verified.',
-                            'Your account has been verified. You will now be able to upload trade items to your account.<br /><br />Thank you, <br />GigBizness Team',
+                            'Your account has been verified. You will now be able to upload circle items to your account.<br /><br />Thank you, <br />GigBizness Team',
                             'admin_active_message',
                             0,
                             $user->id,

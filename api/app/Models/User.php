@@ -45,7 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'history',
         'friend_list',
         'vid_fav',
-        'trade_fav',
+        'circle_fav',
         'phone_num',
         'isStoreOpen',
         'identity',

@@ -17,14 +17,14 @@ class CreateNotificationsTable extends Migration
             $table->bigInteger('id')->autoIncrement();
             $table->bigInteger('user_id')->nullable()->default(null);
             $table->bigInteger('from_id')->nullable()->default(null);
-            $table->string('fk_trade_item_post_id', 255)->nullable()->default(null);
+            $table->string('fk_circle_item_post_id', 255)->nullable()->default(null);
             $table->string('fk_conversation_id', 255)->nullable()->default(null);
             $table->string('fk_rankings_id', 255)->nullable()->default(null);
             $table->string('fk_ranking_transaction_history_id', 255)->nullable()->default(null);
             $table->string('fk_pronetwork_requests_id', 255)->nullable()->default(null);
             $table->string('fk_comments_id', 255)->nullable()->default(null);
             $table->string('fk_trxn_payment_transaction_id', 255)->nullable()->default(null);
-            $table->string('fk_trade_transaction_id', 255)->nullable()->default(null);
+            $table->string('fk_circle_transaction_id', 255)->nullable()->default(null);
             $table->string('fk_verify_images_id', 255)->nullable()->default(null);
             $table->string('notif_an_id', 300)->nullable()->default(null);
             $table->string('type', 255)->nullable()->default(null);

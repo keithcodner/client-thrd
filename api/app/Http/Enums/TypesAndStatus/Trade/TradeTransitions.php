@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Trade;
+namespace App\Enums\TypesAndStatus\Circle;
 
-enum TradeTransitions: string
+enum CircleTransitions: string
 {
-    case AcceptIncomingTrade = 'AcceptIncomingTrade';
-    case AcceptTradeItemOffer = 'AcceptTradeItemOffer';
-    case DenyIncomingTrade = 'DenyIncomingTrade';
-    case AbortedTrade = 'AbortedTrade';
-    case DenyTradeItemOffer = 'DenyTradeItemOffer';
-    case CompleteTrade = 'CompleteTrade';
-    case InitiatorCompleteTrade = 'InitiatorCompleteTrade';
-    case ProspectCompleteTrade = 'ProspectCompleteTrade';
-    case ChangeTradeItemOffer = 'ChangeTradeItemOffer';
-    case ArchiveTrade = 'ArchiveTrade';
+    case AcceptIncomingCircle = 'AcceptIncomingCircle';
+    case AcceptCircleItemOffer = 'AcceptCircleItemOffer';
+    case DenyIncomingCircle = 'DenyIncomingCircle';
+    case AbortedCircle = 'AbortedCircle';
+    case DenyCircleItemOffer = 'DenyCircleItemOffer';
+    case CompleteCircle = 'CompleteCircle';
+    case InitiatorCompleteCircle = 'InitiatorCompleteCircle';
+    case ProspectCompleteCircle = 'ProspectCompleteCircle';
+    case ChangeCircleItemOffer = 'ChangeCircleItemOffer';
+    case ArchiveCircle = 'ArchiveCircle';
 }

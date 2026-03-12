@@ -3,7 +3,7 @@
 namespace App\Models\Conversation;
 
 use App\Models\Conversation\ConversationChats;
-use App\Models\TradeTransactions\TradeTransaction;
+use App\Models\CircleTransactions\CircleTransaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +17,7 @@ class Conversation extends Model
         - type_second:
         const ChatStatus = Object.freeze({
             SOCIAL: { status: 'social', label: 'Social', color: 'bg-blue-600' },
-            TRADE: { status: 'trade', label: 'Trade', color: 'bg-orange-500' },
+            CIRCLE: { status: 'circle', label: 'Circle', color: 'bg-orange-500' },
             EVENT: { status: 'event', label: 'Event', color: 'bg-green-500' },
             SERVICE: { status: 'service', label: 'Service', color: 'bg-purple-500' },
             PRIVATE: { status: 'private', label: 'Private', color: 'bg-purple-900' },
@@ -67,9 +67,9 @@ class Conversation extends Model
         ->orderBy('created_at', 'DESC');
     }
 
-    public function tradeTransaction()
+    public function circleTransaction()
     {
-        return $this->hasOne(TradeTransaction::class, 'trade_conversation_id');
+        return $this->hasOne(CircleTransaction::class, 'circle_conversation_id');
     }
 
     public function user_id_data()

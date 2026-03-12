@@ -23,7 +23,7 @@ enum Type: string
 enum TypeSecond: string
 {
     case SOCIAL = 'social';
-    case TRADE = 'trade';
+    case CIRCLE = 'circle';
     case EVENT = 'event';
     case SERVICE = 'service';
     case PRIVATE = 'private';
@@ -35,7 +35,7 @@ enum TypeSecond: string
     {
         return match ($this) {
             self::SOCIAL    => 'Social',
-            self::TRADE      => 'Trade',
+            self::CIRCLE      => 'Circle',
             self::EVENT     => 'Event',
             self::SERVICE  => 'Service',
             self::PRIVATE   => 'Private',

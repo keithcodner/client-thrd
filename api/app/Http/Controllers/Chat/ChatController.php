@@ -12,9 +12,9 @@ use App\Models\SiteSettings;
 use App\Models\Conversation\Conversation;
 use Illuminate\Http\Request;
 use App\Events\NewChatMessage;
-use App\Models\TradeTransactions\TradeTransaction;
+use App\Models\CircleTransactions\CircleTransaction;
 use App\Http\Controllers\Controller;
-use App\Models\TradeTransactions\TradeTransactionHistory;
+use App\Models\CircleTransactions\CircleTransactionHistory;
 use App\Http\Controllers\Core\NotificationsController;
 use Inertia\Inertia;
 
@@ -35,7 +35,7 @@ class ChatController extends Controller
     //TODO: In conversation table, added chat type for conversation, types can be couple or group 
     //TOOD: added field for group chat id's
     //TODO: added field for group chat deletes
-    //TODO: Deleting a chat, also means aborting a trade
+    //TODO: Deleting a chat, also means aborting a circle
 
     public function index()
     {
@@ -118,7 +118,7 @@ class ChatController extends Controller
         return ['count' => $conversations];
     }
     
-    //We need to use this, because we really should have been using the tradeId; but we didn't make the decision to use trades at the time; we decided at the time that users would only use chat. So this works for trade or chat
+    //We need to use this, because we really should have been using the circleId; but we didn't make the decision to use circles at the time; we decided at the time that users would only use chat. So this works for circle or chat
     public function getSpecificConversationByInitiatorItemId($initiator_item_id){
 
         $curr_user =  auth()->user()->id;
@@ -167,7 +167,7 @@ class ChatController extends Controller
                     });
             })
             ->orderBy('created_at', 'DESC')
-            ->with(['tradeTransaction', 'from_id_data', 'user_id_data'])
+            ->with(['circleTransaction', 'from_id_data', 'user_id_data'])
             ->get();
 
         $conversation_category = ConversationCategory::where('owner_user_id',  $curr_user)
@@ -243,7 +243,7 @@ class ChatController extends Controller
 
     }
 
-    public function chatInit_Trade(Request $request)
+    public function chatInit_Circle(Request $request)
     {
         //Get Conversation and Item Data
         $page = 'chat.doschat'; //pages.doschat
@@ -298,7 +298,7 @@ class ChatController extends Controller
         }else{
             //**** START TO CREATE INITIATION ONCE ALL REQUIRED DATA IS GATHERED ****
 
-            $second_type = 'trade'; //see chat enums of front end for different types
+            $second_type = 'circle'; //see chat enums of front end for different types
             $create_conversation = Conversation::create([
                 'user_id' => $request->user_id, // other user
                 'from_id' => $request->from_id, // I clicked the msg btn
@@ -320,55 +320,55 @@ class ChatController extends Controller
 
             $notif_an_id = uniqid().'-'.uniqid().'-'.uniqid().'-'.uniqid().'-'.now()->timestamp;
 
-            $trade_an_id = uniqid().'-'.uniqid().'-'.now()->timestamp;
-            $trade_history_an_id = uniqid().'-'.uniqid().'-'.uniqid().'-'.now()->timestamp;
+            $circle_an_id = uniqid().'-'.uniqid().'-'.now()->timestamp;
+            $circle_history_an_id = uniqid().'-'.uniqid().'-'.uniqid().'-'.now()->timestamp;
 
-            $trade_title_temp =  'To ' .$end_user_fname[0] . ' for ' . $item_data[0]->ip_title;
-            $default_time_limit = SiteSettings::where('name', 'trade_time_limit_tier_1')->first();
-            $site_settings_who_initiates_trade_offer = SiteSettings::where('name', 'trade_who_initiates_offer')->first();
+            $circle_title_temp =  'To ' .$end_user_fname[0] . ' for ' . $item_data[0]->ip_title;
+            $default_time_limit = SiteSettings::where('name', 'circle_time_limit_tier_1')->first();
+            $site_settings_who_initiates_circle_offer = SiteSettings::where('name', 'circle_who_initiates_offer')->first();
 
-            $trade_id_prospect_item_value_or_null = null;
+            $circle_id_prospect_item_value_or_null = null;
 
             //Determines who picks the counter offer; prospect or initiator
-            if($site_settings_who_initiates_trade_offer->value  == 'prospect'){
-                $trade_id_prospect_item_value_or_null = null;
-            }else if($site_settings_who_initiates_trade_offer->value  == 'initiator'){
-                $trade_id_prospect_item_value_or_null = $request->initiator_item_id;
+            if($site_settings_who_initiates_circle_offer->value  == 'prospect'){
+                $circle_id_prospect_item_value_or_null = null;
+            }else if($site_settings_who_initiates_circle_offer->value  == 'initiator'){
+                $circle_id_prospect_item_value_or_null = $request->initiator_item_id;
             }
             
-            $create_tradeTransaction = TradeTransaction::create([
-                'trade_id_initiator' => $request->from_id, //i clicked the button
-                'trade_id_prospect' => $request->user_id, //other user
-                'trade_id_prospect_item' => $trade_id_prospect_item_value_or_null, //the item the prospect (or initiator) presents to the initiator
-                'trade_id_initiator_item' => $request->item_id, //the item the initiator wants
-                'trade_conversation_id' => $create_conversation->id,
-                'trade_transaction_an_id' =>  $trade_an_id,
-                'trade_initiation_date' => Carbon::now(),
-                'trade_type' => 'item',
-                'trade_title' => $trade_title_temp,
-                'trade_initiator_title' => $trade_title_temp,
-                'trade_prospect_title' => $trade_title_temp,
-                'trade_status' => 'active',
-                'trade_second_status' => 'prospect_incoming', //Determines whether prospect is interested or not - other status is prospect_accepted
-                'trade_time_status_type' => 'normal_time', //regular 30 days, other statuses could be 1 day limit or 5 day limit, etc
-                'trade_isInDispute' => 'false',
-                'trade_initiatorTrustScore' => '0',
-                'trade_initiator_hasAgreed' => 'true',
-                'trade_prospect_hasAgreed' => 'false',
-                'trade_theme_code' => $this->pickTheme(),
-                'trade_completion_date' => Carbon::now()->addDays($default_time_limit->value), //default time is 30 days
+            $create_circleTransaction = CircleTransaction::create([
+                'circle_id_initiator' => $request->from_id, //i clicked the button
+                'circle_id_prospect' => $request->user_id, //other user
+                'circle_id_prospect_item' => $circle_id_prospect_item_value_or_null, //the item the prospect (or initiator) presents to the initiator
+                'circle_id_initiator_item' => $request->item_id, //the item the initiator wants
+                'circle_conversation_id' => $create_conversation->id,
+                'circle_transaction_an_id' =>  $circle_an_id,
+                'circle_initiation_date' => Carbon::now(),
+                'circle_type' => 'item',
+                'circle_title' => $circle_title_temp,
+                'circle_initiator_title' => $circle_title_temp,
+                'circle_prospect_title' => $circle_title_temp,
+                'circle_status' => 'active',
+                'circle_second_status' => 'prospect_incoming', //Determines whether prospect is interested or not - other status is prospect_accepted
+                'circle_time_status_type' => 'normal_time', //regular 30 days, other statuses could be 1 day limit or 5 day limit, etc
+                'circle_isInDispute' => 'false',
+                'circle_initiatorTrustScore' => '0',
+                'circle_initiator_hasAgreed' => 'true',
+                'circle_prospect_hasAgreed' => 'false',
+                'circle_theme_code' => $this->pickTheme(),
+                'circle_completion_date' => Carbon::now()->addDays($default_time_limit->value), //default time is 30 days
             ]);
 
-            $create_tradeTransactionHistory = TradeTransactionHistory::create([
-                'trade_trans_id' => $create_tradeTransaction->id,
-                'trade_id_initiator_item' => $request->item_id, //i clicked the button
-                'trade_id_prospect_item' => $trade_id_prospect_item_value_or_null, //other user
-                'trade_trans_history_an_id' => $trade_history_an_id,
+            $create_circleTransactionHistory = CircleTransactionHistory::create([
+                'circle_trans_id' => $create_circleTransaction->id,
+                'circle_id_initiator_item' => $request->item_id, //i clicked the button
+                'circle_id_prospect_item' => $circle_id_prospect_item_value_or_null, //other user
+                'circle_trans_history_an_id' => $circle_history_an_id,
                 'status' => 'valid',
-                'trade_initiator_hasAgreed' => 'false',
-                'trade_prospect_hasAgreed' => 'false',
-                'transaction_summary' => 'Trade Transaction Created',
-                //'trade_completion_date' => $test, //let this be null
+                'circle_initiator_hasAgreed' => 'false',
+                'circle_prospect_hasAgreed' => 'false',
+                'transaction_summary' => 'Circle Transaction Created',
+                //'circle_completion_date' => $test, //let this be null
             ]);
             
             //Set notification only if its a new message
@@ -504,8 +504,8 @@ class ChatController extends Controller
 
     /*
                         ***** destoryConversation *****
-        - Destorying a conversation, also means this is aborting a trade
-        - At the time of initially deleting a conversation, the trade feature didn't exist
+        - Destorying a conversation, also means this is aborting a circle
+        - At the time of initially deleting a conversation, the circle feature didn't exist
     */
     public function destoryConversation(Request $request){
         $convo_id = $request->value1; //gets conversation id
@@ -513,23 +513,23 @@ class ChatController extends Controller
         $recipUser = $request->value3; //the delete convo initiator (from recipient)
         $fromUser = $request->value4; //the delete convo initiator (could be me or my convo partner)
 
-        $completed_trade = 'false';
+        $completed_circle = 'false';
          //where to determine a conversation is deleted or completed...or anything else
 
         if(isset($request->value5)){
-            $completed_trade = $request->value5;
+            $completed_circle = $request->value5;
         }else{
-            $completed_trade = 'false';
+            $completed_circle = 'false';
         }
 
         if(trim($delete_initiator_id) == trim($recipUser)){ //person who init the convo delete, is the convo receiver
 
-            if($completed_trade == 'false'){
+            if($completed_circle == 'false'){
                 $update_convo = Conversation::where('id', $convo_id)->update([
                     "deleted_by_user_id" => "true",
                     "status" => "old_chat",
                 ]);
-            }else if($completed_trade == 'true'){
+            }else if($completed_circle == 'true'){
                 $update_convo = Conversation::where('id', $convo_id)->update([
                     "status_second" => "completed",
                     "status" => "old_chat",
@@ -556,12 +556,12 @@ class ChatController extends Controller
 
         }else if(trim($delete_initiator_id) == trim($fromUser)){ //person who init the convo delete, is the convo initiator
 
-            if($completed_trade == 'false'){
+            if($completed_circle == 'false'){
                 $update_convo = Conversation::where('id', $convo_id)->update([
                     "deleted_by_from_id" => "true",
                     "status" => "old_chat",
                 ]);
-            }else if($completed_trade == 'true'){
+            }else if($completed_circle == 'true'){
                 $update_convo = Conversation::where('id', $convo_id)->update([
                     "status_second" => "completed",
                     "status" => "old_chat",
@@ -587,9 +587,9 @@ class ChatController extends Controller
             );
         }
 
-        //Abort the trade
-        TradeTransaction::where('trade_conversation_id', $convo_id)->update([
-            'trade_status' => 'aborted'
+        //Abort the circle
+        CircleTransaction::where('circle_conversation_id', $convo_id)->update([
+            'circle_status' => 'aborted'
         ]);
 
        

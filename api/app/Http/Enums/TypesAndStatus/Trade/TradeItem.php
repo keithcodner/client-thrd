@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Trade;
+namespace App\Enums\TypesAndStatus\Circle;
 
 enum IpType: string
 {

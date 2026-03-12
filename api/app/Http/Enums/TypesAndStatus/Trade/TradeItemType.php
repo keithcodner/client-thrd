@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Trade;
+namespace App\Enums\TypesAndStatus\Circle;
 
-enum TradeItemStatus: string
+enum CircleItemStatus: string
 {
     case Active = 'active';
     case InActive = 'in-active';
 }
 
-enum TradeItemCategoryStatus: string
+enum CircleItemCategoryStatus: string
 {
     case Item = 'item';
     case Service = 'service';

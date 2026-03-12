@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Vendor\Voyager;
 
-use App\Models\TradeTransactions\TradeTransaction;
+use App\Models\CircleTransactions\CircleTransaction;
 use App\Models\PaymentTransactions\PaymentTransaction;
 use App\Models\Event\Event;
 use App\Models\Ranking\Ranking;
@@ -73,7 +73,7 @@ class AdminAnalyticsController extends Controller
             $date = Carbon::now()->subMonths($i);
             $monthlyTrends[] = [
                 'month' => $date->format('M Y'),
-                //'trades' => TradeTransaction::whereYear('created_at', $date->year)
+                //'circles' => CircleTransaction::whereYear('created_at', $date->year)
                 //    ->whereMonth('created_at', $date->month)->count(),
                 //'payments' => PaymentTransaction::whereYear('created_at', $date->year)
                 //    ->whereMonth('created_at', $date->month)->count(),
@@ -92,14 +92,14 @@ class AdminAnalyticsController extends Controller
             
             $weeklyActivity[] = [
                 'week' => $startOfWeek->format('M j') . ' - ' . $endOfWeek->format('M j'),
-                //'trades' => TradeTransaction::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
+                //'circles' => CircleTransaction::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
                 'payments' => PaymentTransaction::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
                 //'profileViews' => MyNetworkUserProfileAnalytics::whereBetween('updated_at', [$startOfWeek, $endOfWeek])
                 //   ->sum('profile_views_count'),
             ];
         }
 
-        // Top paying users (replaces recent trade transactions)
+        // Top paying users (replaces recent circle transactions)
         $topPayingUsers = User::select('users.id', 'users.firstname', 'users.lastname', 'users.email', 'users.name')
             ->join('trxn_payment_transaction', 'users.id', '=', 'trxn_payment_transaction.user_id')
             ->where('trxn_payment_transaction.status', 'completed')
@@ -115,12 +115,12 @@ class AdminAnalyticsController extends Controller
             ->take(10)
             ->get();
 
-        // Trade status distribution
-        // $tradeStatusDistribution = TradeTransaction::select('trade_status', DB::raw('count(*) as count'))
-        //     ->groupBy('trade_status')
+        // Circle status distribution
+        // $circleStatusDistribution = CircleTransaction::select('circle_status', DB::raw('count(*) as count'))
+        //     ->groupBy('circle_status')
         //     ->get()
         //     ->mapWithKeys(function ($item) {
-        //         return [$item->trade_status => $item->count];
+        //         return [$item->circle_status => $item->count];
         //     });
 
         // Payment status distribution

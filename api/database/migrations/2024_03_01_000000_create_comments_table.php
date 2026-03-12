@@ -17,7 +17,7 @@ class CreateCommentsTable extends Migration
             $table->bigInteger('id')->autoIncrement();
             $table->bigInteger('user_id')->nullable()->default(null);
             $table->bigInteger('post_id')->nullable()->default(null);
-            $table->bigInteger('trade_item_id')->nullable()->default(null);
+            $table->bigInteger('circle_item_id')->nullable()->default(null);
             $table->bigInteger('video_id')->nullable()->default(null);
             $table->bigInteger('incident_id')->nullable()->default(null);
             $table->bigInteger('pronetwork_group_profile_id')->nullable()->default(null);

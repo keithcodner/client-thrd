@@ -16,7 +16,7 @@ class CreateWishlistTable extends Migration
         Schema::create('wishlist', function (Blueprint $table) {
             $table->bigInteger('id')->default(0);
             $table->bigInteger('user_id')->nullable()->default(null);
-            $table->string('trade_item_type_id', 50)->nullable()->default(null);
+            $table->string('circle_item_type_id', 50)->nullable()->default(null);
             $table->bigInteger('parent_type')->nullable()->default(null);
             $table->bigInteger('file_stored_an_id')->nullable()->default(null);
             $table->string('name', 300)->nullable()->default(null);

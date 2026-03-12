@@ -475,11 +475,8 @@ CREATE TABLE IF NOT EXISTS `credit_transactions` (
   CONSTRAINT `FK_credit_transactions_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table thrd.credit_transactions: ~2 rows (approximately)
+-- Dumping data for table thrd.credit_transactions: ~0 rows (approximately)
 /*!40000 ALTER TABLE `credit_transactions` DISABLE KEYS */;
-INSERT INTO `credit_transactions` (`id`, `user_id`, `stripe_payment_intent_id`, `credits_amount`, `amount_paid`, `currency`, `status`, `paid_at`, `created_at`, `updated_at`) VALUES
-	(1, 3, 'pi_3T6PYzQ4bltyPTuH25iREbZx', 200, 30.00, 'usd', 'pending', NULL, '2026-03-02 06:02:42', '2026-03-02 06:02:42'),
-	(2, 3, 'pi_3T6PaWQ4bltyPTuH18YvrbmS', 50, 10.00, 'usd', 'pending', NULL, '2026-03-02 06:04:16', '2026-03-02 06:04:16');
 /*!40000 ALTER TABLE `credit_transactions` ENABLE KEYS */;
 
 -- Dumping structure for table thrd.failed_jobs
@@ -690,7 +687,7 @@ CREATE TABLE IF NOT EXISTS `image_test` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table thrd.image_test: ~16 rows (approximately)
+-- Dumping data for table thrd.image_test: ~14 rows (approximately)
 /*!40000 ALTER TABLE `image_test` DISABLE KEYS */;
 INSERT INTO `image_test` (`id`, `user_id`, `original_image_public_id`, `original_image`, `generated_image_public_id`, `generated_image`, `operation_type`, `operation_metadata`, `created_at`, `updated_at`) VALUES
 	(2, 3, 'uploads/2jOK0vqnqAKacg5Re43nBS4lKSBzmsHWKKlMP2kP.jpg', 'https://res.cloudinary.com/dr41anqet/image/upload/v1772250070/uploads/2jOK0vqnqAKacg5Re43nBS4lKSBzmsHWKKlMP2kP.jpg', 'uploads/transformed/gen_fill/yzdfsz2x0cigqfdwhkqg', 'https://res.cloudinary.com/dr41anqet/image/upload/v1772250085/transformed/gen_fill/yzdfsz2x0cigqfdwhkqg.jpg', 'generative-fill', '{"aspect_ratio":"4:3"}', '2026-02-28 03:41:25', '2026-02-28 03:41:25'),
@@ -946,7 +943,7 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table thrd.migrations: ~103 rows (approximately)
+-- Dumping data for table thrd.migrations: ~101 rows (approximately)
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(1, '0001_01_01_000000_create_users_table', 1),
@@ -1166,6 +1163,31 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
 /*!40000 ALTER TABLE `password_reset_tokens` DISABLE KEYS */;
 /*!40000 ALTER TABLE `password_reset_tokens` ENABLE KEYS */;
 
+-- Dumping structure for table thrd.permissions
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE IF NOT EXISTS `permissions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `permission_name` varchar(100) DEFAULT NULL,
+  `description` varchar(100) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table thrd.permissions: ~8 rows (approximately)
+/*!40000 ALTER TABLE `permissions` DISABLE KEYS */;
+INSERT INTO `permissions` (`id`, `permission_name`, `description`, `type`, `created_at`, `updated_at`) VALUES
+	(1, 'invite.user', 'Invites a user', 'action', '2026-03-11 00:55:51', '2026-03-11 00:55:53'),
+	(2, 'post.flyer', 'Able to post flyer', 'action', '2026-03-11 00:59:05', '2026-03-11 00:59:08'),
+	(3, 'receive.review', 'Able to recieve review', 'action', '2026-03-11 00:59:06', '2026-03-11 00:59:09'),
+	(4, 'create.hub', 'Able to create hubs', 'action', '2026-03-11 00:59:06', '2026-03-11 00:59:10'),
+	(5, 'view.analytics', 'Able to view analytics', 'action', '2026-03-11 00:59:07', '2026-03-11 00:59:09'),
+	(6, 'run.promotion', 'Able to run promotions', 'action', '2026-03-11 00:59:07', '2026-03-11 00:59:11'),
+	(7, 'run.advertising', 'Able to run advertising', 'action', '2026-03-11 00:59:07', '2026-03-11 00:59:11'),
+	(8, 'allow.follow', 'Individual users can follow hosts, collectives, and businesses', 'action', '2026-03-11 01:01:37', '2026-03-11 01:01:36');
+/*!40000 ALTER TABLE `permissions` ENABLE KEYS */;
+
 -- Dumping structure for table thrd.personal_access_tokens
 DROP TABLE IF EXISTS `personal_access_tokens`;
 CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
@@ -1183,13 +1205,16 @@ CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`),
   KEY `personal_access_tokens_expires_at_index` (`expires_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table thrd.personal_access_tokens: ~2 rows (approximately)
+-- Dumping data for table thrd.personal_access_tokens: ~5 rows (approximately)
 /*!40000 ALTER TABLE `personal_access_tokens` DISABLE KEYS */;
 INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
 	(1, 'App\\Models\\User', 2, 'auth_token', '7bd84e46bd76285a62ab00423714a681e1ad576590a2bfd8e97df5bd287e63a1', '["*"]', NULL, NULL, '2026-02-21 06:48:35', '2026-02-21 06:48:35'),
-	(3, 'App\\Models\\User', 3, 'auth_token', '9988074f45412577bc8f31478cc580ddb628971258f5d3858c2f0b598b4476c0', '["*"]', NULL, NULL, '2026-02-25 05:32:45', '2026-02-25 05:32:45');
+	(3, 'App\\Models\\User', 3, 'auth_token', '9988074f45412577bc8f31478cc580ddb628971258f5d3858c2f0b598b4476c0', '["*"]', '2026-03-11 04:30:14', NULL, '2026-02-25 05:32:45', '2026-03-11 04:30:14'),
+	(8, 'App\\Models\\User', 85, 'auth_token', 'ae54d9406d1a39028012c5edb8b06b59ed58c2f3e1766187fa98b8163e40538a', '["*"]', NULL, NULL, '2026-03-06 06:02:39', '2026-03-06 06:02:39'),
+	(14, 'App\\Models\\User', 86, 'auth_token', 'a802f3c72bc3322752226ee6b9024c542ee264805135aea4c8318f0d1a77a451', '["*"]', NULL, NULL, '2026-03-07 16:46:51', '2026-03-07 16:46:51'),
+	(15, 'App\\Models\\User', 86, 'auth_token', 'a31a55cb11f72efceb833aaa55324a1bad875b88ca2a8ac620ca3361d9b9f23a', '["*"]', '2026-03-08 06:48:39', NULL, '2026-03-07 16:47:14', '2026-03-08 06:48:39');
 /*!40000 ALTER TABLE `personal_access_tokens` ENABLE KEYS */;
 
 -- Dumping structure for table thrd.posts
@@ -1660,6 +1685,47 @@ CREATE TABLE IF NOT EXISTS `ranking_weight` (
 -- Dumping data for table thrd.ranking_weight: ~0 rows (approximately)
 /*!40000 ALTER TABLE `ranking_weight` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ranking_weight` ENABLE KEYS */;
+
+-- Dumping structure for table thrd.roles
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE IF NOT EXISTS `roles` (
+  `id` int unsigned NOT NULL DEFAULT '0',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `display_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `roles_name_unique` (`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table thrd.roles: ~4 rows (approximately)
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` (`id`, `name`, `display_name`, `created_at`, `updated_at`) VALUES
+	(3, 'admin', 'Administrator', '2026-03-05 00:00:26', '2026-03-05 00:00:28'),
+	(4, 'personal', 'Personal', '2026-03-05 00:00:50', '2026-03-05 00:00:51'),
+	(5, 'host', 'Community Host', '2026-03-05 00:01:50', '2026-03-05 00:01:52'),
+	(6, 'business', 'Business Venue', '2026-03-05 00:01:51', '2026-03-05 00:01:52');
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+
+-- Dumping structure for table thrd.role_permissions
+DROP TABLE IF EXISTS `role_permissions`;
+CREATE TABLE IF NOT EXISTS `role_permissions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `role_id` int unsigned DEFAULT NULL,
+  `permission_id` int unsigned DEFAULT NULL,
+  `notes` varchar(5000) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_role_permissions_permissions` (`permission_id`),
+  KEY `FK_role_permissions_roles` (`role_id`),
+  CONSTRAINT `FK_role_permissions_permissions` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_role_permissions_roles` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table thrd.role_permissions: ~0 rows (approximately)
+/*!40000 ALTER TABLE `role_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `role_permissions` ENABLE KEYS */;
 
 -- Dumping structure for table thrd.search
 DROP TABLE IF EXISTS `search`;
@@ -2430,10 +2496,10 @@ CREATE TABLE IF NOT EXISTS `trxn_vat` (
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `role_id` bigint unsigned NOT NULL,
+  `role_id` bigint unsigned NOT NULL DEFAULT '20',
   `alpha_num_id` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
-  `firstname` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
-  `lastname` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `firstname` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `lastname` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `username` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `email` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
@@ -2448,6 +2514,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `password_try` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `status` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT 'active',
+  `credits` varchar(50) COLLATE utf8mb3_unicode_ci DEFAULT 'active',
   `remember_token` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `settings` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
   `user_settings` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
@@ -2485,25 +2552,63 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `users_email_unique` (`email`) USING BTREE,
-  UNIQUE KEY `Index 4` (`username`) USING BTREE,
-  KEY `users_role_id_foreign` (`role_id`) USING BTREE,
-  CONSTRAINT `users_role_id_foreign` FOREIGN KEY (`role_id`) REFERENCES `gigbizness`.`roles` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+  UNIQUE KEY `Index 4` (`username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
--- Dumping data for table thrd.users: ~0 rows (approximately)
+-- Dumping data for table thrd.users: ~4 rows (approximately)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` (`id`, `role_id`, `alpha_num_id`, `firstname`, `lastname`, `username`, `name`, `email`, `google_id`, `profile_photo_path`, `avatar`, `email_verification_token`, `user_IsVerified`, `email_IsVerified`, `email_VerifiedToken`, `change_PasswordToken`, `password`, `password_try`, `status`, `credits`, `remember_token`, `settings`, `user_settings`, `type`, `telephone`, `about`, `contact`, `links`, `history`, `friend_list`, `vid_fav`, `circle_fav`, `phone_num`, `isStoreOpen`, `identity`, `intrests`, `yourLocation`, `who_i_sub_to`, `who_sub_to_me`, `who_i_sub_to_count`, `who_sub_to_me_count`, `registerIP`, `lastLoginIP`, `suspend_reactive`, `email_verified_at`, `birthdate`, `last_login`, `user_lat`, `user_long`, `user_city`, `default_km_range`, `language`, `searchable`, `updated_at`, `created_at`) VALUES
+	(1, 20, NULL, NULL, NULL, NULL, 'John Doe', 'john@example.com', NULL, NULL, 'users/avatar.png', 'no', 'no', 'no', NULL, NULL, '$2y$12$GYImQF/48li/1g8e2Z32Zu5M/.89/BxDEN8ZJFZ/8MBq6YfRS3sge', NULL, 'active', '100', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'anonymous', NULL, NULL, NULL, NULL, '0', '0', NULL, NULL, '1993-02-14 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'false', '2026-02-21 06:30:49', '2026-02-21 06:30:49'),
+	(2, 20, NULL, NULL, NULL, NULL, 'John Doe', 'john1@example.com', NULL, NULL, 'users/avatar.png', 'no', 'no', 'no', NULL, NULL, '$2y$12$a3Bi0u6MlmoEdtKmivUKIu1rsMbcF0yWUkQ3l.PPrDSaCbQ60CdWC', NULL, 'active', '100', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'anonymous', NULL, NULL, NULL, NULL, '0', '0', NULL, NULL, '1993-02-14 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'false', '2026-02-21 06:44:58', '2026-02-21 06:44:58'),
+	(85, 20, NULL, NULL, NULL, NULL, 'Test', 'test@test.com', NULL, NULL, 'users/avatar.png', 'no', 'no', 'no', NULL, NULL, '$2y$12$zLGyDkI/Uw62llRoodOaCOs9n1GMcvDbhergH6eDmkVX7Sjra.9j6', NULL, 'active', 'active', NULL, NULL, NULL, 'personal', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '28994613136', NULL, 'anonymous', NULL, NULL, NULL, NULL, '0', '0', NULL, NULL, '1993-02-14 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'false', '2026-03-06 06:02:37', '2026-03-06 06:02:37'),
+	(86, 20, NULL, NULL, NULL, NULL, 'Paul', 'test1@test.com', NULL, NULL, 'users/avatar.png', 'no', 'no', 'no', NULL, NULL, '$2y$12$vKDgr/ozQ34jf1CE5tOtr.u/RkZm5YFi4xtpoN5L/o43ordode.zy', NULL, 'active', 'active', NULL, NULL, NULL, 'personal', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1234567891', NULL, 'anonymous', NULL, NULL, NULL, NULL, '0', '0', NULL, NULL, '1993-02-14 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'false', '2026-03-07 16:46:36', '2026-03-07 16:46:36');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
+
+-- Dumping structure for table thrd.users_activity
+DROP TABLE IF EXISTS `users_activity`;
+CREATE TABLE IF NOT EXISTS `users_activity` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT '0',
+  `page` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `action` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `value` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `op1` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `op2` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `op3` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4051 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='- tracks the users activity';
+
+-- Dumping data for table thrd.users_activity: ~0 rows (approximately)
+/*!40000 ALTER TABLE `users_activity` DISABLE KEYS */;
+/*!40000 ALTER TABLE `users_activity` ENABLE KEYS */;
 
 -- Dumping structure for table thrd.user_roles
 DROP TABLE IF EXISTS `user_roles`;
 CREATE TABLE IF NOT EXISTS `user_roles` (
-  `user_id` bigint NOT NULL,
-  `role_id` bigint NOT NULL,
-  PRIMARY KEY (`user_id`,`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `role_id` int unsigned DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_user_roles_users` (`user_id`),
+  KEY `FK_user_roles_roles` (`role_id`),
+  CONSTRAINT `FK_user_roles_roles` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
+  CONSTRAINT `FK_user_roles_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table thrd.user_roles: ~0 rows (approximately)
+-- Dumping data for table thrd.user_roles: ~3 rows (approximately)
 /*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
+INSERT INTO `user_roles` (`id`, `user_id`, `role_id`, `created_at`, `updated_at`) VALUES
+	(1, 1, 3, '2026-03-11 01:21:33', '2026-03-11 01:21:35'),
+	(2, 2, 6, '2026-03-11 01:22:12', '2026-03-11 01:22:13'),
+	(3, 85, 5, '2026-03-11 01:22:43', '2026-03-11 01:22:44'),
+	(4, 86, 4, '2026-03-11 01:25:16', '2026-03-11 01:25:16');
 /*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
 
 -- Dumping structure for table thrd.verify_images

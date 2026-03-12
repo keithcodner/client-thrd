@@ -38,12 +38,12 @@ class AgoraBrowseFunctionsController extends Controller
         return view('old1.search.agora-browse');
     }
 
-    public function categorySearch(string $trade_item_type_id, string $amount){
+    public function categorySearch(string $circle_item_type_id, string $amount){
 
         $category_name = '';
-        $items = Item::where('trade_item_type_id', $trade_item_type_id)->limit($amount)->get();
+        $items = Item::where('circle_item_type_id', $circle_item_type_id)->limit($amount)->get();
 
-        //$category_name = ItemType::where('id', $trade_item_type_id)->pluck('trade_item_category_name');
+        //$category_name = ItemType::where('id', $circle_item_type_id)->pluck('circle_item_category_name');
 
         return $items;
     }
@@ -87,9 +87,9 @@ class AgoraBrowseFunctionsController extends Controller
             //dd($item);
 
             $truncateTitle = \Illuminate\Support\Str::limit($item->ip_title ,  $limit = 30, $end = '...');
-            $fullCategory = $item->itemType->trade_item_subtype;
-            $truncateCategory = \Illuminate\Support\Str::limit($item->itemType->trade_item_subtype ,  $limit = 20, $end = '...');
-            $categoryLinkSearch = '/search/category/'.$item->itemType->trade_item_subtype;
+            $fullCategory = $item->itemType->circle_item_subtype;
+            $truncateCategory = \Illuminate\Support\Str::limit($item->itemType->circle_item_subtype ,  $limit = 20, $end = '...');
+            $categoryLinkSearch = '/search/category/'.$item->itemType->circle_item_subtype;
 
             $userProfileLink = route('user.profile', $item->user->username);
             $userProfileName = $item->user->username;

@@ -108,7 +108,7 @@ Run Webservers Steps:
 user_settings default:
 
 
-[{"id":1,"name":"enable_sidebar_minified_as_default","value":"off"},{"id":2,"name":"enable_mynetwork_profile","value":"off"},{"id":3,"name":"auto_accept_trade","value":"off"},{"id":4,"name":"auto_decline_trade","value":"off"},{"id":5,"name":"default_trade_list_or_grid_view","value":"grid"},{"id":6,"name":"thrd_notifications","value":"on"},{"id":7,"name":"enable_help_text","value":"on"},{"id":8,"name":"hide_wishlist","value":"off"},{"id":9,"name":"locale","value":"en"},{"id":10,"name":"location","value":"on"},{"id":11,"name":"notifications_on_trades","value":"on"},{"id":12,"name":"notification_sounds","value":"off"},{"id":13,"name":"preferred_language","value":"off"},{"id":14,"name":"trade_dashboard_light_or_dark_theme","value":"off"}]
+[{"id":1,"name":"enable_sidebar_minified_as_default","value":"off"},{"id":2,"name":"enable_mynetwork_profile","value":"off"},{"id":3,"name":"auto_accept_circle","value":"off"},{"id":4,"name":"auto_decline_circle","value":"off"},{"id":5,"name":"default_circle_list_or_grid_view","value":"grid"},{"id":6,"name":"thrd_notifications","value":"on"},{"id":7,"name":"enable_help_text","value":"on"},{"id":8,"name":"hide_wishlist","value":"off"},{"id":9,"name":"locale","value":"en"},{"id":10,"name":"location","value":"on"},{"id":11,"name":"notifications_on_circles","value":"on"},{"id":12,"name":"notification_sounds","value":"off"},{"id":13,"name":"preferred_language","value":"off"},{"id":14,"name":"circle_dashboard_light_or_dark_theme","value":"off"}]
 
 ----------------------
 How to run already installed instance (dev & production): Laravel/React
@@ -233,12 +233,12 @@ like i mentioned earlier, we'll go through some outstanding items that were eith
 - rank (we may not use this feature) //skip for now
 - my profile (requires some more product/team input, as well some search improvements) // skip for now
 - Normal search (needs more improvements to be stream lined) // done (only events)
-- trade service:
-- chat (needs some touch ups)  // next to do, chat between two users (non trade)
+- circle service:
+- chat (needs some touch ups)  // next to do, chat between two users (non circle)
 - Log in pages
 - front end
 - post feed (needs some product/team input)
-- trade (trade services/calendar)
+- circle (circle services/calendar)
 - events/calendar (completed future services and events) - (https://tailwindui.starxg.com/plus/ui-blocks/application-ui/data-display/calendars)
 - admin (very lacking; basically not much has been updated in years; my profile would be the main outstanding item)
 - notifications
@@ -384,8 +384,8 @@ sudo certbot renew --dry-run
 
 -----------Styled Pages-----------
 
-http://127.0.0.1:5500/samples/live_designs/user-pages/trades/trade-view.html
-http://127.0.0.1:5500/samples/live_designs/user-pages/trades/trade-view.html
+http://127.0.0.1:5500/samples/live_designs/user-pages/circles/circle-view.html
+http://127.0.0.1:5500/samples/live_designs/user-pages/circles/circle-view.html
 http://127.0.0.1:5500/samples/live_designs/user-pages/dashboard/dashboard-temp-home.html
 http://127.0.0.1:5500/samples/live_designs/user-pages/account/account-temp-home.html
 http://127.0.0.1:5500/samples/live_designs/user-pages/home/home-temp-after-login.html

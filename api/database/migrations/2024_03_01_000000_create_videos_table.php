@@ -16,7 +16,7 @@ class CreateVideosTable extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->bigInteger('id')->autoIncrement();
             $table->bigInteger('user_id')->nullable()->default(null);
-            $table->bigInteger('trade_item_id')->nullable()->default(null);
+            $table->bigInteger('circle_item_id')->nullable()->default(null);
             $table->string('video_reject_reason', 5000);
             $table->string('video_vid_comment_id', 50)->nullable()->default(null);
             $table->string('video_usr_id', 40)->nullable()->default(null);

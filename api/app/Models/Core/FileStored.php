@@ -15,7 +15,7 @@ class FileStored extends Model
     protected $table = 'files_stored';
     protected $primaryKey  = 'id';
     
-    protected $fillable = ['trade_item_post_id', 'wishlist_item_id', 'feed_post_id', 'file_store_an_id', 'file_store_wishlist_an_id', 'filename', 'foldername', 'status', 'verify_status', 'type', 'order'];
+    protected $fillable = ['circle_item_post_id', 'wishlist_item_id', 'feed_post_id', 'file_store_an_id', 'file_store_wishlist_an_id', 'filename', 'foldername', 'status', 'verify_status', 'type', 'order'];
 
     public function item()
     {

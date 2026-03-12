@@ -24,7 +24,7 @@ class ProNetworkUserProfile extends Model
         'general_location_city',
         'general_location_country',
         'general_location_state_province',
-        'general_trade',
+        'general_circle',
         'general_profession',
         'website_link',
         'social_media_link1',

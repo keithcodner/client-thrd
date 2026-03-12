@@ -29,15 +29,15 @@ enum SettingsSite: string
     // Login security
     case LoginTryAttempts = 'login_try_attempts';
 
-    // Trade system
-    case EnableSimultaneousTradeLimit = 'enable_simultaneous_trade_limit';
-    case SimultaneousTradeLimitTier1 = 'simultaneous_trade_limit_tier_1';
-    case SimultaneousTradeLimitTier2 = 'simultaneous_trade_limit_tier_2';
-    case EnableTradeTimeLimit = 'enable_trade_time_limit';
-    case TradeTimeLimitTier1 = 'trade_time_limit_tier_1';
-    case TradeTimeLimitTier2 = 'trade_time_limit_tier_2';
-    case TradeWhoInitiatesOffer = 'trade_who_initiates_offer';
-    case EnableTradeTransactionInsightCollection = 'enable_trade_transaction_insight_collection';
+    // Circle system
+    case EnableSimultaneousCircleLimit = 'enable_simultaneous_circle_limit';
+    case SimultaneousCircleLimitTier1 = 'simultaneous_circle_limit_tier_1';
+    case SimultaneousCircleLimitTier2 = 'simultaneous_circle_limit_tier_2';
+    case EnableCircleTimeLimit = 'enable_circle_time_limit';
+    case CircleTimeLimitTier1 = 'circle_time_limit_tier_1';
+    case CircleTimeLimitTier2 = 'circle_time_limit_tier_2';
+    case CircleWhoInitiatesOffer = 'circle_who_initiates_offer';
+    case EnableCircleTransactionInsightCollection = 'enable_circle_transaction_insight_collection';
 
     // Favorite item limits
     case MaxMyFaveItemsTier1 = 'max_my_fave_items_tier_1';

@@ -621,9 +621,9 @@ class SearchController extends Controller
         $parse_search = preg_replace('~%20| ~', " ", $parse_search); 
         $site_settings = SiteSettings::where('name', 'require_content_validation')->first();
         
-        $itemTypes_ids = ItemType::where('trade_item_subtype', 'like', '%' .  $parse_search . '%')->pluck('id');
-        $itemTypes_names = ItemType::where('trade_item_subtype', 'like', '%' .  'Baseball & Softball' . '%')->limit(1)->pluck('trade_item_category_type');
-        $items = Item::whereIn('trade_item_type_id', $itemTypes_ids)->paginate(16);
+        $itemTypes_ids = ItemType::where('circle_item_subtype', 'like', '%' .  $parse_search . '%')->pluck('id');
+        $itemTypes_names = ItemType::where('circle_item_subtype', 'like', '%' .  'Baseball & Softball' . '%')->limit(1)->pluck('circle_item_category_type');
+        $items = Item::whereIn('circle_item_type_id', $itemTypes_ids)->paginate(16);
 
         //TODO: Need figure out how to search with like with spaces
         //dd($itemTypes_names);

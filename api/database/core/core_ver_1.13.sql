@@ -216,7 +216,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint DEFAULT NULL,
   `post_id` bigint DEFAULT NULL,
-  `trade_item_id` bigint DEFAULT NULL,
+  `circle_item_id` bigint DEFAULT NULL,
   `video_id` bigint DEFAULT NULL,
   `incident_id` bigint DEFAULT NULL,
   `pronetwork_group_profile_id` bigint DEFAULT NULL,
@@ -613,7 +613,7 @@ CREATE TABLE IF NOT EXISTS `files_product` (
 DROP TABLE IF EXISTS `files_stored`;
 CREATE TABLE IF NOT EXISTS `files_stored` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `trade_item_post_id` bigint DEFAULT NULL,
+  `circle_item_post_id` bigint DEFAULT NULL,
   `wishlist_item_id` bigint DEFAULT NULL,
   `file_store_an_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `file_store_wishlist_an_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1071,14 +1071,14 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint DEFAULT NULL,
   `from_id` bigint DEFAULT NULL,
-  `fk_trade_item_post_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fk_circle_item_post_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_conversation_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_rankings_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_ranking_transaction_history_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_pronetwork_requests_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_comments_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_trxn_payment_transaction_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fk_trade_transaction_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fk_circle_transaction_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fk_verify_images_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `notif_an_id` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1338,7 +1338,7 @@ CREATE TABLE IF NOT EXISTS `pronetwork_group_profile` (
   `general_location_city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `general_location_country` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `general_location_state_province` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `general_trade` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `general_circle` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `general_profession` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `website_link` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `social_media_link1` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1390,7 +1390,7 @@ CREATE TABLE IF NOT EXISTS `pronetwork_user_profile` (
   `general_location_city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `general_location_country` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `general_location_state_province` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `general_trade` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `general_circle` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `general_profession` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `website_link` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `social_media_link1` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1835,7 +1835,7 @@ CREATE TABLE IF NOT EXISTS `tracker_comment_user_video` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint DEFAULT NULL,
   `video_id` bigint DEFAULT NULL,
-  `trade_item_id` bigint DEFAULT NULL,
+  `circle_item_id` bigint DEFAULT NULL,
   `tcuvt_comment_an_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tcuvt_video_an_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tcuvt_user_an_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -2526,7 +2526,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `history` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
   `friend_list` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
   `vid_fav` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
-  `trade_fav` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
+  `circle_fav` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
   `phone_num` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `isStoreOpen` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `identity` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT 'anonymous',
@@ -2557,7 +2557,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Dumping data for table thrd.users: ~12 rows (approximately)
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` (`id`, `role_id`, `alpha_num_id`, `firstname`, `lastname`, `username`, `name`, `email`, `google_id`, `profile_photo_path`, `avatar`, `email_verification_token`, `user_IsVerified`, `email_IsVerified`, `email_VerifiedToken`, `change_PasswordToken`, `password`, `password_try`, `status`, `credits`, `remember_token`, `settings`, `user_settings`, `type`, `telephone`, `about`, `contact`, `links`, `history`, `friend_list`, `vid_fav`, `trade_fav`, `phone_num`, `isStoreOpen`, `identity`, `intrests`, `yourLocation`, `who_i_sub_to`, `who_sub_to_me`, `who_i_sub_to_count`, `who_sub_to_me_count`, `registerIP`, `lastLoginIP`, `suspend_reactive`, `email_verified_at`, `birthdate`, `last_login`, `user_lat`, `user_long`, `user_city`, `default_km_range`, `language`, `searchable`, `updated_at`, `created_at`) VALUES
+INSERT INTO `users` (`id`, `role_id`, `alpha_num_id`, `firstname`, `lastname`, `username`, `name`, `email`, `google_id`, `profile_photo_path`, `avatar`, `email_verification_token`, `user_IsVerified`, `email_IsVerified`, `email_VerifiedToken`, `change_PasswordToken`, `password`, `password_try`, `status`, `credits`, `remember_token`, `settings`, `user_settings`, `type`, `telephone`, `about`, `contact`, `links`, `history`, `friend_list`, `vid_fav`, `circle_fav`, `phone_num`, `isStoreOpen`, `identity`, `intrests`, `yourLocation`, `who_i_sub_to`, `who_sub_to_me`, `who_i_sub_to_count`, `who_sub_to_me_count`, `registerIP`, `lastLoginIP`, `suspend_reactive`, `email_verified_at`, `birthdate`, `last_login`, `user_lat`, `user_long`, `user_city`, `default_km_range`, `language`, `searchable`, `updated_at`, `created_at`) VALUES
 	(1, 20, NULL, NULL, NULL, NULL, 'John Doe', 'john@example.com', NULL, NULL, 'users/avatar.png', 'no', 'no', 'no', NULL, NULL, '$2y$12$GYImQF/48li/1g8e2Z32Zu5M/.89/BxDEN8ZJFZ/8MBq6YfRS3sge', NULL, 'active', '100', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'anonymous', NULL, NULL, NULL, NULL, '0', '0', NULL, NULL, '1993-02-14 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'false', '2026-02-21 06:30:49', '2026-02-21 06:30:49'),
 	(2, 20, NULL, NULL, NULL, NULL, 'John Doe', 'john1@example.com', NULL, NULL, 'users/avatar.png', 'no', 'no', 'no', NULL, NULL, '$2y$12$a3Bi0u6MlmoEdtKmivUKIu1rsMbcF0yWUkQ3l.PPrDSaCbQ60CdWC', NULL, 'active', '100', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'anonymous', NULL, NULL, NULL, NULL, '0', '0', NULL, NULL, '1993-02-14 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'false', '2026-02-21 06:44:58', '2026-02-21 06:44:58'),
 	(85, 20, NULL, NULL, NULL, NULL, 'Test', 'test@test.com', NULL, NULL, 'users/avatar.png', 'no', 'no', 'no', NULL, NULL, '$2y$12$zLGyDkI/Uw62llRoodOaCOs9n1GMcvDbhergH6eDmkVX7Sjra.9j6', NULL, 'active', 'active', NULL, NULL, NULL, 'personal', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '28994613136', NULL, 'anonymous', NULL, NULL, NULL, NULL, '0', '0', NULL, NULL, '1993-02-14 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'false', '2026-03-06 06:02:37', '2026-03-06 06:02:37'),
@@ -2614,7 +2614,7 @@ DROP TABLE IF EXISTS `videos`;
 CREATE TABLE IF NOT EXISTS `videos` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint DEFAULT NULL,
-  `trade_item_id` bigint DEFAULT NULL,
+  `circle_item_id` bigint DEFAULT NULL,
   `video_reject_reason` varchar(5000) COLLATE utf8mb4_unicode_ci NOT NULL,
   `video_vid_comment_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `video_usr_id` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -2711,7 +2711,7 @@ DROP TABLE IF EXISTS `wishlist`;
 CREATE TABLE IF NOT EXISTS `wishlist` (
   `id` bigint NOT NULL DEFAULT '0',
   `user_id` bigint DEFAULT NULL,
-  `trade_item_type_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `circle_item_type_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `parent_type` bigint DEFAULT NULL,
   `file_stored_an_id` bigint DEFAULT NULL,
   `name` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

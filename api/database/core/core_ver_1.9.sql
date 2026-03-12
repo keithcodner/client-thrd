@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `history` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
   `friend_list` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
   `vid_fav` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
-  `trade_fav` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
+  `circle_fav` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci,
   `phone_num` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `isStoreOpen` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `identity` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT 'anonymous',

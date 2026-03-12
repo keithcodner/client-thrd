@@ -9,11 +9,11 @@ enum RankPermissionName: string
     case PostLimitHigh            = 'post_limit_high';
     case PostLimitMax             = 'post_limit_max';
     case PostLimitUnlimited       = 'post_limit_unlimited';
-    case TradeItemLimitLow        = 'trade_item_limit_low';
-    case TradeItemLimitMedium     = 'trade_item_limit_medium';
-    case TradeItemLimitHigh       = 'trade_item_limit_high';
-    case TradeItemLimitMax        = 'trade_item_limit_max';
-    case TradeItemLimitUnlimited  = 'trade_item_limit_unlimited';
+    case CircleItemLimitLow        = 'circle_item_limit_low';
+    case CircleItemLimitMedium     = 'circle_item_limit_medium';
+    case CircleItemLimitHigh       = 'circle_item_limit_high';
+    case CircleItemLimitMax        = 'circle_item_limit_max';
+    case CircleItemLimitUnlimited  = 'circle_item_limit_unlimited';
 }
 
 enum RankPermissionType: string

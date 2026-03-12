@@ -46,7 +46,7 @@ enum ReportingStatus: string
 enum ReportingReasonTable: string
 {
     case Post = 'post';
-    case Trade = 'trade';
+    case Circle = 'circle';
     case Item = 'item';
 }
 

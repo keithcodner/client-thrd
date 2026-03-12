@@ -96,7 +96,7 @@ class ManageAdminEventController extends Controller
             'event_date_time' => 'required|date',
             'event_date_time_start_range' => 'nullable|date',
             'event_date_time_end_range' => 'nullable|date|after_or_equal:event_date_time_start_range',
-            'type' => 'required|in:admin_event,self_event,trade,meeting,appointment',
+            'type' => 'required|in:admin_event,self_event,circle,meeting,appointment',
             'status' => 'required|in:active,inactive,cancelled,completed',
             'category' => 'nullable|string|max:100',
             'link' => 'nullable|url|max:500',
@@ -140,7 +140,7 @@ class ManageAdminEventController extends Controller
             'event_date_time' => 'required|date',
             'event_date_time_start_range' => 'nullable|date',
             'event_date_time_end_range' => 'nullable|date|after_or_equal:event_date_time_start_range',
-            'type' => 'required|in:admin_event,self_event,trade,meeting,appointment',
+            'type' => 'required|in:admin_event,self_event,circle,meeting,appointment',
             'status' => 'required|in:active,inactive,cancelled,completed',
             'category' => 'nullable|string|max:100',
             'link' => 'nullable|url|max:500',
@@ -255,7 +255,7 @@ class ManageAdminEventController extends Controller
         switch ($type) {
             case 'admin_event':
                 return '#3b82f6'; // blue
-            case 'trade':
+            case 'circle':
                 return '#f59e0b'; // amber
             case 'meeting':
                 return '#8b5cf6'; // violet

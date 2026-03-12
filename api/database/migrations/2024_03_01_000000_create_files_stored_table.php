@@ -15,7 +15,7 @@ class CreateFilesStoredTable extends Migration
     {
         Schema::create('files_stored', function (Blueprint $table) {
             $table->bigInteger('id')->autoIncrement();
-            $table->bigInteger('trade_item_post_id')->nullable()->default(null);
+            $table->bigInteger('circle_item_post_id')->nullable()->default(null);
             $table->bigInteger('wishlist_item_id')->nullable()->default(null);
             $table->string('file_store_an_id', 100)->index()->nullable()->default(null);
             $table->string('file_store_wishlist_an_id', 100)->index()->nullable()->default(null);

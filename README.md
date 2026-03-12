@@ -15,7 +15,7 @@ Backend Laravel application providing REST APIs for the THRD platform.
 
 **Key Features:**
 - User authentication and authorization
-- Product/trade item management
+- Product/circle item management
 - Transaction and order processing
 - Calendar synchronization
 - Messaging and conversations
@@ -93,7 +93,7 @@ php artisan serve
 - Respects complex, multi-hyphenate schedules
 
 ### 🎨 Cultural Discovery
-- Explore events, products, and trade items
+- Explore events, products, and circle items
 - Community hubs and spaces
 - Personalized recommendations
 

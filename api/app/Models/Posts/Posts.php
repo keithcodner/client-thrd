@@ -53,7 +53,7 @@ class Posts extends Model
 
     public function fileStored()
     {
-        return $this->hasMany(FileStored::class, 'trade_item_post_id');
+        return $this->hasMany(FileStored::class, 'circle_item_post_id');
     }
 
 }
