@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-
 // Authentication Routes... as guest
 Route::middleware("guest")->group(function () {
    Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -39,19 +38,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
     });
 
-    Route::post(uri: '/image/fill', action: [ImageController::class, 'fill']);
-    Route::post(uri: '/image/restore', action: [ImageController::class, 'restore']);
-    Route::post(uri: '/image/recolour', action: [ImageController::class, 'recolour']);
-    Route::post(uri: '/image/remove', action: [ImageController::class, 'remove']);
+    Route::post( '/image/fill', [ImageController::class, 'fill']);
+    Route::post( '/image/restore', [ImageController::class, 'restore']);
+    Route::post( '/image/recolour', [ImageController::class, 'recolour']);
+    Route::post( '/image/remove', [ImageController::class, 'remove']);
 
     Route::get('/image/latest-operations', [ImageController::class, 'getLatestOperations']);
     Route::get('/image/operation/{id}', [ImageController::class, 'getOperation']);
     Route::delete('/image/operation/{id}', [ImageController::class, 'deleteOperation']);
 
     Route::post('/payment/create-payment-intent', 
-    action: [CreditPaymentController::class, 'createPaymentIntent']);
+    [CreditPaymentController::class, 'createPaymentIntent']);
     Route::post('/payment/handle-payment-success', 
-    action: [CreditPaymentController::class, 'handlePaymentSuccess']);
+    [CreditPaymentController::class, 'handlePaymentSuccess']);
 });
 
 
