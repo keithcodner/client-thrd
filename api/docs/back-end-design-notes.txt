@@ -45,18 +45,10 @@ user_id	role_id	Resulting Power
 -> create `permissions ` model/migration
 -> updated `user_roles` model/migration
 
--> create `circles` model/migration
--> create `circle_details` model/migration
 
 
 -----3/12/2026-----
 
-circles
-circles_details
-circles_member_tracker 
-circles_idea_board
-circles_idea_board_posts
-files_circle
 
 process of how a circle is generated:
 """""""""""""""""""""""""""""""""""""
@@ -94,4 +86,23 @@ conversation_chats:
 ---> system is when the system enters a record, either for tutorial or admin purposes
 
 TODO:
-- need to integrate chat and conversation
+- need to integrate chat and conversation //done
+
+-----3/13/2026-----
+
+create model/migration for the following tables:
+
+circles
+circles_details
+circles_member_tracker 
+circles_idea_board
+circles_idea_board_posts
+circles_requests
+files_circle
+
+conversation_chats
+conversations
+
+roles
+permissions
+user_roles
