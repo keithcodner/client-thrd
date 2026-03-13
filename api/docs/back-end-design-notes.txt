@@ -41,12 +41,57 @@ user_id	role_id	Resulting Power
 
 -----3/11/2026-----
 
--> create `circles` table
--> create `circle_details` table
-
 -> create `roles ` model/migration
 -> create `permissions ` model/migration
 -> updated `user_roles` model/migration
 
 -> create `circles` model/migration
 -> create `circle_details` model/migration
+
+
+-----3/12/2026-----
+
+circles
+circles_details
+circles_member_tracker 
+circles_idea_board
+circles_idea_board_posts
+files_circle
+
+process of how a circle is generated:
+"""""""""""""""""""""""""""""""""""""
+
+1. cicles table is created 
+2. circle_details, circles_member_tracker, circles_idea_board created along side it
+-> owner is added to their own circle automatically
+
+3. conversation table is created with circle_id
+3a. when an account is created, we create a already made circle, with system chats or the users first chat
+
+4. circles_idea_board_posts is created when a user posts in the idea board
+5. files_circle is inserted when a owner user updated the bg image, profile image or a user adds an image to the idea board
+
+
+Notes:
+
+conversation table:
+- owner_user_id is the person who initiatiated the conversation
+--> if the user conversation is 1 to 1, `to_id` is used
+-->if the user conversation is a group (part of a circle), `to_id` is NOT used
+
+- type: couple, circle
+- status: active, in-active
+
+
+
+conversation_chats:
+- when the conversation is 1 to 1, end_user_id is used
+- when the conversation is a circle, then messages are read by first come first serve
+- conversation will have a type:
+--> type: chat, announcement, system
+---> chat is when a user makes a chat
+---> announcement,  is when a user joines, leaves, or a change is made to the chat. When a user joins, a record will be inserted with announcement
+---> system is when the system enters a record, either for tutorial or admin purposes
+
+TODO:
+- need to integrate chat and conversation
