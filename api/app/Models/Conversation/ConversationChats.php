@@ -2,7 +2,6 @@
 
 namespace App\Models\Conversation;
 
-use App\Models\CircleTransactions\CircleTransaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,7 +10,6 @@ class ConversationChats extends Model
     use HasFactory;
 
     protected $table = 'conversation_chats';
-    protected $primaryKey  = 'id';
 
     protected $fillable = [
         'init_user_id',
@@ -24,12 +22,9 @@ class ConversationChats extends Model
         'op1',
         'op2',
         'seen_by_other_user',
+        'seen_by_received_user',
+        'type',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
-
-    public function conversation()
-    {
-        return $this->belongsTo(Conversation::class, 'id');
-    }
 }
