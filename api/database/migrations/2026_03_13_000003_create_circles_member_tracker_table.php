@@ -14,14 +14,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('circles_member_tracker', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('circle_id');
-            $table->unsignedBigInteger('user_id');
-            $table->string('role')->nullable();
-            $table->timestamps();
+            $table->increments('id');
+            $table->unsignedInteger('circle_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('status', 50)->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('update_at')->nullable();
 
-            $table->foreign('circle_id')->references('id')->on('circles')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('circle_id')->references('id')->on('circles')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

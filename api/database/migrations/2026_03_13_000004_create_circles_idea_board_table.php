@@ -14,13 +14,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('circles_idea_board', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('circle_id');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->timestamps();
+            $table->increments('id');
+            $table->unsignedInteger('circle_id')->nullable();
+            $table->string('file_store_circle_an_id', 255)->nullable();
+            $table->text('details')->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('status', 50)->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('update_at')->nullable();
 
-            $table->foreign('circle_id')->references('id')->on('circles')->onDelete('cascade');
+            $table->foreign('circle_id')->references('id')->on('circles')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

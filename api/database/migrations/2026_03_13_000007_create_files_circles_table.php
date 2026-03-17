@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('files_circles', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('reference_id');
+            $table->increments('id');
+            $table->integer('reference_id');
             $table->string('table_reference_name', 255)->nullable();
             $table->string('file_store_an_id', 500)->nullable();
             $table->string('filename', 255)->nullable();

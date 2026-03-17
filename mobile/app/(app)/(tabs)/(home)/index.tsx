@@ -4,6 +4,7 @@ import { useSession } from "@/context/AuthContext";
 import { useProfileOverlay } from "@/context/ProfileOverlayContext";
 import Home  from "./home";
 import axiosInstance from "@/config/axiosConfig";
+import { CreateCircleModal } from "@/components/app/CreateCircleModal";
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -15,6 +16,7 @@ const HomeScreen = () => {
   const [todos, setTodos] = useState([]);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
 
   // Fetch home feed data
   useEffect(() => {
@@ -83,27 +85,50 @@ const HomeScreen = () => {
   };
 
   const handleCreateGroup = () => {
-    // TODO: Open create group modal
-    console.log('Create group');
+    setShowCreateCircleModal(true);
+  };
+
+  const handleCreatePost = () => {
+    // TODO: Open create post modal
+    console.log('Create post');
+  };
+
+  const handleCircleSubmit = async (circleData: any) => {
+    try {
+      // TODO: API call to create circle
+      console.log('Creating circle:', circleData);
+      // await axiosInstance.post('/circles', circleData);
+      setShowCreateCircleModal(false);
+    } catch (error) {
+      console.error('Error creating circle:', error);
+    }
   };
 
   return (
-    <Home
-      currentUser={currentUser}
-      spaces={spaces.length > 0 ? spaces : undefined}
-      groups={groups.length > 0 ? groups : undefined}
-      todos={todos.length > 0 ? todos : undefined}
-      notificationsCount={notificationsCount}
-      onNavigate={handleNavigate}
-      onOpenProfile={handleOpenProfile}
-      onSelectGroup={handleSelectGroup}
-      onSelectSpace={handleSelectSpace}
-      onOpenNotifications={handleOpenNotifications}
-      onAddEvent={handleAddEvent}
-      onHostEvent={handleHostEvent}
-      onCreateGroup={handleCreateGroup}
-      showHint={false}
-    />
+    <>
+      <Home
+        currentUser={currentUser}
+        spaces={spaces.length > 0 ? spaces : undefined}
+        groups={groups.length > 0 ? groups : undefined}
+        todos={todos.length > 0 ? todos : undefined}
+        notificationsCount={notificationsCount}
+        onNavigate={handleNavigate}
+        onOpenProfile={handleOpenProfile}
+        onSelectGroup={handleSelectGroup}
+        onSelectSpace={handleSelectSpace}
+        onOpenNotifications={handleOpenNotifications}
+        onAddEvent={handleAddEvent}
+        onHostEvent={handleHostEvent}
+        onCreateGroup={handleCreateGroup}
+        onCreatePost={handleCreatePost}
+      />
+      
+      <CreateCircleModal
+        visible={showCreateCircleModal}
+        onClose={() => setShowCreateCircleModal(false)}
+        onSubmit={handleCircleSubmit}
+      />
+    </>
   );
 };
 

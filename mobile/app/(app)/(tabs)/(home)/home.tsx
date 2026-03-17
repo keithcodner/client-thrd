@@ -14,7 +14,7 @@ import { MyCircles } from "@/components/home/MyCircles";
 import { UpcomingPlans } from "@/components/home/UpcomingPlans";
 import { MindSpaceCard } from "@/components/home/MindSpaceCard";
 import { FAB, FABAction } from "@/components/FAB";
-import { Plus, Sparkle } from "lucide-react-native";
+import { Plus, Sparkle, Film } from "lucide-react-native";
 
 interface HomeProps {
   currentUser?: any;
@@ -30,6 +30,7 @@ interface HomeProps {
   onAddEvent?: () => void;
   onHostEvent?: () => void;
   onCreateGroup?: () => void;
+  onCreatePost?: () => void;
   showHint?: boolean;
 }
 
@@ -169,6 +170,7 @@ export const Home = ({
   onAddEvent = () => {},
   onHostEvent = () => {},
   onCreateGroup = () => {},
+  onCreatePost = () => {},
   showHint = false,
 }: HomeProps = {}) => {
   const colors = useThemeColours();
@@ -277,6 +279,13 @@ export const Home = ({
       <FAB
         colors={colors}
         actions={[
+          {
+            id: 'create-post',
+            label: 'Post',
+            icon: Film,
+            color: '#d4680f',
+            onPress: () => onCreatePost?.(),
+          },
           {
             id: 'create-circle',
             label: 'Create Circle',

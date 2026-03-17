@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Pressable, Text, StyleSheet, Animated } from 'react-native';
-import { Plus, X, Sparkle } from 'lucide-react-native';
+import { Plus, X, Sparkle, Film } from 'lucide-react-native';
 import { useFAB } from '@/context/FABContext';
 
 export interface FABAction {
@@ -16,13 +16,15 @@ interface FABProps {
   actions?: FABAction[];
   onCoordinate?: () => void;
   onCreateCircle?: () => void;
+  onCreatePost?: () => void;
 }
 
 export const FAB = ({ 
   colors, 
   actions,
   onCoordinate = () => {}, 
-  onCreateCircle = () => {} 
+  onCreateCircle = () => {}, 
+  onCreatePost = () => {},
 }: FABProps) => {
   const { isExpanded, toggleFAB, closeFAB } = useFAB();
   const animatedValues = useRef<Animated.Value[]>([]).current;
@@ -37,8 +39,18 @@ export const FAB = ({
     closeFAB();
   };
 
+  const handleCreatePost = () => {
+    onCreatePost();
+    closeFAB();
+  }
   // Default actions if none provided
   const defaultActions: FABAction[] = [
+    {
+      id: 'create-post',
+      label: 'Post',
+      icon: Film,
+      onPress: handleCreatePost,
+    },
     {
       id: 'coordinate',
       label: 'Coordinate',

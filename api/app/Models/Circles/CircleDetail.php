@@ -14,6 +14,7 @@ class CircleDetail extends Model
         'file_store_circle_an_id',
         'file_store_circle_bg_img_an_id',
         'description',
+        'tone_description',
         'transparency_percent',
         'blur_depth_value',
         'style_code',

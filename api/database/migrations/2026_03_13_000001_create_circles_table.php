@@ -14,14 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('circles', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_owner_id');
-            $table->string('name');
-            $table->string('type');
-            $table->string('status');
-            $table->timestamps();
-
-            $table->foreign('user_owner_id')->references('id')->on('users')->onDelete('cascade');
+            $table->increments('id');
+            $table->unsignedInteger('user_owner_id')->nullable();
+            $table->string('name', 500)->nullable();
+            $table->string('type', 50)->nullable();
+            $table->string('status', 50)->nullable();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('update_at')->nullable();
         });
     }
 
