@@ -82,9 +82,9 @@ export const ImageAdjustmentModal = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             {isPublicHub ? (
-              <Globe size={23} color={colors.accent} />
+              <Globe size={26} color={colors.accent} />
             ) : (
-              <Users size={23} color={colors.accent} />
+              <Users size={26} color={colors.accent} />
             )}
             <View style={styles.headerText}>
               <Text
