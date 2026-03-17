@@ -43,3 +43,47 @@ Base URL: `http://YOUR_COMPUTER_IP:8000/api`
 - **Firewall**: Make sure Windows Firewall allows port 8000
 - **Network**: Both devices must be on the same local network
 - **Connection refused**: Try disabling your firewall temporarily or add an exception for port 8000
+
+## Accessing the App Remotely via Expo
+
+If you want to access the app remotely via Expo to demonstrate it to a client, follow these steps:
+
+### 1. Start the API Server
+1. Ensure you are in the `api` directory:
+   ```bash
+   cd api
+   ```
+2. Start the API server:
+   ```bash
+   php artisan serve --host=0.0.0.0 --port=8000
+   ```
+   - The `--host=0.0.0.0` option allows the server to be accessible from other devices on the same network.
+   - Note the IP address of your machine (e.g., `192.168.x.x`). You will use this to configure the mobile app.
+
+### 2. Start the Expo Bundler
+1. Navigate to the `mobile` directory:
+   ```bash
+   cd ../mobile
+   ```
+2. Start the Expo development server:
+   ```bash
+   npx expo start --tunnel
+   ```
+   - The `--tunnel` option ensures the Expo bundler is accessible remotely, even if the devices are not on the same network.
+
+### 3. Configure the Mobile App
+1. Open the `mobile/config/env.ts` file.
+2. Update the `API_URL` to point to your machine's IP address and port:
+   ```typescript
+   export const API_URL = 'http://192.168.x.x:8000';
+   ```
+
+### 4. Test the App
+1. Open the Expo Go app on your mobile device.
+2. Scan the QR code provided by the Expo bundler.
+3. Verify that the app connects to the API and functions as expected.
+
+### Notes
+- Ensure both your development machine and the client device are connected to the internet.
+- If using a firewall, allow connections to the specified port (e.g., `8000`).
+- For a more stable demonstration, consider using a tool like [ngrok](https://ngrok.com/) to expose your local API server to the internet.
