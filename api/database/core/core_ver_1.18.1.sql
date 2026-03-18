@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `circles` (
   `type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `update_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='- table the tracks who owns the circle group\r\n- types: standard\r\n- status: active, in-active';
 
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `circles_details` (
   `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `update_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_circles_details_circles` (`circle_id`),
   KEY `FK_circles_details_circles_idea_board` (`circle_idea_board_id`),
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS `circles_idea_board` (
   `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `update_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_circles_idea_board_circles` (`circle_id`),
   CONSTRAINT `FK_circles_idea_board_circles` FOREIGN KEY (`circle_id`) REFERENCES `circles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS `circles_idea_board_posts` (
   `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `update_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_circles_idea_board_posts_circles_idea_board` (`circles_idea_board_id`),
   KEY `FK_circles_idea_board_posts_users` (`user_owner_id`),
@@ -264,7 +264,7 @@ CREATE TABLE IF NOT EXISTS `circles_member_tracker` (
   `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `update_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_circles_member_tracker_circles` (`circle_id`),
   KEY `FK_circles_member_tracker_users` (`user_id`),
@@ -285,7 +285,7 @@ CREATE TABLE IF NOT EXISTS `circles_requests` (
   `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `update_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   KEY `FK_circles_requests_circles` (`circle_id`),
   KEY `FK_circles_requests_users` (`requesting_to_join_user_id`),
