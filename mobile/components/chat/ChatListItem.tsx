@@ -37,19 +37,19 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
   return (
     <Pressable
       onPress={handlePress}
-      className="flex-row items-center px-5 py-4 border-b border-gray-700 h-24 border-l-8 border-l-yellow-500"
+      className="flex-row items-center px-5 py-4 border-b h-24 border-l-8"
       style={({ pressed }) => ({
         opacity: pressed ? 0.7 : 1,
-        backgroundColor: pressed ? '#222' : '#1a1a1a',
-        borderBottomColor: '#333',
+        backgroundColor: pressed ? colors.surface : colors.background,
+        borderBottomColor: colors.border,
         borderBottomWidth: 2,
-
+        borderLeftColor: '#F59E0B',
       })}
     >
       {/* Avatar */}
       <View 
         className="w-12 h-12 rounded-full items-center justify-center mr-3"
-        style={{ backgroundColor: '#6B7A4F' }}
+        style={{ backgroundColor: colors.primary }}
       >
         <Text className="text-white font-semibold text-base">
           {getInitials(chat.name)}
@@ -59,11 +59,11 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
       {/* Content */}
       <View className="flex-1">
         <View className="flex-row justify-between items-center mb-1">
-          <Text className="text-base font-semibold text-white">
+          <Text className="text-base font-semibold" style={{ color: colors.text }}>
             {chat.name}
           </Text>
           {chat.timestamp && (
-            <Text className="text-xs" style={{ color: '#666' }}>
+            <Text className="text-xs" style={{ color: colors.secondaryText }}>
               {chat.timestamp}
             </Text>
           )}
@@ -71,7 +71,7 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
         <View className="flex-row items-center">
           <Text 
             className="text-sm flex-1"
-            style={{ color: '#999' }}
+            style={{ color: colors.secondaryText }}
             numberOfLines={1}
           >
             {chat.lastMessage}
@@ -79,7 +79,7 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
           {chat.unread && (
             <View 
               className="w-2 h-2 rounded-full ml-2"
-              style={{ backgroundColor: '#ADC178' }}
+              style={{ backgroundColor: colors.primary }}
             />
           )}
         </View>

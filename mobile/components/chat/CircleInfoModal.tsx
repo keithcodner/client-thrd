@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, Camera, FileText, UserPlus, Palette, Users, Bell, Lock } from 'lucide-react-native';
+import { useThemeColours } from '@/hooks/useThemeColours';
 
 interface CircleInfoModalProps {
   visible: boolean;
@@ -23,6 +24,7 @@ export const CircleInfoModal = ({
   circleId,
 }: CircleInfoModalProps) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const colors = useThemeColours();
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -44,14 +46,14 @@ export const CircleInfoModal = ({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.background }]}>
           <Pressable onPress={onClose} style={styles.backButton}>
-            <ChevronLeft size={24} color="#4A9EFF" />
-            <Text style={styles.backText}>Back</Text>
+            <ChevronLeft size={24} color={colors.info} />
+            <Text style={[styles.backText, { color: colors.info }]}>Back</Text>
           </Pressable>
-          <Text style={styles.headerTitle}>Circle Info</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Circle Info</Text>
           <View style={{ width: 60 }} />
         </View>
 
@@ -59,25 +61,25 @@ export const CircleInfoModal = ({
           {/* Avatar Section */}
           <View style={styles.avatarSection}>
             <View style={styles.avatarContainer}>
-              <View style={styles.avatar}>
+              <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
                 <Text style={styles.avatarText}>{getInitials(circleName)}</Text>
               </View>
-              <Pressable style={styles.cameraIcon}>
+              <Pressable style={[styles.cameraIcon, { borderColor: colors.background, backgroundColor: colors.info }]}>
                 <Camera size={16} color="#fff" />
               </Pressable>
             </View>
-            <Text style={styles.circleName}>{circleName}</Text>
+            <Text style={[styles.circleName, { color: colors.text }]}>{ circleName}</Text>
           </View>
 
           {/* Action Buttons */}
-          <View style={styles.actionButtons}>
+          <View style={[styles.actionButtons, { borderBottomColor: colors.border }]}>
             <Pressable style={styles.actionButton}>
-              <FileText size={20} color="#4A9EFF" />
-              <Text style={styles.actionButtonText}>BOARD</Text>
+              <FileText size={20} color={colors.info} />
+              <Text style={[styles.actionButtonText, { color: colors.info }]}>BOARD</Text>
             </Pressable>
             <Pressable style={styles.actionButton}>
-              <UserPlus size={20} color="#4A9EFF" />
-              <Text style={styles.actionButtonText}>INVITE</Text>
+              <UserPlus size={20} color={colors.info} />
+              <Text style={[styles.actionButtonText, { color: colors.info }]}>INVITE</Text>
             </Pressable>
           </View>
 
@@ -85,67 +87,67 @@ export const CircleInfoModal = ({
           <View style={styles.settingsContainer}>
             {/* Chat Style */}
             <Pressable
-              style={styles.settingItem}
+              style={[styles.settingItem, { borderBottomColor: colors.border }]}
               onPress={() => toggleSection('chatStyle')}
             >
               <View style={styles.settingLeft}>
-                <Palette size={20} color="#aaa" />
+                <Palette size={20} color={colors.secondaryText} />
                 <View style={styles.settingTextContainer}>
-                  <Text style={styles.settingTitle}>Chat Style</Text>
-                  <Text style={styles.settingSubtitle}>THEME & BACKGROUND</Text>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>Chat Style</Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.secondaryText }]}>THEME & BACKGROUND</Text>
                 </View>
               </View>
-              <ChevronDown size={20} color="#aaa" />
+              <ChevronDown size={20} color={colors.secondaryText} />
             </Pressable>
 
             {/* Members */}
             <Pressable
-              style={styles.settingItem}
+              style={[styles.settingItem, { borderBottomColor: colors.border }]}
               onPress={() => toggleSection('members')}
             >
               <View style={styles.settingLeft}>
-                <Users size={20} color="#aaa" />
+                <Users size={20} color={colors.secondaryText} />
                 <View style={styles.settingTextContainer}>
-                  <Text style={styles.settingTitle}>Members</Text>
-                  <Text style={styles.settingSubtitle}>1 PEOPLE</Text>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>Members</Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.secondaryText }]}>1 PEOPLE</Text>
                 </View>
               </View>
-              <ChevronDown size={20} color="#aaa" />
+              <ChevronDown size={20} color={colors.secondaryText} />
             </Pressable>
 
             {/* Notifications */}
             <Pressable
-              style={styles.settingItem}
+              style={[styles.settingItem, { borderBottomColor: colors.border }]}
               onPress={() => toggleSection('notifications')}
             >
               <View style={styles.settingLeft}>
-                <Bell size={20} color="#aaa" />
+                <Bell size={20} color={colors.secondaryText} />
                 <View style={styles.settingTextContainer}>
-                  <Text style={styles.settingTitle}>Notifications</Text>
-                  <Text style={styles.settingSubtitle}>OFF</Text>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>Notifications</Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.secondaryText }]}>OFF</Text>
                 </View>
               </View>
-              <ChevronDown size={20} color="#aaa" />
+              <ChevronDown size={20} color={colors.secondaryText} />
             </Pressable>
 
             {/* Circle Privacy */}
             <Pressable
-              style={styles.settingItem}
+              style={[styles.settingItem, { borderBottomColor: colors.border }]}
               onPress={() => toggleSection('privacy')}
             >
               <View style={styles.settingLeft}>
-                <Lock size={20} color="#aaa" />
+                <Lock size={20} color={colors.secondaryText} />
                 <View style={styles.settingTextContainer}>
-                  <Text style={styles.settingTitle}>Circle Privacy</Text>
-                  <Text style={styles.settingSubtitle}>MEMBERS ONLY</Text>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>Circle Privacy</Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.secondaryText }]}>MEMBERS ONLY</Text>
                 </View>
               </View>
-              <ChevronDown size={20} color="#aaa" />
+              <ChevronDown size={20} color={colors.secondaryText} />
             </Pressable>
           </View>
 
           {/* Leave Circle Button */}
-          <Pressable style={styles.leaveButton}>
+          <Pressable style={[styles.leaveButton, { backgroundColor: colors.error }]}>
             <Text style={styles.leaveButtonText}>Leave Circle</Text>
           </Pressable>
 
@@ -159,7 +161,6 @@ export const CircleInfoModal = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
   },
   header: {
     flexDirection: 'row',
@@ -168,7 +169,6 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 16,
     paddingHorizontal: 20,
-    backgroundColor: '#1a1a1a',
   },
   backButton: {
     flexDirection: 'row',
@@ -176,12 +176,10 @@ const styles = StyleSheet.create({
     width: 60,
   },
   backText: {
-    color: '#4A9EFF',
     fontSize: 16,
     marginLeft: 2,
   },
   headerTitle: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -200,7 +198,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#6B7A4F',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -217,14 +214,11 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#4A9EFF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: '#1a1a1a',
   },
   circleName: {
-    color: '#fff',
     fontSize: 20,
     fontWeight: '600',
   },
@@ -234,13 +228,11 @@ const styles = StyleSheet.create({
     gap: 40,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
   },
   actionButton: {
     alignItems: 'center',
   },
   actionButtonText: {
-    color: '#4A9EFF',
     fontSize: 12,
     fontWeight: '600',
     marginTop: 8,
@@ -256,7 +248,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a2a',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -268,12 +259,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingTitle: {
-    color: '#fff',
     fontSize: 16,
     marginBottom: 4,
   },
   settingSubtitle: {
-    color: '#999',
     fontSize: 11,
     fontWeight: '600',
     letterSpacing: 0.5,
@@ -282,7 +271,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 24,
     paddingVertical: 16,
-    backgroundColor: '#8B1A1A',
     borderRadius: 8,
     alignItems: 'center',
   },

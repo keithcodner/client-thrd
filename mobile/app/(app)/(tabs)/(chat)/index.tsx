@@ -51,44 +51,45 @@ const ChatHome = () => {
 
   return (
     <>
-      <View className="flex-1" style={{ backgroundColor: '#1a1a1a' }}>
+      <View className="flex-1" style={{ backgroundColor: colours.background }}>
         {/* Header */}
         <View className="px-5 pt-12 pb-4">
-          <Text className="text-4xl text-white mb-5" style={{ fontFamily: 'serif', fontWeight: '400' }}>
+          <Text className="text-4xl mb-5" style={{ fontFamily: 'serif', fontWeight: '400', color: colours.text }}>
             Chats
           </Text>
 
           {/* Search Bar */}
           <View className="flex-row items-center">
-            <View className="flex-1 flex-row items-center rounded-lg px-3 py-2 mr-3" style={{ backgroundColor: '#2a2a2a' }}>
-              <Search size={18} color="#666" />
+            <View className="flex-1 flex-row items-center rounded-lg px-3 py-2 mr-3" style={{ backgroundColor: colours.card }}>
+              <Search size={18} color={colours.secondaryText} />
               <TextInput
-                className="flex-1 ml-2 text-white text-sm"
+                className="flex-1 ml-2 text-sm"
                 placeholder="Search"
-                placeholderTextColor="#666"
+                placeholderTextColor={colours.secondaryText}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
+                style={{ color: colours.text }}
               />
             </View>
             <Pressable
               className="w-10 h-10 items-center justify-center rounded-lg"
-              style={{ backgroundColor: '#2a2a2a' }}
+              style={{ backgroundColor: colours.card }}
               onPress={() => console.log('Open filter')}
             >
-              <SlidersHorizontal size={18} color="#666" />
+              <SlidersHorizontal size={18} color={colours.secondaryText} />
             </Pressable>
           </View>
         </View>
 
         {/* Messages Section */}
-        <View className="px-5 py-3 border-b" style={{ borderBottomColor: '#2a2a2a' }}>
-          <Text className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#666' }}>
+        <View className="px-5 py-3 border-b" style={{ borderBottomColor: colours.border }}>
+          <Text className="text-xs font-semibold uppercase tracking-widest" style={{ color: colours.secondaryText }}>
             MESSAGES
           </Text>
         </View>
 
         {/* Chat List */}
-        <ScrollView className="flex-1" style={{ backgroundColor: '#1a1a1a' }}>
+        <ScrollView className="flex-1" style={{ backgroundColor: colours.background }}>
           {filteredChats.map(chat => (
             <ChatListItem key={chat.id} chat={chat} />
           ))}

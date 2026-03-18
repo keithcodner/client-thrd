@@ -34,7 +34,7 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
           {/* Avatar */}
           <View 
             className="w-8 h-8 rounded-full items-center justify-center mr-2 mt-5"
-            style={{ backgroundColor: '#6B7A4F' }}
+            style={{ backgroundColor: colors.primary }}
           >
             <Text className="text-white font-semibold text-xs">
               {getInitials(message.sender)}
@@ -43,14 +43,14 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
           
           {/* Message Content */}
           <View className="flex-1">
-            <Text className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#999' }}>
+            <Text className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: colors.secondaryText }}>
               {message.sender}
             </Text>
-            <View className="rounded-2xl p-4" style={{ backgroundColor: '#2a2a2a' }}>
-              <Text className="text-sm leading-6" style={{ color: '#ddd' }}>
+            <View className="rounded-2xl p-4" style={{ backgroundColor: colors.card }}>
+              <Text className="text-sm leading-6" style={{ color: colors.text }}>
                 {message.content}
               </Text>
-              <Text className="text-xs mt-2 text-right" style={{ color: '#666' }}>
+              <Text className="text-xs mt-2 text-right" style={{ color: colors.secondaryText }}>
                 {message.timestamp}
               </Text>
             </View>
@@ -65,19 +65,19 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
     <View className="px-4 py-2">
       <View className="flex-row items-end justify-end">
         <View className="items-end" style={{ maxWidth: '80%' }}>
-          <View className="rounded-2xl px-4 py-3" style={{ backgroundColor: '#6B7A4F' }}>
+          <View className="rounded-2xl px-4 py-3" style={{ backgroundColor: colors.primary }}>
             <Text className="text-sm leading-5 text-white">
               {message.content}
             </Text>
           </View>
-          <Text className="text-xs mt-1" style={{ color: '#666' }}>
+          <Text className="text-xs mt-1" style={{ color: colors.secondaryText }}>
             {message.timestamp}
           </Text>
         </View>
         {/* Avatar */}
         <View 
           className="w-8 h-8 rounded-full items-center justify-center ml-2"
-          style={{ backgroundColor: '#6B7A4F' }}
+          style={{ backgroundColor: colors.primary }}
         >
           <Text className="text-white font-semibold text-xs">
             {getInitials(message.sender)}
