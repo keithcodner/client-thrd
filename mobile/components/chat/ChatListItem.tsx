@@ -15,14 +15,25 @@ export interface ChatItemData {
 
 interface ChatListItemProps {
   chat: ChatItemData;
+  /** 
+   * Called when user long-presses the chat item
+   * Use this to show the ChatManagementOverlay
+   */
+  onLongPress?: (chat: ChatItemData) => void;
 }
 
-export const ChatListItem = ({ chat }: ChatListItemProps) => {
+export const ChatListItem = ({ chat, onLongPress }: ChatListItemProps) => {
   const colors = useThemeColours();
   const router = useRouter();
 
   const handlePress = () => {
     router.push(`/${chat.id}`);
+  };
+
+  const handleLongPress = () => {
+    if (onLongPress) {
+      onLongPress(chat);
+    }
   };
 
   // Get initials from name
@@ -58,6 +69,7 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
   return (
     <Pressable
       onPress={handlePress}
+      onLongPress={handleLongPress}
       className={`flex-row items-center px-5 py-4 h-24 
         ${chat.id === '1' ? 'border-l-8 border-yellow-700' : ''}
         ${chat.id === '1' ? 'border-b' : 'border-b border-gray-800'}
@@ -113,7 +125,7 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
         </View>
         <View className="flex-row items-center">
           <Text 
-            className="text-sm flex-1"
+            className="text-sm flex-1 italic"
             style={{ color: colors.secondaryText }}
             numberOfLines={1}
           >

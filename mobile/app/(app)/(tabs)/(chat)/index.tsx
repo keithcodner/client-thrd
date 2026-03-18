@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
-import { Search, SlidersHorizontal } from "lucide-react-native";
+import { View, Text, ScrollView, TextInput, Pressable, ActivityIndicator } from "react-native";
+import { Plus, Search, SlidersHorizontal } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatListItem, ChatItemData } from "@/components/chat/ChatListItem";
+import { ChatManagementOverlay } from "@/components/chat/ChatManagementOverlay";
 import { FAB } from "@/components/FAB";
 import { CreateCircleModal } from "@/components/app/CreateCircleModal";
 import { createCircle, getUserCircleData } from "@/services/chatService";
 import Toast from "react-native-toast-message";
+
+/**
+ * ChatHome - Main chat list screen
+ * 
+ * Features:
+ * - Search and filter chats
+ * - Long press chat items to open ChatManagementOverlay
+ * - Quick actions: delete, pin, view info, leave, clear
+ * - Owner-specific actions (delete circle)
+ * 
+ * See: mobile/docs/CHAT_MANAGEMENT_OVERLAY.md
+ */
 
 // Dummy chat data
 const DUMMY_CHATS: ChatItemData[] = [
@@ -24,8 +37,10 @@ const ChatHome = () => {
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
-  const [chats, setChats] = useState<ChatItemData[]>(DUMMY_CHATS);
-  const [isLoading, setIsLoading] = useState(false);
+  const [chats, setChats] = useState<ChatItemData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedChat, setSelectedChat] = useState<ChatItemData | null>(null);
+  const [showManagementOverlay, setShowManagementOverlay] = useState(false);
 
   const fetchUserCircles = async () => {
     try {
@@ -91,6 +106,63 @@ const ChatHome = () => {
     }
   };
 
+  /**
+   * Long press handler for chat items
+   * Opens the ChatManagementOverlay with quick actions and menu options
+   * See: mobile/docs/CHAT_MANAGEMENT_OVERLAY.md
+   */
+  const handleChatLongPress = (chat: ChatItemData) => {
+    setSelectedChat(chat);
+    setShowManagementOverlay(true);
+  };
+
+  /**
+   * Close overlay with animation
+   * Clears selected chat after animation completes to prevent visual glitches
+   */
+  const handleCloseOverlay = () => {
+    setShowManagementOverlay(false);
+    setTimeout(() => setSelectedChat(null), 300);
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    // Remove chat from list
+    setChats(chats.filter(chat => chat.id !== chatId));
+    Toast.show({
+      type: 'success',
+      text1: 'Deleted',
+      text2: 'Chat removed from your list.',
+    });
+  };
+
+  const handlePinChat = (chatId: string) => {
+    Toast.show({
+      type: 'success',
+      text1: 'Pinned',
+      text2: 'Chat pinned to top.',
+    });
+    // TODO: Implement pin functionality
+  };
+
+  const handleLeaveCircle = (chatId: string) => {
+    Toast.show({
+      type: 'info',
+      text1: 'Left Circle',
+      text2: 'You have left the circle.',
+    });
+    // TODO: Implement leave circle API call
+    handleDeleteChat(chatId);
+  };
+
+  const handleClearChats = (chatId: string) => {
+    Toast.show({
+      type: 'success',
+      text1: 'Cleared',
+      text2: 'All messages have been cleared.',
+    });
+    // TODO: Implement clear chats API call
+  };
+
   const filteredChats = searchQuery
     ? chats.filter(chat =>
         chat.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -143,9 +215,28 @@ const ChatHome = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1 }}
         >
-          {filteredChats.map(chat => (
-            <ChatListItem key={chat.id} chat={chat} />
-          ))}
+          {isLoading ? (
+            <View className="flex-1 justify-center items-center py-20">
+              <ActivityIndicator size="large" color={colours.primary} />
+              <Text className="mt-4 text-sm" style={{ color: colours.secondaryText }}>
+                Loading circles...
+              </Text>
+            </View>
+          ) : filteredChats.length > 0 ? (
+            filteredChats.map(chat => (
+              <ChatListItem 
+                key={chat.id} 
+                chat={chat} 
+                onLongPress={handleChatLongPress}
+              />
+            ))
+          ) : (
+            <View className="flex-1 justify-center items-center py-20">
+              <Text className="text-sm" style={{ color: colours.secondaryText }}>
+                {searchQuery ? 'No circles found' : 'No circles yet'}
+              </Text>
+            </View>
+          )}
         </ScrollView>
 
         {/* FAB */}
@@ -155,6 +246,8 @@ const ChatHome = () => {
             {
               id: 'create-circle',
               label: 'Create Circle',
+              icon: Plus,
+              color: '#4c8bf5',
               onPress: handleCreateCircle,
             },
           ]}
@@ -168,6 +261,18 @@ const ChatHome = () => {
         onClose={() => setShowCreateCircleModal(false)}
         onSubmit={handleCircleSubmit}
         isLoading={isCreatingCircle}
+      />
+
+      {/* Chat Management Overlay */}
+      <ChatManagementOverlay
+        visible={showManagementOverlay}
+        chat={selectedChat}
+        onClose={handleCloseOverlay}
+        onDelete={handleDeleteChat}
+        onPin={handlePinChat}
+        onLeave={handleLeaveCircle}
+        onClearChats={handleClearChats}
+        isOwner={selectedChat?.id !== '1'} // THRD chat is not user-owned
       />
     </>
   );

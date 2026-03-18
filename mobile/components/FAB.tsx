@@ -61,6 +61,7 @@ export const FAB = ({
       id: 'create-circle',
       label: 'Create Circle',
       icon: Plus,
+      color: '#4c8bf5',
       onPress: handleCreateCircle,
     },
   ];
