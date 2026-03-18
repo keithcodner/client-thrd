@@ -11,15 +11,15 @@ const DUMMY_CHATS: ChatItemData[] = [
   {
     id: '1',
     name: 'THRD',
-    lastMessage: 'If things start feeling like... a lot, Mind Spa...',
-    timestamp: '12:57 AM',
-    unread: true,
+    lastMessage: 'test',
+    timestamp: '1:49 AM',
+    unread: false,
   },
   {
     id: '2',
     name: 'test',
-    lastMessage: 'Start a conversation',
-    timestamp: '',
+    lastMessage: 'hey',
+    timestamp: '1:49 AM',
     unread: false,
   },
 ];
@@ -51,43 +51,44 @@ const ChatHome = () => {
 
   return (
     <>
-      <View className="flex-1 bg-white dark:bg-gray-900">
+      <View className="flex-1" style={{ backgroundColor: '#1a1a1a' }}>
         {/* Header */}
-        <View className="px-4 pt-12 pb-4">
-          <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+        <View className="px-5 pt-12 pb-4">
+          <Text className="text-4xl text-white mb-5" style={{ fontFamily: 'serif', fontWeight: '400' }}>
             Chats
           </Text>
 
           {/* Search Bar */}
           <View className="flex-row items-center">
-            <View className="flex-1 flex-row items-center bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2 mr-2">
-              <Search size={20} color={colours.secondaryText} />
+            <View className="flex-1 flex-row items-center rounded-lg px-3 py-2 mr-3" style={{ backgroundColor: '#2a2a2a' }}>
+              <Search size={18} color="#666" />
               <TextInput
-                className="flex-1 ml-2 text-gray-900 dark:text-white"
+                className="flex-1 ml-2 text-white text-sm"
                 placeholder="Search"
-                placeholderTextColor={colours.secondaryText}
+                placeholderTextColor="#666"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
             </View>
             <Pressable
-              className="w-10 h-10 items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full"
+              className="w-10 h-10 items-center justify-center rounded-lg"
+              style={{ backgroundColor: '#2a2a2a' }}
               onPress={() => console.log('Open filter')}
             >
-              <SlidersHorizontal size={20} color={colours.secondaryText} />
+              <SlidersHorizontal size={18} color="#666" />
             </Pressable>
           </View>
         </View>
 
         {/* Messages Section */}
-        <View className="px-4 py-2">
-          <Text className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        <View className="px-5 py-3 border-b" style={{ borderBottomColor: '#2a2a2a' }}>
+          <Text className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#666' }}>
             MESSAGES
           </Text>
         </View>
 
         {/* Chat List */}
-        <ScrollView className="flex-1">
+        <ScrollView className="flex-1" style={{ backgroundColor: '#1a1a1a' }}>
           {filteredChats.map(chat => (
             <ChatListItem key={chat.id} chat={chat} />
           ))}

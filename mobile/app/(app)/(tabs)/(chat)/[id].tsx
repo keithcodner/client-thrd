@@ -9,9 +9,10 @@ import {
   Platform 
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, Info, Plus, Mic } from "lucide-react-native";
+import { ChevronLeft, Info, Plus, Mic, X, Send, BarChart3, Calendar, Image } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
+import { CircleInfoModal } from "@/components/chat/CircleInfoModal";
 
 // Dummy messages data
 const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
@@ -58,6 +59,8 @@ const ChatDetail = () => {
 
   const chatId = Array.isArray(id) ? id[0] : id || '1';
   const [messages, setMessages] = useState<MessageData[]>(INITIAL_MESSAGES[chatId] || []);
+  const [showCircleInfo, setShowCircleInfo] = useState(false);
+  const [showInputActions, setShowInputActions] = useState(false);
   
   // Get chat name from ID
   const chatName = chatId === '1' ? 'THRD' : 'test';
@@ -102,12 +105,14 @@ const ChatDetail = () => {
   }, []);
 
   return (
-    <KeyboardAvoidingView 
-      className="flex-1 bg-gray-900"
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <>
+      <KeyboardAvoidingView 
+        className="flex-1"
+        style={{ backgroundColor: '#1a1a1a' }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
       {/* Header */}
-      <View className="bg-gray-900 pt-12 pb-4 px-4 flex-row items-center justify-between border-b border-gray-800">
+      <View className="pt-12 pb-4 px-5 flex-row items-center justify-between" style={{ backgroundColor: '#1a1a1a' }}>
         <View className="flex-row items-center flex-1">
           <Pressable 
             onPress={() => router.back()}
@@ -119,7 +124,7 @@ const ChatDetail = () => {
           {/* Avatar */}
           <View 
             className="w-10 h-10 rounded-full items-center justify-center mr-3"
-            style={{ backgroundColor: colours.primary }}
+            style={{ backgroundColor: '#6B7A4F' }}
           >
             <Text className="text-white font-semibold text-sm">
               {chatName[0].toUpperCase()}
@@ -131,7 +136,7 @@ const ChatDetail = () => {
           </Text>
         </View>
         
-        <Pressable onPress={() => console.log('Chat info')}>
+        <Pressable onPress={() => setShowCircleInfo(true)}>
           <Info size={24} color="#fff" />
         </Pressable>
       </View>
@@ -139,8 +144,9 @@ const ChatDetail = () => {
       {/* Messages */}
       <ScrollView 
         ref={scrollViewRef}
-        className="flex-1 bg-gray-900"
-        contentContainerStyle={{ paddingBottom: 10 }}
+        className="flex-1"
+        style={{ backgroundColor: '#1a1a1a' }}
+        contentContainerStyle={{ paddingBottom: 10, paddingTop: 10 }}
       >
         {messages.map(message => (
           <ChatMessage key={message.id} message={message} />
@@ -148,37 +154,90 @@ const ChatDetail = () => {
       </ScrollView>
 
       {/* Input Bar */}
-      <View className="bg-gray-900 px-4 pb-6 pt-3 border-t border-gray-800">
+      <View className="px-4 pb-6 pt-3" style={{ backgroundColor: '#1a1a1a' }}>
+        {/* Expanded Actions */}
+        {showInputActions && (
+          <View className="mb-3 px-4 py-4 rounded-2xl" style={{ backgroundColor: '#2a2a2a' }}>
+            <Pressable 
+              className="absolute top-3 right-3 z-10"
+              onPress={() => setShowInputActions(false)}
+            >
+              <X size={20} color="#999" />
+            </Pressable>
+            <View className="flex-row justify-around mt-4">
+              <Pressable className="items-center" onPress={() => console.log('Poll')}>
+                <View className="w-14 h-14 rounded-full items-center justify-center mb-2" style={{ backgroundColor: '#3a3a3a' }}>
+                  <BarChart3 size={24} color="#B8936F" />
+                </View>
+                <Text className="text-xs font-semibold" style={{ color: '#999' }}>POLL</Text>
+              </Pressable>
+              <Pressable className="items-center" onPress={() => console.log('Plan')}>
+                <View className="w-14 h-14 rounded-full items-center justify-center mb-2" style={{ backgroundColor: '#3a3a3a' }}>
+                  <Calendar size={24} color="#6B7A4F" />
+                </View>
+                <Text className="text-xs font-semibold" style={{ color: '#999' }}>PLAN</Text>
+              </Pressable>
+              <Pressable className="items-center" onPress={() => console.log('Photo')}>
+                <View className="w-14 h-14 rounded-full items-center justify-center mb-2" style={{ backgroundColor: '#3a3a3a' }}>
+                  <Image size={24} color="#4A9EFF" />
+                </View>
+                <Text className="text-xs font-semibold" style={{ color: '#999' }}>PHOTO</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+        
         <View className="flex-row items-center">
           <Pressable 
             className="mr-3"
-            onPress={() => console.log('Add attachment')}
+            onPress={() => setShowInputActions(!showInputActions)}
           >
-            <Plus size={24} color="#9CA3AF" />
+            {showInputActions ? (
+              <X size={24} color="#999" />
+            ) : (
+              <Plus size={24} color="#999" />
+            )}
           </Pressable>
           
-          <View className="flex-1 bg-gray-800 rounded-full px-4 py-3 flex-row items-center">
+          <View className="flex-1 rounded-full px-4 py-3 flex-row items-center" style={{ backgroundColor: '#2a2a2a' }}>
             <TextInput
               className="flex-1 text-white text-base"
               placeholder="Type something..."
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#666"
               value={messageText}
               onChangeText={setMessageText}
               onSubmitEditing={handleSendMessage}
               returnKeyType="send"
               multiline
             />
+            <Pressable 
+              className="ml-2"
+              onPress={() => console.log('Voice message')}
+            >
+              <Mic size={20} color="#999" />
+            </Pressable>
           </View>
           
-          <Pressable 
-            className="ml-3"
-            onPress={messageText.trim() ? handleSendMessage : () => console.log('Voice message')}
-          >
-            <Mic size={24} color="#9CA3AF" />
-          </Pressable>
+          {messageText.trim() ? (
+            <Pressable 
+              className="ml-3 w-10 h-10 rounded-full items-center justify-center"
+              style={{ backgroundColor: '#6B7A4F' }}
+              onPress={handleSendMessage}
+            >
+              <Send size={18} color="#fff" />
+            </Pressable>
+          ) : null}
         </View>
       </View>
     </KeyboardAvoidingView>
+
+    <CircleInfoModal
+      visible={showCircleInfo}
+      onClose={() => setShowCircleInfo(false)}
+      circleName={chatName}
+      circleId={chatId}
+    />
+  </>
   );
 };
 
