@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-class ChatController extends Controller
+class ChatCircleController extends Controller
 {
     public function __construct()
     {

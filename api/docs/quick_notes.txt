@@ -25,6 +25,10 @@ npx expo start -c
 
 `
 
+5. in expo go to :
+
+exp://10.0.0.12:8081 // but check ipconfig
+
 ----------------------
 How to install and run Fresh dev instance
 
