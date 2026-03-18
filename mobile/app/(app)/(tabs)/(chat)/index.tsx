@@ -5,6 +5,8 @@ import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatListItem, ChatItemData } from "@/components/chat/ChatListItem";
 import { FAB } from "@/components/FAB";
 import { CreateCircleModal } from "@/components/app/CreateCircleModal";
+import { createCircle } from "@/services/chatService";
+import Toast from "react-native-toast-message";
 
 // Dummy chat data
 const DUMMY_CHATS: ChatItemData[] = [
@@ -28,6 +30,7 @@ const ChatHome = () => {
   const colours = useThemeColours();
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCreatingCircle, setIsCreatingCircle] = useState(false);
 
   const handleCreateCircle = () => {
     setShowCreateCircleModal(true);
@@ -35,11 +38,23 @@ const ChatHome = () => {
 
   const handleCircleSubmit = async (circleData: any) => {
     try {
-      // TODO: API call to create circle
-      console.log('Creating circle:', circleData);
+      setIsCreatingCircle(true);
+      await createCircle(circleData);
       setShowCreateCircleModal(false);
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Circle created successfully!',
+      });
     } catch (error) {
-      console.error('Error creating circle:', error);
+      console.error("Error creating circle:", error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to create circle. Please try again.',
+      });
+    } finally {
+      setIsCreatingCircle(false);
     }
   };
 
@@ -114,6 +129,7 @@ const ChatHome = () => {
         visible={showCreateCircleModal}
         onClose={() => setShowCreateCircleModal(false)}
         onSubmit={handleCircleSubmit}
+        isLoading={isCreatingCircle}
       />
     </>
   );

@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Core\ChatController;
+use App\Http\Controllers\Chat\ChatController;
 use App\Http\Controllers\CreditPaymentController;
 use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;

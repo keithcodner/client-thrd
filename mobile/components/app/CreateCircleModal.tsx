@@ -11,6 +11,7 @@ import {
   Image,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { X, Users, ImageIcon, Globe } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
@@ -21,12 +22,14 @@ interface CreateCircleModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit?: (circleData: any) => void;
+  isLoading?: boolean;
 }
 
 export const CreateCircleModal = ({
   visible,
   onClose,
   onSubmit,
+  isLoading = false,
 }: CreateCircleModalProps) => {
   const colors = useThemeColours();
   const [circleName, setCircleName] = useState('');
@@ -281,12 +284,16 @@ export const CreateCircleModal = ({
             <Pressable
               style={[
                 styles.createButton,
-                (!circleName || !purpose) && styles.createButtonDisabled,
+                (!circleName || !purpose || isLoading) && styles.createButtonDisabled,
               ]}
               onPress={handleSubmit}
-              disabled={!circleName || !purpose}
+              disabled={!circleName || !purpose || isLoading}
             >
-              <Text style={styles.createButtonText}>CREATE CIRCLE ✨</Text>
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.createButtonText}>CREATE CIRCLE ✨</Text>
+              )}
             </Pressable>
           </View>
         </View>

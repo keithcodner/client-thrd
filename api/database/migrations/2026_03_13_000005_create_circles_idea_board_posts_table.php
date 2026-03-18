@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('type', 50)->nullable();
             $table->string('status', 50)->nullable();
             $table->dateTime('created_at')->nullable();
-            $table->dateTime('update_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
 
             $table->foreign('circles_idea_board_id')->references('id')->on('circles_idea_board')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_owner_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');

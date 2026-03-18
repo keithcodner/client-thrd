@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import "../global.css";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { SessionProvider, useSession } from "@/context/AuthContext";
+import Toast from "react-native-toast-message";
 
 function Header() {
   const { currentTheme } = useTheme();
@@ -33,6 +34,7 @@ export default function RootLayout() {
     <ThemeProvider>
       <Header />
       <Slot />
+      <Toast />
     </ThemeProvider>
   </SessionProvider>
 }

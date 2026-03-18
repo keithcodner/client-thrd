@@ -5,6 +5,8 @@ import { useProfileOverlay } from "@/context/ProfileOverlayContext";
 import Home  from "./home";
 import axiosInstance from "@/config/axiosConfig";
 import { CreateCircleModal } from "@/components/app/CreateCircleModal";
+import { createCircle } from "@/services/chatService";
+import Toast from "react-native-toast-message";
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -17,6 +19,7 @@ const HomeScreen = () => {
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
+  const [isCreatingCircle, setIsCreatingCircle] = useState(false);
 
   // Fetch home feed data
   useEffect(() => {
@@ -95,12 +98,23 @@ const HomeScreen = () => {
 
   const handleCircleSubmit = async (circleData: any) => {
     try {
-      // TODO: API call to create circle
-      console.log('Creating circle:', circleData);
-      // await axiosInstance.post('/circles', circleData);
+      setIsCreatingCircle(true);
+      await createCircle(circleData);
       setShowCreateCircleModal(false);
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Circle created successfully!',
+      });
     } catch (error) {
-      console.error('Error creating circle:', error);
+      console.error("Error creating circle:", error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to create circle. Please try again.',
+      });
+    } finally {
+      setIsCreatingCircle(false);
     }
   };
 
@@ -127,6 +141,7 @@ const HomeScreen = () => {
         visible={showCreateCircleModal}
         onClose={() => setShowCreateCircleModal(false)}
         onSubmit={handleCircleSubmit}
+        isLoading={isCreatingCircle}
       />
     </>
   );

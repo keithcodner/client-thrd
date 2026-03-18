@@ -13,7 +13,7 @@ Circles represent groups created by users. Below are the details of the tables a
      - `name`: Name of the circle.
      - `type`: Type of the circle (e.g., standard).
      - `status`: Status of the circle (e.g., active, inactive).
-     - `created_at`, `update_at`: Timestamps.
+     - `created_at`, `updated_at`: Timestamps.
 
 2. **`circles_details`**
    - **Purpose:** Tracks detailed attributes of circles.

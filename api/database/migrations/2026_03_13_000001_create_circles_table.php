@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('type', 50)->nullable();
             $table->string('status', 50)->nullable();
             $table->dateTime('created_at')->nullable();
-            $table->dateTime('update_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 

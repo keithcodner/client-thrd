@@ -15,6 +15,6 @@ class CircleIdeaBoard extends Model
         'type',
         'status',
         'created_at',
-        'update_at',
+        'updated_at',
     ];
 }
