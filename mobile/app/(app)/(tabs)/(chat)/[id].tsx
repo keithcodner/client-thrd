@@ -116,10 +116,12 @@ const ChatDetail = () => {
         <View className="flex-row items-center flex-1">
           <Pressable 
             onPress={() => {
-              if (router.canGoBack()) {
-                router.back();
+              // Use dismiss() instead of back() to preserve tab state
+              // See: mobile/docs/NAVIGATION_ARCHITECTURE.md
+              if (router.canDismiss()) {
+                router.dismiss();
               } else {
-                router.replace('/(app)/(tabs)/(chat)');
+                router.navigate('/(app)/(tabs)/(chat)');
               }
             }}
             className="mr-4"
