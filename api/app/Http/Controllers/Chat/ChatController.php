@@ -41,13 +41,16 @@ class ChatController extends Controller
                 'style_code' => 'nullable|string|in:' . implode(',', CircleEnum::getStyleCodes()),
                 'privacy_state' => 'nullable|string|max:50',
                 'type' => 'nullable|string|in:' . implode(',', CircleEnum::getTypes()),
+                'isPrivate' => 'nullable|boolean',
             ]);
+
+            $circleType = $request->boolean('isPrivate') ? CircleEnum::TYPE_PRIVATE_CIRCLE : CircleEnum::TYPE_COMMUNITY_HUB;
 
             // Step 1: Create circle
             $circle = Circle::create([
                 'user_owner_id' => $user->id,
                 'name' => $validated['name'],
-                'type' => $validated['type'] ?? CircleEnum::TYPE_COMMUNITY_HUB,
+                'type' => $circleType,
                 'status' => ActiveEnum::STATUS_ACTIVE,
             ]);
 
@@ -66,7 +69,7 @@ class ChatController extends Controller
                 'description' => $validated['description'] ?? null,
                 'style_code' => $validated['style_code'] ?? CircleEnum::STYLE_SAGE,
                 'privacy_state' => $validated['privacy_state'] ?? 'public',
-                'type' => $validated['type'] ?? CircleEnum::TYPE_COMMUNITY_HUB,
+                'type' => $circleType,
                 'status' => ActiveEnum::STATUS_ACTIVE,
             ]);
 
@@ -74,7 +77,7 @@ class ChatController extends Controller
             CircleMemberTracker::create([
                 'circle_id' => $circle->id,
                 'user_id' => $user->id,
-                'type' => 'owner',
+                'type' => CircleEnum::TYPE_OWNER,
                 'status' => ActiveEnum::STATUS_ACTIVE,
             ]);
 
@@ -92,7 +95,13 @@ class ChatController extends Controller
                 'init_user_id' => $user->id,
                 'conversation_id' => $conversation->id,
                 'content' => 'Welcome to your new circle!',
-                'type' => 'system',
+                'type' => ConversationEnum::TYPE_SECOND_SYSTEM,
+            ]);
+
+            Log::info('Circle created successfully', [
+                'user_id' => $user->id,
+                'circle' => $circle,
+                'request_data' => $request->all(),
             ]);
 
             return response()->json([

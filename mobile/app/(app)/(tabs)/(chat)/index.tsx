@@ -16,14 +16,7 @@ const DUMMY_CHATS: ChatItemData[] = [
     lastMessage: 'test',
     timestamp: '1:49 AM',
     unread: false,
-  },
-  {
-    id: '2',
-    name: 'test',
-    lastMessage: 'hey',
-    timestamp: '1:49 AM',
-    unread: false,
-  },
+  }
 ];
 
 const ChatHome = () => {

@@ -8,6 +8,10 @@ class Circle
     public const TYPE_PRIVATE_CIRCLE = 'private_circle';
     public const TYPE_COMMUNITY_HUB = 'community_hub';
 
+    // Circle User Types
+    public const TYPE_OWNER = 'owner';
+    public const TYPE_USER = 'user';
+
     // Style Codes
     public const STYLE_SAGE = 'sage';
     public const STYLE_STONE = 'stone';

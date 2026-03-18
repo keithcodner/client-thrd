@@ -17,6 +17,7 @@ import { X, Users, ImageIcon, Globe } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import * as ImagePicker from 'expo-image-picker';
 import { ImageAdjustmentModal } from './ImageAdjustmentModal';
+import { CircleEnum } from '@/types/chat/circle-enum';
 
 interface CreateCircleModalProps {
   visible: boolean;
@@ -39,6 +40,7 @@ export const CreateCircleModal = ({
   const [toneIndicator, setToneIndicator] = useState('');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [showImageAdjustment, setShowImageAdjustment] = useState(false);
+  const [circleType, setCircleType] = useState(CircleEnum.TYPE_COMMUNITY_HUB); // Default type
 
   const handleSubmit = () => {
     if (onSubmit) {
@@ -48,6 +50,7 @@ export const CreateCircleModal = ({
         isPrivate,
         coverPhoto,
         toneIndicator: !isPrivate ? toneIndicator : undefined,
+        type: circleType, // Include circleType in the submission
       });
     }
     handleClose();
@@ -104,6 +107,11 @@ export const CreateCircleModal = ({
   const handleImageAdjustmentClose = () => {
     setShowImageAdjustment(false);
     setSelectedImageUri(null);
+  };
+
+  const handleSwitchChange = (value: boolean) => {
+    setIsPrivate(!value);
+    setCircleType(value ? CircleEnum.TYPE_PRIVATE_CIRCLE : CircleEnum.TYPE_COMMUNITY_HUB);
   };
 
   return (
@@ -270,7 +278,7 @@ export const CreateCircleModal = ({
               </View>
               <Switch
                 value={!isPrivate}
-                onValueChange={(value) => setIsPrivate(!value)}
+                onValueChange={handleSwitchChange}
                 trackColor={{ false: colors.border, true: colors.accent }}
                 thumbColor={!isPrivate ? '#fff' : '#f4f3f4'}
               />
