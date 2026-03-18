@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Transaction;
+namespace App\Http\Enums\TypesAndStatus\Transaction;
 
 enum Status: string
 {

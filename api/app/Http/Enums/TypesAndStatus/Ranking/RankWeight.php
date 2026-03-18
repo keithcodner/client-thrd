@@ -1,4 +1,4 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Ranking;
+namespace App\Http\Enums\TypesAndStatus\Ranking;
 

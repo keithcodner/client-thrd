@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Transaction;
+namespace App\Http\Enums\TypesAndStatus\Transaction;
 
-namespace App\Enums\TypesAndStatus\Transaction;
+namespace App\Http\Enums\TypesAndStatus\Transaction;
 
 enum PaymentProvider: string
 {

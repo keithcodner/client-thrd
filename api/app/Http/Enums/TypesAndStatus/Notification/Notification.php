@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Notification;
+namespace App\Http\Enums\TypesAndStatus\Notification;
 
 enum StatusColor: string
 {

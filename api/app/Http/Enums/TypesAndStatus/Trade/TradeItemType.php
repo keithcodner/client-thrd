@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Circle;
+namespace App\Http\Enums\TypesAndStatus\Circle;
 
 enum CircleItemStatus: string
 {

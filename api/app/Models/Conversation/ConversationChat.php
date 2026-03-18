@@ -5,7 +5,7 @@ namespace App\Models\Conversation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ConversationChats extends Model
+class ConversationChat extends Model
 {
     use HasFactory;
 

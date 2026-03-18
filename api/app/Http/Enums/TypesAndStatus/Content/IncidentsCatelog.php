@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Content;
+namespace App\Http\Enums\TypesAndStatus\Content;
 
 enum IncidentName: string
 {

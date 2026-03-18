@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Auth;
+namespace App\Http\Enums\TypesAndStatus\Auth;
 
 enum Status: string
 {

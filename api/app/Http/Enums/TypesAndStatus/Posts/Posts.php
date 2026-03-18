@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Posts;
+namespace App\Http\Enums\TypesAndStatus\Posts;
 
 enum Type: string
 {

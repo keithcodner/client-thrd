@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\KnowledgeBase;
+namespace App\Http\Enums\TypesAndStatus\KnowledgeBase;
 
 enum Type: string
 {

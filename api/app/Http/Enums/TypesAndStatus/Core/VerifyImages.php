@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Core;
+namespace App\Http\Enums\TypesAndStatus\Core;
 
 enum ReasonTable: string
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\ProNetwork;
+namespace App\Http\Enums\TypesAndStatus\ProNetwork;
 
 enum IsConnected: string
 {

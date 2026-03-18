@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Settings;
+namespace App\Http\Enums\TypesAndStatus\Settings;
 
 enum SettingsSite: string
 {

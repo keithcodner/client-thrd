@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Conversation;
+namespace App\Http\Enums\TypesAndStatus\Conversation;
 
 enum SeenByRecievedUser: string
 {

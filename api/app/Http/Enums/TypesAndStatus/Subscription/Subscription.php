@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Subscription;
+namespace App\Http\Enums\TypesAndStatus\Subscription;
 
 enum IsSubberSubbed: string
 {

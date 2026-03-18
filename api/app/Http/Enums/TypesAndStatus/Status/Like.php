@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums\TypesAndStatus\Status;
+namespace App\Http\Enums\TypesAndStatus\Status;
 
 enum LKType: string
 {
