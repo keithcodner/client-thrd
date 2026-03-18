@@ -37,13 +37,12 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
   return (
     <Pressable
       onPress={handlePress}
-      className="flex-row items-center px-5 py-4 border-b h-24 border-l-8"
+      className="flex-row items-center px-5 py-4 border-b h-24 border-l-8 border-yellow-700"
       style={({ pressed }) => ({
         opacity: pressed ? 0.7 : 1,
         backgroundColor: pressed ? colors.surface : colors.background,
-        borderBottomColor: colors.border,
+        borderBottomColor: '#585652',
         borderBottomWidth: 2,
-        borderLeftColor: '#F59E0B',
       })}
     >
       {/* Avatar */}

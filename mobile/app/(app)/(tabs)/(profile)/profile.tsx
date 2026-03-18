@@ -62,11 +62,11 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
           {/* Top Buttons */}
           <View style={styles.topButtons}>
             <TouchableOpacity style={styles.iconButton}>
-              <Edit2 size={18} color="#fff" />
+              <Edit2 size={18} color="#9c9797" />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.iconButton} onPress={onClose}>
-              <X size={20} color="#fff" />
+              <X size={20} color="#9c9797" />
             </TouchableOpacity>
           </View>
 

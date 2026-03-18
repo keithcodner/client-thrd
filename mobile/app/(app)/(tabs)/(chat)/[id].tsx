@@ -115,7 +115,7 @@ const ChatDetail = () => {
       <View className="pt-12 pb-4 px-5 flex-row items-center justify-between" style={{ backgroundColor: colours.background }}>
         <View className="flex-row items-center flex-1">
           <Pressable 
-            onPress={() => router.push('/(app)/(tabs)/(chat)')}
+            onPress={() => router.navigate('/(app)/(tabs)/(chat)')}
             className="mr-4"
           >
             <ChevronLeft size={24} color={colours.text} />
