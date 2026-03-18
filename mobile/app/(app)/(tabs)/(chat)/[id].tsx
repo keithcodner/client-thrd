@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   View, 
   Text, 
@@ -14,7 +14,7 @@ import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
 
 // Dummy messages data
-const DUMMY_MESSAGES: { [key: string]: MessageData[] } = {
+const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
   '1': [
     {
       id: '1',
@@ -53,21 +53,53 @@ const ChatDetail = () => {
   const colours = useThemeColours();
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [messageText, setMessageText] = useState('');
 
   const chatId = Array.isArray(id) ? id[0] : id || '1';
-  const messages = DUMMY_MESSAGES[chatId] || [];
+  const [messages, setMessages] = useState<MessageData[]>(INITIAL_MESSAGES[chatId] || []);
   
   // Get chat name from ID
   const chatName = chatId === '1' ? 'THRD' : 'test';
 
+  // Format current time
+  const getCurrentTime = () => {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${minutesStr} ${ampm}`;
+  };
+
   const handleSendMessage = () => {
     if (messageText.trim()) {
-      console.log('Sending message:', messageText);
-      // TODO: Send message via API
+      const newMessage: MessageData = {
+        id: Date.now().toString(),
+        sender: 'You',
+        content: messageText.trim(),
+        timestamp: getCurrentTime(),
+        isSystemMessage: false,
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
       setMessageText('');
+      
+      // Scroll to bottom after sending
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
   };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: false });
+    }, 100);
+  }, []);
 
   return (
     <KeyboardAvoidingView 
@@ -105,7 +137,11 @@ const ChatDetail = () => {
       </View>
 
       {/* Messages */}
-      <ScrollView className="flex-1 bg-gray-900">
+      <ScrollView 
+        ref={scrollViewRef}
+        className="flex-1 bg-gray-900"
+        contentContainerStyle={{ paddingBottom: 10 }}
+      >
         {messages.map(message => (
           <ChatMessage key={message.id} message={message} />
         ))}

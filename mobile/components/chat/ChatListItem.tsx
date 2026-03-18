@@ -21,7 +21,7 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
   const router = useRouter();
 
   const handlePress = () => {
-    router.push(`/(app)/(chat)/(chat-home)/${chat.id}`);
+    router.push(`/(app)/(tabs)/(chat)/${chat.id}`);
   };
 
   // Get initials from name
