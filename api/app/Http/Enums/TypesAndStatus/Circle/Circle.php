@@ -12,6 +12,10 @@ class Circle
     public const TYPE_OWNER = 'owner';
     public const TYPE_USER = 'user';
 
+    // Circle Privacy States
+    public const PRIVACY_PUBLIC = 'public';
+    public const PRIVACY_PRIVATE = 'private';
+
     // Style Codes
     public const STYLE_SAGE = 'sage';
     public const STYLE_STONE = 'stone';

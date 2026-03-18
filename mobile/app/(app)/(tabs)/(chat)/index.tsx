@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, TextInput, Pressable } from "react-native";
 import { Search, SlidersHorizontal } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatListItem, ChatItemData } from "@/components/chat/ChatListItem";
 import { FAB } from "@/components/FAB";
 import { CreateCircleModal } from "@/components/app/CreateCircleModal";
-import { createCircle } from "@/services/chatService";
+import { createCircle, getUserCircleData } from "@/services/chatService";
 import Toast from "react-native-toast-message";
 
 // Dummy chat data
@@ -24,6 +24,44 @@ const ChatHome = () => {
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
+  const [chats, setChats] = useState<ChatItemData[]>(DUMMY_CHATS);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchUserCircles = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getUserCircleData();
+      
+      // Transform API response to ChatItemData format
+      const circleChats: ChatItemData[] = response.circles.map((circle: any) => ({
+        id: circle.id.toString(),
+        name: circle.name,
+        lastMessage: 'No messages yet',
+        timestamp: new Date(circle.updated_at).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit' 
+        }),
+        unread: false,
+        isPrivate: circle.type === 'private_circle',
+      }));
+      
+      // Keep DUMMY_CHATS first, then add circle chats
+      setChats([...DUMMY_CHATS, ...circleChats]);
+    } catch (error) {
+      console.error('Error fetching user circles:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to load circles.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserCircles();
+  }, []);
 
   const handleCreateCircle = () => {
     setShowCreateCircleModal(true);
@@ -39,6 +77,8 @@ const ChatHome = () => {
         text1: 'Success',
         text2: 'Circle created successfully!',
       });
+      // Refresh the circles list
+      await fetchUserCircles();
     } catch (error) {
       console.error("Error creating circle:", error);
       Toast.show({
@@ -52,10 +92,10 @@ const ChatHome = () => {
   };
 
   const filteredChats = searchQuery
-    ? DUMMY_CHATS.filter(chat =>
+    ? chats.filter(chat =>
         chat.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : DUMMY_CHATS;
+    : chats;
 
   return (
     <>
@@ -97,7 +137,12 @@ const ChatHome = () => {
         </View>
 
         {/* Chat List */}
-        <ScrollView className="flex-1" style={{ backgroundColor: colours.background }}>
+        <ScrollView 
+          className="flex-1" 
+          style={{ backgroundColor: colours.background }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
           {filteredChats.map(chat => (
             <ChatListItem key={chat.id} chat={chat} />
           ))}

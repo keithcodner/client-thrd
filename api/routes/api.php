@@ -50,6 +50,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //:::CREATES CIRCLES:::
         Route::post('/create-circle', [ChatController::class, 'createCircle'])->middleware(TrackUserActivity::class)->name('create-circle');
 
+        //:::GET USERS CIRCLES:::
+        Route::post('/user-circles', [ChatController::class, 'getUserCircleData'])->middleware(TrackUserActivity::class)->name('get-user-circles');
+
         //:::LOADS CHATS AND CIRCLES:::
         Route::post('/chat', [ChatController::class, 'ChatIndex'])->middleware(TrackUserActivity::class)->name('chat');
 

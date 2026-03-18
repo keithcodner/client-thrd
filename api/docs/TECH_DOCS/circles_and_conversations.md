@@ -39,11 +39,17 @@ Circles represent groups created by users. Below are the details of the tables a
      - `name`, `type`, `status`: Metadata.
 
 5. **`circles_member_tracker`**
-   - **Purpose:** Tracks members of circles.
+   - **Purpose:** Tracks members of circles and their membership status.
    - **Fields:**
      - `circle_id`: Foreign key referencing `circles`.
      - `user_id`: ID of the user who joined the circle.
-     - `type`, `status`: Metadata.
+     - `type`: Member type (e.g., owner, user).
+     - `status`: Membership status:
+       - `active`: User is actively joined and can participate in the circle.
+       - `inactive`: User has left the circle and cannot participate.
+   - **Behavior:**
+     - When retrieving circles for a user, only circles where the user's status is `active` are returned.
+     - Inactive members are excluded from circle data and cannot access circle conversations.
 
 6. **`circles_requests`**
    - **Purpose:** Tracks requests to join circles.
@@ -88,6 +94,81 @@ Conversations represent communication between users or within circles. Below are
 - **Conversations:**
   - Conversations can be one-to-one or group-based (within circles).
   - Chats belong to conversations and track individual messages.
+
+---
+
+## API Endpoints
+
+### Get User Circle Data
+**Endpoint:** `POST /api/user-circles`
+
+**Route Name:** `get-user-circles`
+
+**Description:** Retrieves all circles that the authenticated user is actively a member of.
+
+**Authentication:** Required (uses Auth::user())
+
+**Middleware:** `TrackUserActivity`
+
+**Request:** No request body required
+
+**Response:**
+```json
+{
+  "circles": [
+    {
+      "id": 1,
+      "name": "Circle Name",
+      "type": "community_hub",
+      "status": "active",
+      "created_at": "2026-03-18T19:40:01.000000Z",
+      "updated_at": "2026-03-18T19:40:01.000000Z",
+      "details": {
+        "description": "Circle description",
+        "style_code": "sage",
+        "privacy_state": "public",
+        "type": "community_hub"
+      },
+      "ideaBoard": {
+        "id": 1,
+        "circle_id": 1,
+        "details": null,
+        "type": "default",
+        "status": "active"
+      },
+      "members": [
+        {
+          "id": 1,
+          "circle_id": 1,
+          "user_id": 86,
+          "type": "owner",
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Logic:**
+- Only returns circles where the user's membership status in `circles_member_tracker` is `active`.
+- Excludes circles where the user's status is `inactive` (user has left the circle).
+- Includes only active members in the member list.
+
+**Frontend Integration:**
+- Service: `mobile/services/chatService.ts` - `getUserCircleData()`
+- Component: `mobile/app/(app)/(tabs)/(chat)/index.tsx`
+- Data is transformed to `ChatItemData` format for display:
+  ```typescript
+  {
+    id: circle.id.toString(),
+    name: circle.name,
+    lastMessage: 'No messages yet',
+    timestamp: formatted_time,
+    unread: false
+  }
+  ```
+- A hardcoded THRD chat appears first, followed by user's circles.
 
 ---
 

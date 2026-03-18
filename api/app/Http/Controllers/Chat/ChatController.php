@@ -44,7 +44,10 @@ class ChatController extends Controller
                 'isPrivate' => 'nullable|boolean',
             ]);
 
+            // Determine circle type and privacy state based on isPrivate flag
             $circleType = $request->boolean('isPrivate') ? CircleEnum::TYPE_PRIVATE_CIRCLE : CircleEnum::TYPE_COMMUNITY_HUB;
+
+            $circlePrivacyState = $request->boolean('isPrivate') ? CircleEnum::PRIVACY_PRIVATE : CircleEnum::PRIVACY_PUBLIC;
 
             // Step 1: Create circle
             $circle = Circle::create([
@@ -68,7 +71,7 @@ class ChatController extends Controller
                 'circle_idea_board_id' => $ideaBoard->id,
                 'description' => $validated['description'] ?? null,
                 'style_code' => $validated['style_code'] ?? CircleEnum::STYLE_SAGE,
-                'privacy_state' => $validated['privacy_state'] ?? 'public',
+                'privacy_state' => $circlePrivacyState,
                 'type' => $circleType,
                 'status' => ActiveEnum::STATUS_ACTIVE,
             ]);
@@ -119,5 +122,24 @@ class ChatController extends Controller
                 'message' => 'Failed to create circle. Please try again later.',
             ], 500);
         }
+    }
+
+    public function getUserCircleData(Request $request)
+    {
+        $user = Auth::user();
+
+        // Get all circles where the user is an active member
+        $circles = Circle::whereHas('members', function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                  ->where('status', ActiveEnum::STATUS_ACTIVE);
+        })
+        ->with(['details', 'ideaBoard', 'members' => function ($query) {
+            $query->where('status', ActiveEnum::STATUS_ACTIVE);
+        }])
+        ->get();
+
+        return response()->json([
+            'circles' => $circles,
+        ], 200);
     }
 }

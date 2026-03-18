@@ -9,3 +9,13 @@ export const createCircle = async (circleData: any) => {
     throw error;
   }
 };
+
+export const getUserCircleData = async () => {
+  try {
+    const response = await axiosInstance.post("/user-circles");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user circles:", error);
+    throw error;
+  }
+};

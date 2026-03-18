@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useThemeColours } from '@/hooks/useThemeColours';
 
@@ -10,6 +10,7 @@ export interface ChatItemData {
   timestamp: string;
   unread?: boolean;
   avatar?: string;
+  isPrivate?: boolean;
 }
 
 interface ChatListItemProps {
@@ -21,7 +22,7 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
   const router = useRouter();
 
   const handlePress = () => {
-    router.push(`/(app)/(tabs)/(chat)/${chat.id}`);
+    router.push(`/${chat.id}`);
   };
 
   // Get initials from name
@@ -34,33 +35,76 @@ export const ChatListItem = ({ chat }: ChatListItemProps) => {
       .slice(0, 2);
   };
 
+  // Get color based on first letter of initials
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      '#8B7355', // sage brown
+      '#6B7280', // stone gray
+      '#92400E', // clay brown
+      '#D97706', // amber
+      '#7C2D12', // dusk brown
+      '#B45309', // sand orange
+      '#059669', // emerald
+      '#0891B2', // cyan
+      '#4F46E5', // indigo
+      '#7C3AED', // violet
+    ];
+    
+    const firstLetter = name.charAt(0).toUpperCase();
+    const index = firstLetter.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
   return (
     <Pressable
       onPress={handlePress}
-      className="flex-row items-center px-5 py-4 border-b h-24 border-l-8 border-yellow-700"
+      className={`flex-row items-center px-5 py-4 h-24 
+        ${chat.id === '1' ? 'border-l-8 border-yellow-700' : ''}
+        ${chat.id === '1' ? 'border-b' : 'border-b border-gray-800'}
+        `}
       style={({ pressed }) => ({
         opacity: pressed ? 0.7 : 1,
         backgroundColor: pressed ? colors.surface : colors.background,
-        borderBottomColor: '#585652',
-        borderBottomWidth: 2,
+        borderBottomColor: colors.border,
+        borderBottomWidth: 1,
       })}
     >
       {/* Avatar */}
-      <View 
-        className="w-12 h-12 rounded-full items-center justify-center mr-3"
-        style={{ backgroundColor: colors.primary }}
-      >
-        <Text className="text-white font-semibold text-base">
-          {getInitials(chat.name)}
-        </Text>
-      </View>
+      {chat.avatar ? (
+        <Image 
+          source={{ uri: chat.avatar }}
+          className="w-12 h-12 rounded-full mr-3"
+          style={{ backgroundColor: colors.surface }}
+        />
+      ) : (
+        <View 
+          className="w-12 h-12 rounded-full items-center justify-center mr-3"
+          style={{ backgroundColor: chat.id === '1' ? colors.accent : getAvatarColor(chat.name) }}
+        >
+          <Text className="text-white font-semibold text-base">
+            {getInitials(chat.name)}
+          </Text>
+        </View>
+      )}
 
       {/* Content */}
       <View className="flex-1">
         <View className="flex-row justify-between items-center mb-1">
-          <Text className="text-base font-semibold" style={{ color: colors.text }}>
-            {chat.name}
-          </Text>
+          <View className="flex-row items-center flex-1">
+            <Text className="text-base font-semibold" style={{ color: colors.text }}>
+              {chat.name}
+            </Text>
+            {chat.isPrivate !== undefined && (
+              <View 
+                className="ml-2 px-2 py-0.5 rounded"
+                style={{ backgroundColor: chat.isPrivate ? '#7C2D12' : '#059669' }}
+              >
+                <Text className="text-white text-xs font-semibold">
+                  {chat.isPrivate ? 'Private' : 'Public'}
+                </Text>
+              </View>
+            )}
+          </View>
           {chat.timestamp && (
             <Text className="text-xs" style={{ color: colors.secondaryText }}>
               {chat.timestamp}

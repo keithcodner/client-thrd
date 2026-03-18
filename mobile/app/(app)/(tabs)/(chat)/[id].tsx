@@ -107,12 +107,12 @@ const ChatDetail = () => {
   return (
     <>
       <KeyboardAvoidingView 
-        className="flex-1"
+        className="flex-1 "
         style={{ backgroundColor: colours.background }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
       {/* Header */}
-      <View className="pt-12 pb-4 px-5 flex-row items-center justify-between" style={{ backgroundColor: colours.background }}>
+      <View className="mt-8 pt-12 pb-4 px-5 flex-row items-center justify-between" style={{ backgroundColor: colours.background }}>
         <View className="flex-row items-center flex-1">
           <Pressable 
             onPress={() => {
@@ -124,7 +124,7 @@ const ChatDetail = () => {
             }}
             className="mr-4"
           >
-            <ChevronLeft size={24} color={colours.text} />
+            <ChevronLeft size={28} color={colours.text} />
           </Pressable>
           
           {/* Avatar */}
