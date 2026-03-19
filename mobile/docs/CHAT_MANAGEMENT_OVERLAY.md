@@ -440,14 +440,15 @@ const handleCloseOverlay = () => {
 ### Interaction Flow
 
 1. **Long Press** on chat item
-2. **Overlay slides down** from top
-3. **Quick actions** immediately visible
-4. **Tap 3 dots** to see more options
-5. **Select action** → overlay closes → action executes
+2. **Haptic feedback** triggers (medium impact vibration)
+3. **Overlay slides down** from top
+4. **Quick actions** immediately visible
+5. **Tap 3 dots** to see more options
+6. **Select action** → overlay closes → action executes
 
 ### Feedback Mechanisms
 
-- **Haptic Feedback**: Long press triggers native vibration (platform-specific)
+- **Haptic Feedback**: Medium impact vibration (quarter second) when overlay opens
 - **Visual Feedback**: Pressed states on all buttons
 - **Toast Notifications**: Confirms action completion
 - **Animation**: Smooth transitions for professional feel

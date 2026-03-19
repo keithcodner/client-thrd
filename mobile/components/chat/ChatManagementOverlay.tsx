@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { X, Trash2, Pin, MoreVertical, Info, LogOut, MessageSquare } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { useRouter } from 'expo-router';
@@ -53,6 +54,7 @@ export interface ChatManagementOverlayProps {
  * 
  * Features:
  * - Slides from top with animation
+ * - Haptic feedback on open (medium impact vibration)
  * - Quick action buttons in header (configurable via quickActionButtons array)
  * - Dropdown menu for additional options (configurable via dropdownMenuItems array)
  * - Navigation to chat detail view
@@ -95,6 +97,9 @@ export const ChatManagementOverlay = ({
   // Animate overlay in/out
   useEffect(() => {
     if (visible) {
+      // Trigger haptic feedback when overlay opens
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      
       Animated.spring(slideAnim, {
         toValue: 0,
         useNativeDriver: true,
