@@ -6,10 +6,13 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
-import { ChevronLeft, ChevronDown, Camera, FileText, UserPlus, Palette, Users, Bell, Lock } from 'lucide-react-native';
+import { ChevronLeft, ChevronDown, Camera, FileText, UserPlus, Palette, Users, Bell, Lock, X } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
+import { searchUsersForInvite } from '@/services/chatService';
 
 interface CircleInfoModalProps {
   visible: boolean;
@@ -31,10 +34,47 @@ export const CircleInfoModal = ({
   onDelete,
 }: CircleInfoModalProps) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [showInviteSection, setShowInviteSection] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const colors = useThemeColours();
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const handleInviteClick = () => {
+    setShowInviteSection(!showInviteSection);
+    if (!showInviteSection) {
+      setSearchQuery('');
+      setSearchResults([]);
+    }
+  };
+
+  const handleSearchChange = async (text: string) => {
+    setSearchQuery(text);
+    
+    if (text.trim().length === 0) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await searchUsersForInvite(text);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSendInvite = (userId: number) => {
+    // TODO: Implement invite functionality
+    console.log('Send invite to user:', userId);
   };
 
   return (
@@ -75,11 +115,68 @@ export const CircleInfoModal = ({
               <FileText size={20} color={colors.info} />
               <Text style={[styles.actionButtonText, { color: colors.info }]}>BOARD</Text>
             </Pressable>
-            <Pressable style={styles.actionButton}>
+            <Pressable style={styles.actionButton} onPress={handleInviteClick}>
               <UserPlus size={20} color={colors.info} />
               <Text style={[styles.actionButtonText, { color: colors.info }]}>INVITE</Text>
             </Pressable>
           </View>
+
+          {/* Invite Search Section */}
+          {showInviteSection && (
+            <View style={[styles.inviteSection, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+              <View style={styles.inviteHeader}>
+                <Text style={[styles.inviteTitle, { color: colors.text }]}>Invite Users</Text>
+                <Pressable onPress={handleInviteClick} style={styles.closeButton}>
+                  <X size={20} color={colors.secondaryText} />
+                </Pressable>
+              </View>
+              
+              <TextInput
+                style={[styles.searchInput, { 
+                  backgroundColor: colors.background, 
+                  color: colors.text,
+                  borderColor: colors.border 
+                }]}
+                placeholder="Search users..."
+                placeholderTextColor={colors.secondaryText}
+                value={searchQuery}
+                onChangeText={handleSearchChange}
+              />
+
+              {isSearching && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={colors.info} />
+                </View>
+              )}
+
+              <ScrollView style={styles.searchResults} nestedScrollEnabled>
+                {searchResults.map((user) => {
+                  const displayName = user.firstname || user.name || user.username || 'User';
+                  return (
+                  <View key={user.id} style={[styles.userResultItem, { borderBottomColor: colors.border }]}>
+                    <View style={styles.userResultLeft}>
+                      <View style={[styles.userAvatar, { backgroundColor: getAvatarColor(displayName) }]}>
+                        <Text style={styles.userAvatarText}>{getInitials(displayName)}</Text>
+                      </View>
+                      <Text style={[styles.userName, { color: colors.text }]}>{displayName}</Text>
+                    </View>
+                    <Pressable 
+                      style={[styles.inviteButton, { backgroundColor: colors.info }]}
+                      onPress={() => handleSendInvite(user.id)}
+                    >
+                      <Text style={styles.inviteButtonText}>Invite</Text>
+                    </Pressable>
+                  </View>
+                  );
+                })}
+                {!isSearching && searchQuery.trim().length > 0 && searchResults.length === 0 && (
+                  <Text style={[styles.noResultsText, { color: colors.secondaryText }]}>
+                    No users found
+                  </Text>
+                )}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Settings Sections */}
           <View style={styles.settingsContainer}>
@@ -246,6 +343,83 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 8,
     letterSpacing: 0.5,
+  },
+  inviteSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+  },
+  inviteHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  inviteTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  closeButton: {
+    padding: 4,
+  },
+  searchInput: {
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  searchResults: {
+    maxHeight: 250,
+  },
+  userResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  userResultLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  userAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  userAvatarText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    fontStyle: 'italic',
+  },
+  userName: {
+    fontSize: 16,
+  },
+  inviteButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  inviteButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  noResultsText: {
+    textAlign: 'center',
+    paddingVertical: 20,
+    fontSize: 14,
   },
   settingsContainer: {
     paddingTop: 8,

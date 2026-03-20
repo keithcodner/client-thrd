@@ -143,3 +143,22 @@ export const getConversationMessages = async (
     throw error;
   }
 };
+
+/**
+ * Search users for circle invites
+ * 
+ * @param query - Search query string
+ * @returns Array of users matching the search query
+ */
+export const searchUsersForInvite = async (query: string) => {
+  try {
+    const response = await axiosInstance.post("/search-users", {
+      query: query.trim(),
+    });
+    
+    return response.data.users || [];
+  } catch (error) {
+    console.error("Error searching users for invite:", error);
+    throw error;
+  }
+};

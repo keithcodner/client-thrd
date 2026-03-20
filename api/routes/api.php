@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Chat\ChatController;
+use App\Http\Controllers\Chat\ChatCircleController;
 use App\Http\Controllers\CreditPaymentController;
 use \App\Http\Middleware\TrackUserActivity;
 use App\Http\Controllers\ImageController;
@@ -58,6 +59,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         //:::POST CHAT MESSAGE:::
         Route::post('/post-chat', [ChatController::class, 'postChat'])->middleware(TrackUserActivity::class)->name('post-chat');
+
+        //:::SEARCH USERS FOR INVITE:::
+        Route::post('/search-users', [ChatCircleController::class, 'searchUsers'])->middleware(TrackUserActivity::class)->name('search-users');
 
         // Route::get('/get-conversations', [ChatController::class, 'getConversations'])->middleware(TrackUserActivity::class)->name('get-conversations');
         // Route::get('/poll-chat', [ChatController::class, 'pollChat'])->middleware(TrackUserActivity::class)->name('poll-chat');
