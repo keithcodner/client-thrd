@@ -21,6 +21,7 @@ try {
     nvm use 18 | Out-Null
     $node18 = node --version
     Write-Host "[OK] Node 18 available: $node18" -ForegroundColor Green
+    Write-Host "    (Used for Soketi and Expo)" -ForegroundColor Gray
     
     # Check if soketi is installed
     try {
@@ -31,18 +32,6 @@ try {
     }
 } catch {
     Write-Host "[FAIL] Node 18 not installed. Run: nvm install 18" -ForegroundColor Red
-}
-
-Write-Host ""
-
-# Check Node 20
-Write-Host "Checking Node 20..." -ForegroundColor Yellow
-try {
-    nvm use 20 | Out-Null
-    $node20 = node --version
-    Write-Host "[OK] Node 20 available: $node20" -ForegroundColor Green
-} catch {
-    Write-Host "[FAIL] Node 20 not installed. Run: nvm install 20" -ForegroundColor Red
 }
 
 Write-Host ""
