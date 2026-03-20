@@ -10,7 +10,8 @@ import {
   ActivityIndicator,
   Keyboard
 } from "react-native";
-import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { ChevronLeft, Info, Plus, Mic, X, Send, BarChart3, Calendar, Image } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
@@ -165,7 +166,8 @@ const ChatDetail = () => {
       () => {
         setIsKeyboardVisible(true);
         // Hide tab bar when keyboard is shown
-        navigation.setOptions({
+        const parent = navigation.getParent();
+        parent?.setOptions({
           tabBarStyle: { display: 'none' }
         });
       }
@@ -176,8 +178,12 @@ const ChatDetail = () => {
       () => {
         setIsKeyboardVisible(false);
         // Show tab bar when keyboard is hidden
-        navigation.setOptions({
-          tabBarStyle: undefined
+        const parent = navigation.getParent();
+        parent?.setOptions({
+          tabBarStyle: {
+            backgroundColor: colours.background,
+            borderTopColor: colours.border,
+          }
         });
       }
     );
@@ -186,7 +192,7 @@ const ChatDetail = () => {
       keyboardWillShowListener.remove();
       keyboardWillHideListener.remove();
     };
-  }, [navigation]);
+  }, [navigation, colours]);
 
   const handleSendMessage = async () => {
     if (messageText.trim() && user) {
