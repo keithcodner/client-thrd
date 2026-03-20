@@ -1,18 +1,15 @@
 {
-  "name": "thrd-workspace",
+  "name": "thrd-dev-scripts",
   "version": "1.0.0",
   "private": true,
+  "description": "Development environment scripts for THRD",
   "scripts": {
-    "predev": "echo Checking Node.js setup...",
-    "dev": "concurrently -k -n soketi,laravel,expo -c cyan,magenta,yellow \"npm run soketi\" \"npm run laravel\" \"npm run expo\"",
-    "soketi": "cd api && node --version && soketi start --config=soketi.config.json",
-    "laravel": "cd api && php artisan serve",
-    "expo": "cd mobile && npx expo start -c"
+    "dev": "concurrently -n soketi,laravel,expo -c cyan,magenta,yellow \"npm run soketi\" \"npm run laravel\" \"npm run expo\"",
+    "soketi": "node run-soketi.js",
+    "laravel": "node run-laravel.js",
+    "expo": "node run-expo.js"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
