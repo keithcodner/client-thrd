@@ -9,12 +9,16 @@ import {
 } from 'react-native';
 import { ChevronLeft, ChevronDown, Camera, FileText, UserPlus, Palette, Users, Bell, Lock } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
+import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
 
 interface CircleInfoModalProps {
   visible: boolean;
   onClose: () => void;
   circleName: string;
   circleId: string;
+  isOwner?: boolean;
+  onLeave?: () => void;
+  onDelete?: () => void;
 }
 
 export const CircleInfoModal = ({
@@ -22,21 +26,15 @@ export const CircleInfoModal = ({
   onClose,
   circleName,
   circleId,
+  isOwner = false,
+  onLeave,
+  onDelete,
 }: CircleInfoModalProps) => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const colors = useThemeColours();
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 1);
   };
 
   return (
@@ -61,7 +59,7 @@ export const CircleInfoModal = ({
           {/* Avatar Section */}
           <View style={styles.avatarSection}>
             <View style={styles.avatarContainer}>
-              <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+              <View style={[styles.avatar, { backgroundColor: getAvatarColor(circleName) }]}>
                 <Text style={styles.avatarText}>{getInitials(circleName)}</Text>
               </View>
               <Pressable style={[styles.cameraIcon, { borderColor: colors.background, backgroundColor: colors.info }]}>
@@ -146,9 +144,20 @@ export const CircleInfoModal = ({
             </Pressable>
           </View>
 
-          {/* Leave Circle Button */}
-          <Pressable style={[styles.leaveButton, { backgroundColor: colors.error }]}>
-            <Text style={styles.leaveButtonText}>Leave Circle</Text>
+          {/* Leave/Delete Circle Button */}
+          <Pressable 
+            style={[styles.leaveButton, { backgroundColor: colors.error }]}
+            onPress={() => {
+              if (isOwner && onDelete) {
+                onDelete();
+              } else if (!isOwner && onLeave) {
+                onLeave();
+              }
+            }}
+          >
+            <Text style={styles.leaveButtonText}>
+              {isOwner ? 'Delete Circle' : 'Leave Circle'}
+            </Text>
           </Pressable>
 
           <View style={{ height: 40 }} />

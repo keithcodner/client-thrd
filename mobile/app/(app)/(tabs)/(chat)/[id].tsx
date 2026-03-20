@@ -20,6 +20,7 @@ import { useSession } from "@/context/AuthContext";
 import { sendMessage, getUserCircleData, getConversationMessages } from "@/services/chatService";
 import websocketService from "@/services/websocketService";
 import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
+import Toast from "react-native-toast-message";
 
 // Dummy messages data with dates
 const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
@@ -140,6 +141,7 @@ const ChatDetail = () => {
   const [chatName, setChatName] = useState<string>('Loading...');
   const [isLoadingChatInfo, setIsLoadingChatInfo] = useState(true);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   
   // Pagination state
   const [hasMore, setHasMore] = useState(false);
@@ -192,6 +194,14 @@ const ChatDetail = () => {
     return () => {
       keyboardWillShowListener.remove();
       keyboardWillHideListener.remove();
+      // Restore tab bar when leaving this screen
+      const parent = navigation.getParent();
+      parent?.setOptions({
+        tabBarStyle: {
+          backgroundColor: colours.background,
+          borderTopColor: colours.border,
+        }
+      });
     };
   }, [navigation, colours]);
 
@@ -261,6 +271,7 @@ const ChatDetail = () => {
         if (chatId === '1') {
           // Special case for THRD system chat
           setChatName('THRD');
+          setIsOwner(false); // THRD is not user-owned
         } else {
           // Fetch circle data to get the circle name
           const response = await getUserCircleData();
@@ -268,21 +279,25 @@ const ChatDetail = () => {
           
           if (circle) {
             setChatName(circle.name);
+            // Check if current user is the owner
+            setIsOwner(user?.id === circle.user_owner_id);
           } else {
             setChatName('Chat');
+            setIsOwner(false);
             console.warn(`Circle with id ${chatId} not found`);
           }
         }
       } catch (error) {
         console.error('Error loading chat info:', error);
         setChatName('Chat');
+        setIsOwner(false);
       } finally {
         setIsLoadingChatInfo(false);
       }
     };
 
     loadChatInfo();
-  }, [chatId]);
+  }, [chatId, user]);
 
   // Load messages on mount (with caching)
   useEffect(() => {
@@ -445,6 +460,32 @@ const ChatDetail = () => {
       }, 100);
     }
   }, [messages, isLoadingMessages]);
+
+  // Handler for leaving a circle
+  const handleLeaveCircle = () => {
+    Toast.show({
+      type: 'info',
+      text1: 'Leave Circle',
+      text2: 'This feature will be available soon.',
+    });
+    setShowCircleInfo(false);
+    // TODO: Implement leave circle API call
+    // After successful leave, navigate back to chat list
+    // router.navigate('/(app)/(tabs)/(chat)');
+  };
+
+  // Handler for deleting a circle (owner only)
+  const handleDeleteCircle = () => {
+    Toast.show({
+      type: 'info',
+      text1: 'Delete Circle',
+      text2: 'This feature will be available soon.',
+    });
+    setShowCircleInfo(false);
+    // TODO: Implement delete circle API call
+    // After successful delete, navigate back to chat list
+    // router.navigate('/(app)/(tabs)/(chat)');
+  };
 
   return (
     <>
@@ -650,6 +691,9 @@ const ChatDetail = () => {
       onClose={() => setShowCircleInfo(false)}
       circleName={chatName}
       circleId={chatId}
+      isOwner={isOwner}
+      onLeave={handleLeaveCircle}
+      onDelete={handleDeleteCircle}
     />
   </>
   );
