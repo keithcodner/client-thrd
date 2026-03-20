@@ -1,5 +1,12 @@
 import axiosInstance from "@/config/axiosConfig";
 
+export interface SendMessageData {
+  conversation_id: number;
+  content: string;
+  type?: "chat" | "announcement" | "system";
+  end_user_id?: number;
+}
+
 export const createCircle = async (circleData: any) => {
   try {
     const response = await axiosInstance.post("/create-circle", circleData);
@@ -19,13 +26,6 @@ export const getUserCircleData = async () => {
     throw error;
   }
 };
-
-export interface SendMessageData {
-  conversation_id: number;
-  content: string;
-  type?: "chat" | "announcement" | "system";
-  end_user_id?: number;
-}
 
 export const sendMessage = async (messageData: SendMessageData) => {
   try {

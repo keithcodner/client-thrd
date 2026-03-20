@@ -15,7 +15,8 @@ import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
 import { CircleInfoModal } from "@/components/chat/CircleInfoModal";
 import { useSession } from "@/context/AuthContext";
-import { sendMessage } from "@/services/chatService";
+import { sendMessage, getUserCircleData } from "@/services/chatService";
+import websocketService from "@/services/websocketService";
 
 // Dummy messages data with dates
 const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
@@ -124,7 +125,7 @@ const ChatDetail = () => {
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const [messageText, setMessageText] = useState('');
-  const { user } = useSession();
+  const { user, session } = useSession();
 
   const chatId = Array.isArray(id) ? id[0] : id || '1';
   const [messages, setMessages] = useState<MessageData[]>([]);
@@ -132,9 +133,8 @@ const ChatDetail = () => {
   const [showInputActions, setShowInputActions] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
-  
-  // Get chat name from ID
-  const chatName = chatId === '1' ? 'THRD' : 'test';
+  const [chatName, setChatName] = useState<string>('Loading...');
+  const [isLoadingChatInfo, setIsLoadingChatInfo] = useState(true);
 
   // Format current time
   const getCurrentTime = () => {
@@ -206,6 +206,37 @@ const ChatDetail = () => {
     }
   };
 
+  // Load circle/chat info on mount
+  useEffect(() => {
+    const loadChatInfo = async () => {
+      setIsLoadingChatInfo(true);
+      try {
+        if (chatId === '1') {
+          // Special case for THRD system chat
+          setChatName('THRD');
+        } else {
+          // Fetch circle data to get the circle name
+          const response = await getUserCircleData();
+          const circle = response.circles.find((c: any) => c.id.toString() === chatId);
+          
+          if (circle) {
+            setChatName(circle.name);
+          } else {
+            setChatName('Chat');
+            console.warn(`Circle with id ${chatId} not found`);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading chat info:', error);
+        setChatName('Chat');
+      } finally {
+        setIsLoadingChatInfo(false);
+      }
+    };
+
+    loadChatInfo();
+  }, [chatId]);
+
   // Load messages on mount
   useEffect(() => {
     const loadMessages = async () => {
@@ -227,6 +258,56 @@ const ChatDetail = () => {
 
     loadMessages();
   }, [chatId]);
+
+  // Subscribe to WebSocket for real-time messages
+  useEffect(() => {
+    if (!user || !session) {
+      console.log('User or session not available, skipping WebSocket connection');
+      return;
+    }
+
+    console.log('🔌 Connecting to WebSocket...');
+    
+    // Connect WebSocket
+    websocketService.connect(session, user.id);
+
+    // Subscribe to conversation
+    const handleNewMessage = (data: any) => {
+      console.log('📨 Received new message:', data);
+      
+      // Don't add message if it's from current user (already added optimistically)
+      if (data.sender.id === user.id) {
+        console.log('Ignoring own message from WebSocket');
+        return;
+      }
+
+      const newMessage: MessageData = {
+        id: data.id.toString(),
+        sender: data.sender.name,
+        senderId: data.sender.id,
+        content: data.content,
+        timestamp: data.timestamp,
+        createdAt: data.created_at,
+        isSystemMessage: data.type === 'system' || data.type === 'announcement',
+        isCurrentUser: false,
+      };
+
+      setMessages(prev => [...prev, newMessage]);
+
+      // Scroll to bottom
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    };
+
+    websocketService.subscribeToConversation(chatId, handleNewMessage);
+
+    // Cleanup on unmount
+    return () => {
+      console.log('🔕 Unsubscribing from conversation');
+      websocketService.unsubscribeFromConversation(chatId);
+    };
+  }, [chatId, user, session]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
