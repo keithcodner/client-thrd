@@ -19,6 +19,7 @@ import { CircleInfoModal } from "@/components/chat/CircleInfoModal";
 import { useSession } from "@/context/AuthContext";
 import { sendMessage, getUserCircleData, getConversationMessages } from "@/services/chatService";
 import websocketService from "@/services/websocketService";
+import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
 
 // Dummy messages data with dates
 const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
@@ -468,10 +469,10 @@ const ChatDetail = () => {
           {/* Avatar */}
           <View 
             className="w-10 h-10 rounded-full items-center justify-center mr-3"
-            style={{ backgroundColor: colours.primary }}
+            style={{ backgroundColor: getAvatarColor(chatName) }}
           >
             <Text className="text-white font-semibold text-sm">
-              {chatName[0].toUpperCase()}
+              {getInitials(chatName)}
             </Text>
           </View>
           

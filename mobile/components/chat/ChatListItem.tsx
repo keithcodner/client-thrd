@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useThemeColours } from '@/hooks/useThemeColours';
+import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
 
 export interface ChatItemData {
   id: string;
@@ -34,36 +35,6 @@ export const ChatListItem = ({ chat, onLongPress }: ChatListItemProps) => {
     if (onLongPress) {
       onLongPress(chat);
     }
-  };
-
-  // Get initials from name
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  // Get color based on first letter of initials
-  const getAvatarColor = (name: string) => {
-    const colors = [
-      '#8B7355', // sage brown
-      '#6B7280', // stone gray
-      '#92400E', // clay brown
-      '#D97706', // amber
-      '#7C2D12', // dusk brown
-      '#B45309', // sand orange
-      '#059669', // emerald
-      '#0891B2', // cyan
-      '#4F46E5', // indigo
-      '#7C3AED', // violet
-    ];
-    
-    const firstLetter = name.charAt(0).toUpperCase();
-    const index = firstLetter.charCodeAt(0) % colors.length;
-    return colors[index];
   };
 
   return (
