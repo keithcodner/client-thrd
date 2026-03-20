@@ -135,6 +135,13 @@ const ChatDetail = () => {
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [chatName, setChatName] = useState<string>('Loading...');
   const [isLoadingChatInfo, setIsLoadingChatInfo] = useState(true);
+  
+  // Pagination state
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const scrollContentHeight = useRef(0);
+  const scrollViewHeight = useRef(0);
 
   // Format current time
   const getCurrentTime = () => {
@@ -237,31 +244,42 @@ const ChatDetail = () => {
     loadChatInfo();
   }, [chatId]);
 
-  // Load messages on mount
+  // Load messages on mount (with caching)
   useEffect(() => {
     const loadMessages = async () => {
       setIsLoadingMessages(true);
+      setOffset(0); // Reset offset
       try {
         // For THRD system chat (ID: 1), use local initial messages
         if (chatId === '1') {
           const initialMessages = INITIAL_MESSAGES[chatId] || [];
           const limitedMessages = initialMessages.slice(-MESSAGE_LIMIT);
           setMessages(limitedMessages);
+          setHasMore(false);
         } else {
-          // For all other chats, fetch from API
-          const response = await getConversationMessages(parseInt(chatId), MESSAGE_LIMIT);
+          // For all other chats, fetch from API with caching
+          const response = await getConversationMessages(
+            parseInt(chatId), 
+            MESSAGE_LIMIT, 
+            0, // offset = 0 for initial load (will be cached)
+            true // useCache = true
+          );
           
           if (response.messages && Array.isArray(response.messages)) {
             setMessages(response.messages);
+            setHasMore(response.hasMore || false);
+            setOffset(response.messages.length); // Set offset for next load
           } else {
             // If no messages returned, set empty array
             setMessages([]);
+            setHasMore(false);
           }
         }
       } catch (error) {
         console.error('Error loading messages:', error);
         // On error, set empty messages array
         setMessages([]);
+        setHasMore(false);
       } finally {
         setIsLoadingMessages(false);
       }
@@ -269,6 +287,59 @@ const ChatDetail = () => {
 
     loadMessages();
   }, [chatId]);
+
+  /**
+   * Load more messages (infinite scroll)
+   * Called when user scrolls to the top
+   * These messages are NOT cached
+   */
+  const loadMoreMessages = async () => {
+    if (isLoadingMore || !hasMore || chatId === '1') {
+      return;
+    }
+
+    setIsLoadingMore(true);
+    try {
+      const response = await getConversationMessages(
+        parseInt(chatId),
+        MESSAGE_LIMIT,
+        offset, // Use current offset for pagination
+        false // useCache = false (don't cache paginated results)
+      );
+
+      if (response.messages && Array.isArray(response.messages) && response.messages.length > 0) {
+        // Prepend older messages to the beginning
+        setMessages(prev => [...response.messages, ...prev]);
+        setHasMore(response.hasMore || false);
+        setOffset(prev => prev + response.messages.length);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error loading more messages:', error);
+      setHasMore(false);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  /**
+   * Handle scroll event to detect when user scrolls near the top
+   * Load more messages when user is within 200px of the top
+   */
+  const handleScroll = (event: any) => {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    
+    scrollContentHeight.current = contentSize.height;
+    scrollViewHeight.current = layoutMeasurement.height;
+
+    // Check if user scrolled near the top (within 200px)
+    const scrolledToTop = contentOffset.y < 200;
+
+    if (scrolledToTop && hasMore && !isLoadingMore) {
+      loadMoreMessages();
+    }
+  };
 
   // Subscribe to WebSocket for real-time messages
   useEffect(() => {
@@ -386,7 +457,22 @@ const ChatDetail = () => {
         className="flex-1"
         style={{ backgroundColor: colours.background }}
         contentContainerStyle={{ paddingBottom: 10, paddingTop: 10 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
       >
+        {/* Loading indicator for pagination at top */}
+        {isLoadingMore && (
+          <View className="py-3 items-center">
+            <ActivityIndicator size="small" color={colours.primary} />
+            <Text 
+              className="mt-2 text-xs" 
+              style={{ color: colours.secondaryText }}
+            >
+              Loading more messages...
+            </Text>
+          </View>
+        )}
+
         {isLoadingMessages ? (
           <View className="flex-1 justify-center items-center py-20">
             <ActivityIndicator size="large" color={colours.primary} />

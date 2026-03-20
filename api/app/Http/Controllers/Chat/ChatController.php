@@ -164,10 +164,12 @@ class ChatController extends Controller
             $validated = $request->validate([
                 'conversation_id' => 'required|integer|exists:conversations,id',
                 'limit' => 'nullable|integer|min:1|max:100',
+                'offset' => 'nullable|integer|min:0', // For pagination
             ]);
 
             $conversationId = $validated['conversation_id'];
             $limit = $validated['limit'] ?? 30;
+            $offset = $validated['offset'] ?? 0;
 
             // Get the conversation
             $conversation = Conversation::findOrFail($conversationId);
@@ -188,12 +190,14 @@ class ChatController extends Controller
             }
 
             // Fetch messages with user info
+            // Order by created_at DESC to get most recent first, then skip offset
             $messages = ConversationChat::where('conversation_id', $conversationId)
                 ->with(['user:id,name,email']) // Load user relationship
                 ->orderBy('created_at', 'desc')
-                ->limit($limit)
+                ->skip($offset)
+                ->take($limit)
                 ->get()
-                ->reverse() // Reverse to get chronological order
+                ->reverse() // Reverse to get chronological order (oldest first)
                 ->values(); // Re-index array
 
             // Transform messages to include sender info
@@ -210,14 +214,23 @@ class ChatController extends Controller
                 ];
             });
 
+            // Check if there are more messages
+            $hasMore = ConversationChat::where('conversation_id', $conversationId)
+                ->orderBy('created_at', 'desc')
+                ->skip($offset + $limit)
+                ->exists();
+
             Log::info('Messages fetched successfully', [
                 'user_id' => $user->id,
                 'conversation_id' => $conversationId,
                 'message_count' => $formattedMessages->count(),
+                'offset' => $offset,
+                'hasMore' => $hasMore,
             ]);
 
             return response()->json([
                 'messages' => $formattedMessages,
+                'hasMore' => $hasMore,
                 'conversation' => [
                     'id' => $conversation->id,
                     'title' => $conversation->title,
