@@ -9,7 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Conversation\ConversationChats;
+use App\Models\Conversation\ConversationChat;
 use App\Models\Item;
 use App\Models\User;
 use App\Models\Conversation\Conversation;
@@ -25,7 +25,7 @@ class NewChatMessage implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(ConversationChats $chat)
+    public function __construct(ConversationChat $chat)
     {
         $this->content  = $chat;
     }

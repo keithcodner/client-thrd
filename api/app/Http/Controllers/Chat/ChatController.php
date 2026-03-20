@@ -144,30 +144,79 @@ class ChatController extends Controller
         ], 200);
     }
 
-    public function postChat(Request $request){
-       
-        $chat_an_id = $request->value4;
-        
-        $newChatMessage = '';
+    public function postChat(Request $request)
+    {
+        try {
+            $user = Auth::user();
 
-        //this check should stop users from sending messages to themselves
-        if(Auth::user()->id == $request->value2){
-            // do nothing
-            return 'init and end users are the same, they should not be';
-        }else if(Auth::user()->id != $request->value2){
-            $newChatMessage = ConversationChat::create([
-                'init_user_id' => Auth::user()->id, // I clicked the msg btn
-                'end_user_id' => $request->value2, //other user
-                'conversation_id' => $request->value3,
+            // Validate request data
+            $validated = $request->validate([
+                'conversation_id' => 'required|integer|exists:conversations,id',
+                'content' => 'required|string|max:5000',
+                'type' => 'nullable|string|in:chat,announcement,system',
+                'end_user_id' => 'nullable|integer|exists:users,id',
+            ]);
+
+            // Get the conversation to determine if it's a circle or 1-to-1
+            $conversation = Conversation::findOrFail($validated['conversation_id']);
+
+            // Prepare chat data
+            $chatData = [
+                'init_user_id' => $user->id,
+                'conversation_id' => $validated['conversation_id'],
+                'content' => $validated['content'],
+                'type' => $validated['type'] ?? 'chat',
                 'seen_by_other_user' => 'false',
                 'seen_by_received_user' => 'false',
-                'chat_an_id' => $chat_an_id,
-                'content' => $request->value1,
-            ]);
-        }
+            ];
 
-        broadcast(new NewChatMessage($newChatMessage))->toOthers();
-        //event(new NewChatMessage($newChatMessage));
-        return 'user id: ' . Auth::user()->id . ' -  end user id: '. $request->value2;
+            // For 1-to-1 conversations (TYPE_COUPLE), set end_user_id
+            if ($conversation->type === ConversationEnum::TYPE_COUPLE) {
+                // Validate that end_user_id is provided for 1-to-1 conversations
+                if (!isset($validated['end_user_id'])) {
+                    return response()->json([
+                        'message' => 'end_user_id is required for 1-to-1 conversations.',
+                    ], 400);
+                }
+
+                // Prevent users from sending messages to themselves
+                if ($user->id == $validated['end_user_id']) {
+                    return response()->json([
+                        'message' => 'You cannot send messages to yourself.',
+                    ], 400);
+                }
+
+                $chatData['end_user_id'] = $validated['end_user_id'];
+            }
+            // For circle conversations (TYPE_GROUP), end_user_id is not used
+            // Messages are read first-come-first-serve
+
+            // Create the chat message
+            $newChatMessage = ConversationChat::create($chatData);
+
+            // Broadcast the new message to other users
+            broadcast(new NewChatMessage($newChatMessage))->toOthers();
+
+            Log::info('Chat message sent successfully', [
+                'user_id' => $user->id,
+                'conversation_id' => $validated['conversation_id'],
+                'chat_id' => $newChatMessage->id,
+            ]);
+
+            return response()->json([
+                'message' => 'Message sent successfully.',
+                'chat' => $newChatMessage,
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Error sending chat message: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id(),
+                'request_data' => $request->all(),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to send message. Please try again later.',
+            ], 500);
+        }
     }
 }

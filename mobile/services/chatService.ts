@@ -19,3 +19,20 @@ export const getUserCircleData = async () => {
     throw error;
   }
 };
+
+export interface SendMessageData {
+  conversation_id: number;
+  content: string;
+  type?: "chat" | "announcement" | "system";
+  end_user_id?: number;
+}
+
+export const sendMessage = async (messageData: SendMessageData) => {
+  try {
+    const response = await axiosInstance.post("/post-chat", messageData);
+    return response.data;
+  } catch (error) {
+    console.error("Error sending message:", error);
+    throw error;
+  }
+};

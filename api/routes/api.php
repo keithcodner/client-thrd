@@ -56,6 +56,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //:::LOADS CHATS AND CIRCLES:::
         Route::post('/chat', [ChatController::class, 'ChatIndex'])->middleware(TrackUserActivity::class)->name('chat');
 
+        //:::POST CHAT MESSAGE:::
+        Route::post('/post-chat', [ChatController::class, 'postChat'])->middleware(TrackUserActivity::class)->name('post-chat');
+
         // Route::get('/get-conversations', [ChatController::class, 'getConversations'])->middleware(TrackUserActivity::class)->name('get-conversations');
         // Route::get('/poll-chat', [ChatController::class, 'pollChat'])->middleware(TrackUserActivity::class)->name('poll-chat');
 
@@ -65,7 +68,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Route::post('/chat-new', [ChatController::class, 'chatNewConverse'])->middleware(TrackUserActivity::class)->name('chat-new');
         // Route::post('/chat-is-read', [ChatController::class, 'checkIfOtherChatIsRead_deprecated'])->middleware(TrackUserActivity::class)->name('chat-is-read');
         // Route::get('/get-unread-conversations-count', [ChatController::class, 'checkIfOtherChatIsRead'])->name('get-unread-conversations-count');
-        // Route::post('/post-chat', [ChatController::class, 'postChat'])->middleware(TrackUserActivity::class)->name('post-chat');
         // Route::post('/conv-click', [ChatController::class, 'chatConverseClick'])->middleware(TrackUserActivity::class)->name('conv-click');
         // Route::post('/conv-details', [ChatController::class, 'chatUserDetails'])->middleware(TrackUserActivity::class)->name('conv-details');
         // Route::post('/conv-delete', [ChatController::class, 'destoryConversation'])->middleware(TrackUserActivity::class)->name('conv-delete');

@@ -6,15 +6,18 @@ import {
   TextInput, 
   Pressable,
   KeyboardAvoidingView,
-  Platform 
+  Platform,
+  ActivityIndicator
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, Info, Plus, Mic, X, Send, BarChart3, Calendar, Image } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
 import { CircleInfoModal } from "@/components/chat/CircleInfoModal";
+import { useSession } from "@/context/AuthContext";
+import { sendMessage } from "@/services/chatService";
 
-// Dummy messages data
+// Dummy messages data with dates
 const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
   '1': [
     {
@@ -22,6 +25,7 @@ const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
       sender: 'THRD GUIDE',
       content: 'Welcome to THRD 💚 Start small: Step 1 — create your circle (one is enough, we\'re not collecting Pokémon).',
       timestamp: '12:57 AM',
+      createdAt: new Date().toISOString(),
       isSystemMessage: true,
     },
     {
@@ -29,6 +33,7 @@ const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
       sender: 'THRD GUIDE',
       content: 'Step 2 — explore when you feel like doing something fun, whether it\'s a restaurant, workshop, or exhibition. Step 3 — use the AI Scheduler to find a time that actually works (or add a manual calendar block if you\'re in your \'do-not-disturb\' era).',
       timestamp: '12:57 AM',
+      createdAt: new Date().toISOString(),
       isSystemMessage: true,
     },
     {
@@ -36,6 +41,7 @@ const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
       sender: 'THRD GUIDE',
       content: 'If things start feeling like... a lot, Mind Space has tools to help you reset, and the Help Centre has answers when you\'re like \'wait, how do I—?\' You\'re always in control, and there\'s zero pressure to be loud here.',
       timestamp: '12:57 AM',
+      createdAt: new Date().toISOString(),
       isSystemMessage: true,
     },
   ],
@@ -45,10 +51,72 @@ const INITIAL_MESSAGES: { [key: string]: MessageData[] } = {
       sender: 'System',
       content: 'Start a conversation with this circle.',
       timestamp: 'Now',
+      createdAt: new Date().toISOString(),
       isSystemMessage: true,
     },
   ],
 };
+
+// Date separator component
+const DateSeparator = ({ date, colours }: { date: string; colours: any }) => {
+  return (
+    <View className="px-4 py-3 items-center">
+      <View 
+        className="px-4 py-2 rounded-full" 
+        style={{ backgroundColor: colours.card }}
+      >
+        <Text 
+          className="text-xs font-semibold" 
+          style={{ color: colours.secondaryText }}
+        >
+          {date}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+// Helper to format date for separator
+const formatDateSeparator = (date: Date): string => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const messageDate = new Date(date);
+  
+  // Reset hours for date comparison
+  today.setHours(0, 0, 0, 0);
+  yesterday.setHours(0, 0, 0, 0);
+  messageDate.setHours(0, 0, 0, 0);
+  
+  if (messageDate.getTime() === today.getTime()) {
+    return 'Today';
+  } else if (messageDate.getTime() === yesterday.getTime()) {
+    return 'Yesterday';
+  } else {
+    // Format as "Mon, Jan 15"
+    const options: Intl.DateTimeFormatOptions = { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    return messageDate.toLocaleDateString('en-US', options);
+  }
+};
+
+// Helper to check if two dates are on different days
+const isDifferentDay = (date1: string | Date, date2: string | Date): boolean => {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  
+  return (
+    d1.getFullYear() !== d2.getFullYear() ||
+    d1.getMonth() !== d2.getMonth() ||
+    d1.getDate() !== d2.getDate()
+  );
+};
+
+const MESSAGE_LIMIT = 30;
 
 const ChatDetail = () => {
   const colours = useThemeColours();
@@ -56,11 +124,14 @@ const ChatDetail = () => {
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const [messageText, setMessageText] = useState('');
+  const { user } = useSession();
 
   const chatId = Array.isArray(id) ? id[0] : id || '1';
-  const [messages, setMessages] = useState<MessageData[]>(INITIAL_MESSAGES[chatId] || []);
+  const [messages, setMessages] = useState<MessageData[]>([]);
   const [showCircleInfo, setShowCircleInfo] = useState(false);
   const [showInputActions, setShowInputActions] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   
   // Get chat name from ID
   const chatName = chatId === '1' ? 'THRD' : 'test';
@@ -77,32 +148,94 @@ const ChatDetail = () => {
     return `${hours}:${minutesStr} ${ampm}`;
   };
 
-  const handleSendMessage = () => {
-    if (messageText.trim()) {
-      const newMessage: MessageData = {
-        id: Date.now().toString(),
-        sender: 'You',
-        content: messageText.trim(),
-        timestamp: getCurrentTime(),
-        isSystemMessage: false,
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
-      setMessageText('');
-      
-      // Scroll to bottom after sending
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+  const handleSendMessage = async () => {
+    if (messageText.trim() && user) {
+      setIsSending(true);
+      try {
+        // Create optimistic message for immediate UI update
+        const optimisticMessage: MessageData = {
+          id: `temp-${Date.now()}`,
+          sender: user.name,
+          senderId: user.id,
+          content: messageText.trim(),
+          timestamp: getCurrentTime(),
+          createdAt: new Date().toISOString(),
+          isSystemMessage: false,
+          isCurrentUser: true,
+        };
+        
+        // Add message to UI immediately
+        setMessages(prev => [...prev, optimisticMessage]);
+        const messageContent = messageText.trim();
+        setMessageText('');
+        
+        // Scroll to bottom after sending
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+
+        // Send message to API
+        const response = await sendMessage({
+          conversation_id: parseInt(chatId),
+          content: messageContent,
+          type: 'chat',
+        });
+
+        // Update the temporary message with the actual message from server
+        if (response.chat) {
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === optimisticMessage.id 
+                ? {
+                    ...msg,
+                    id: response.chat.id.toString(),
+                  }
+                : msg
+            )
+          );
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        // Optionally remove the optimistic message on error
+        setMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')));
+        // Show error to user
+        alert('Failed to send message. Please try again.');
+      } finally {
+        setIsSending(false);
+      }
     }
   };
 
+  // Load messages on mount
+  useEffect(() => {
+    const loadMessages = async () => {
+      setIsLoadingMessages(true);
+      try {
+        // Simulate API call - replace with actual API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Get initial messages and limit to 30 most recent
+        const initialMessages = INITIAL_MESSAGES[chatId] || [];
+        const limitedMessages = initialMessages.slice(-MESSAGE_LIMIT);
+        setMessages(limitedMessages);
+      } catch (error) {
+        console.error('Error loading messages:', error);
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    };
+
+    loadMessages();
+  }, [chatId]);
+
   // Scroll to bottom when messages change
   useEffect(() => {
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: false });
-    }, 100);
-  }, []);
+    if (!isLoadingMessages && messages.length > 0) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: false });
+      }, 100);
+    }
+  }, [messages, isLoadingMessages]);
 
   return (
     <>
@@ -156,9 +289,46 @@ const ChatDetail = () => {
         style={{ backgroundColor: colours.background }}
         contentContainerStyle={{ paddingBottom: 10, paddingTop: 10 }}
       >
-        {messages.map(message => (
-          <ChatMessage key={message.id} message={message} />
-        ))}
+        {isLoadingMessages ? (
+          <View className="flex-1 justify-center items-center py-20">
+            <ActivityIndicator size="large" color={colours.primary} />
+            <Text 
+              className="mt-4 text-sm" 
+              style={{ color: colours.secondaryText }}
+            >
+              Loading messages...
+            </Text>
+          </View>
+        ) : messages.length === 0 ? (
+          <View className="flex-1 justify-center items-center py-20">
+            <Text 
+              className="text-sm" 
+              style={{ color: colours.secondaryText }}
+            >
+              No messages yet. Start the conversation!
+            </Text>
+          </View>
+        ) : (
+          messages.map((message, index) => {
+            const prevMessage = messages[index - 1];
+            const showDateSeparator = 
+              index === 0 || 
+              (message.createdAt && prevMessage?.createdAt && 
+               isDifferentDay(message.createdAt, prevMessage.createdAt));
+            
+            return (
+              <React.Fragment key={message.id}>
+                {showDateSeparator && message.createdAt && (
+                  <DateSeparator 
+                    date={formatDateSeparator(new Date(message.createdAt))} 
+                    colours={colours} 
+                  />
+                )}
+                <ChatMessage message={message} />
+              </React.Fragment>
+            );
+          })
+        )}
       </ScrollView>
 
       {/* Input Bar */}
@@ -230,8 +400,12 @@ const ChatDetail = () => {
           {messageText.trim() ? (
             <Pressable 
               className="ml-3 w-10 h-10 rounded-full items-center justify-center"
-              style={{ backgroundColor: colours.primary }}
+              style={{ 
+                backgroundColor: isSending ? colours.secondaryText : colours.primary,
+                opacity: isSending ? 0.5 : 1,
+              }}
               onPress={handleSendMessage}
+              disabled={isSending}
             >
               <Send size={18} color="#fff" />
             </Pressable>
