@@ -441,13 +441,7 @@ const ChatDetail = () => {
 
   return (
     <>
-      <KeyboardAvoidingView 
-        className="flex-1"
-        style={{ backgroundColor: colours.background }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-      >
-      {/* Header */}
+      {/* Header - Outside KeyboardAvoidingView */}
       <View className="mt-8 pt-12 pb-4 px-5 flex-row items-center justify-between" style={{ backgroundColor: colours.background }}>
         <View className="flex-row items-center flex-1">
           <Pressable 
@@ -485,11 +479,20 @@ const ChatDetail = () => {
         </Pressable>
       </View>
 
+      {/* Separator line between header and messages */}
+      <View style={{ height: 1, backgroundColor: colours.border }} />
+
+      <KeyboardAvoidingView 
+        className="flex-1"
+        style={{ backgroundColor: colours.chatBackground }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
       {/* Messages */}
       <ScrollView 
         ref={scrollViewRef}
         className="flex-1"
-        style={{ backgroundColor: colours.background }}
+        style={{ backgroundColor: colours.chatBackground }}
         contentContainerStyle={{ paddingBottom: 10, paddingTop: 10 }}
         onScroll={handleScroll}
         scrollEventThrottle={400}
@@ -548,6 +551,9 @@ const ChatDetail = () => {
           })
         )}
       </ScrollView>
+
+      {/* Separator line between messages and input */}
+      <View style={{ height: 1, backgroundColor: colours.border }} />
 
       {/* Input Bar */}
       <View className="px-4 pb-6 pt-3" style={{ backgroundColor: colours.background }}>

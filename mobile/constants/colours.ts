@@ -2,6 +2,7 @@ export const colours = {
   light: {
     // Base colors
     background: '#FFFFFF',
+    chatBackground: '#fafaf9',
     surface: '#fafaf9',
     card: '#f5f5f4',
     text: '#1c1917',
@@ -34,6 +35,7 @@ export const colours = {
   dark: {
     // Base colors
     background: '#15110fff',
+    chatBackground: '#0c0a09',
     surface: '#1c1917',
     card: '#292524',
     text: '#fafaf9',
