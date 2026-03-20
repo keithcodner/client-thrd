@@ -43,7 +43,20 @@ function authorizeConversationAccess($user, $conversationId)
 
 // Authenticate private chat channels
 Broadcast::channel('sitePrivateChat.{conversationId}', function ($user, $conversationId) {
-    return authorizeConversationAccess($user, $conversationId);
+    \Log::info('WebSocket Authorization Attempt', [
+        'user_id' => $user->id,
+        'conversation_id' => $conversationId,
+    ]);
+    
+    $authorized = authorizeConversationAccess($user, $conversationId);
+    
+    \Log::info('WebSocket Authorization Result', [
+        'user_id' => $user->id,
+        'conversation_id' => $conversationId,
+        'authorized' => $authorized,
+    ]);
+    
+    return $authorized;
 });
 
 // Typing indicator channel

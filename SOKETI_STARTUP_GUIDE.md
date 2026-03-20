@@ -1,5 +1,44 @@
 # Soketi WebSocket Server Startup Guide
 
+## Prerequisites
+
+⚠️ **Important: Node.js Version Requirement**
+
+Soketi requires **Node.js version 14, 16, or 18**. It does NOT support Node.js 20+ yet.
+
+**If using nvm (Node Version Manager):**
+```powershell
+# Check current version
+node --version
+
+# If running Node.js 20+, switch to Node.js 18
+nvm install 18
+nvm use 18
+
+# Verify the version
+node --version  # Should show v18.x.x
+```
+
+**If not using nvm:**
+- Download Node.js 18 LTS from [nodejs.org](https://nodejs.org/)
+- Or install nvm: [nvm-windows](https://github.com/coreybutler/nvm-windows) (Windows) or [nvm](https://github.com/nvm-sh/nvm) (Mac/Linux)
+
+### Installing Soketi
+
+Once you have Node.js 18 installed, install Soketi globally:
+
+```powershell
+# Install Soketi globally
+npm install -g @soketi/soketi
+
+# Verify installation
+soketi --version
+```
+
+**Note:** If you get a permission error on Mac/Linux, use `sudo npm install -g @soketi/soketi`
+
+---
+
 ## Starting Soketi
 
 ### Option 1: Using the config file (Recommended)
@@ -97,6 +136,46 @@ Check the Metro bundler console and React Native debugger for:
 - 📨 New message received
 
 ## Troubleshooting
+
+### Issue: "soketi is not recognized as a command"
+**Error:**
+```
+soketi : The term 'soketi' is not recognized as the name of a cmdlet, function, script file, or operable program.
+```
+
+**Solution:** Soketi is not installed. Install it globally:
+```powershell
+npm install -g @soketi/soketi
+
+# Verify installation
+soketi --version
+
+# Now start Soketi
+soketi start --config=soketi.config.json
+```
+
+### Issue: "This version of uWS.js supports only Node.js 14, 16 and 18"
+**Error:**
+```
+Error: This version of uWS.js supports only Node.js 14, 16 and 18...
+Cannot find module './uws_win32_x64_127.node'
+```
+
+**Solution:** You're running an incompatible Node.js version (20+). Switch to Node.js 18:
+```powershell
+# Check current version
+node --version
+
+# Using nvm (Node Version Manager)
+nvm install 18
+nvm use 18
+
+# Verify
+node --version  # Should show v18.x.x
+
+# Now restart Soketi
+soketi start --config=soketi.config.json
+```
 
 ### Issue: Soketi won't start
 **Solution:** Check if port 6001 is already in use:

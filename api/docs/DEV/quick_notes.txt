@@ -29,6 +29,11 @@ npx expo start -c
 
 exp://10.0.0.12:8081 // but check ipconfig
 
+
+6. Start web socket server
+
+`soketi start --config=soketi.config.json `
+
 ----------------------
 How to install and run Fresh dev instance
 

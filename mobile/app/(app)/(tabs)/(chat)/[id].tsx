@@ -261,6 +261,12 @@ const ChatDetail = () => {
 
   // Subscribe to WebSocket for real-time messages
   useEffect(() => {
+    // Skip WebSocket for THRD system chat (ID: 1) - it's a local-only chat
+    if (chatId === '1') {
+      console.log('Skipping WebSocket for THRD system chat');
+      return;
+    }
+
     if (!user || !session) {
       console.log('User or session not available, skipping WebSocket connection');
       return;

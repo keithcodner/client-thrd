@@ -47,6 +47,21 @@ const ChatHome = () => {
       setIsLoading(true);
       const response = await getUserCircleData();
       
+      console.log('📊 getUserCircleData response:', JSON.stringify(response, null, 2));
+      console.log('📊 Circles count:', response?.circles?.length || 0);
+      
+      // Check if response has circles array
+      if (!response || !Array.isArray(response.circles)) {
+        console.error('❌ Invalid response structure:', response);
+        setChats(DUMMY_CHATS);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Invalid data format received.',
+        });
+        return;
+      }
+      
       // Transform API response to ChatItemData format
       const circleChats: ChatItemData[] = response.circles.map((circle: any) => ({
         id: circle.id.toString(),
@@ -60,14 +75,18 @@ const ChatHome = () => {
         isPrivate: circle.type === 'private_circle',
       }));
       
+      console.log('📊 Transformed circle chats:', circleChats);
+      
       // Keep DUMMY_CHATS first, then add circle chats
       setChats([...DUMMY_CHATS, ...circleChats]);
     } catch (error) {
-      console.error('Error fetching user circles:', error);
+      console.error('❌ Error fetching user circles:', error);
+      // Set DUMMY_CHATS even on error so the THRD chat appears
+      setChats(DUMMY_CHATS);
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to load circles.',
+        text2: 'Failed to load circles. Please try again.',
       });
     } finally {
       setIsLoading(false);

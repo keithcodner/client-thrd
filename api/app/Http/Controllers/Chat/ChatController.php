@@ -129,6 +129,11 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
+        Log::info('getUserCircleData called', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+        ]);
+
         // Get all circles where the user is an active member
         $circles = Circle::whereHas('members', function ($query) use ($user) {
             $query->where('user_id', $user->id)
@@ -138,6 +143,12 @@ class ChatController extends Controller
             $query->where('status', ActiveEnum::STATUS_ACTIVE);
         }])
         ->get();
+
+        Log::info('getUserCircleData result', [
+            'user_id' => $user->id,
+            'circles_count' => $circles->count(),
+            'circles' => $circles->pluck('id', 'name'),
+        ]);
 
         return response()->json([
             'circles' => $circles,
