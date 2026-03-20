@@ -15,7 +15,7 @@ import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
 import { CircleInfoModal } from "@/components/chat/CircleInfoModal";
 import { useSession } from "@/context/AuthContext";
-import { sendMessage, getUserCircleData } from "@/services/chatService";
+import { sendMessage, getUserCircleData, getConversationMessages } from "@/services/chatService";
 import websocketService from "@/services/websocketService";
 
 // Dummy messages data with dates
@@ -242,15 +242,26 @@ const ChatDetail = () => {
     const loadMessages = async () => {
       setIsLoadingMessages(true);
       try {
-        // Simulate API call - replace with actual API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Get initial messages and limit to 30 most recent
-        const initialMessages = INITIAL_MESSAGES[chatId] || [];
-        const limitedMessages = initialMessages.slice(-MESSAGE_LIMIT);
-        setMessages(limitedMessages);
+        // For THRD system chat (ID: 1), use local initial messages
+        if (chatId === '1') {
+          const initialMessages = INITIAL_MESSAGES[chatId] || [];
+          const limitedMessages = initialMessages.slice(-MESSAGE_LIMIT);
+          setMessages(limitedMessages);
+        } else {
+          // For all other chats, fetch from API
+          const response = await getConversationMessages(parseInt(chatId), MESSAGE_LIMIT);
+          
+          if (response.messages && Array.isArray(response.messages)) {
+            setMessages(response.messages);
+          } else {
+            // If no messages returned, set empty array
+            setMessages([]);
+          }
+        }
       } catch (error) {
         console.error('Error loading messages:', error);
+        // On error, set empty messages array
+        setMessages([]);
       } finally {
         setIsLoadingMessages(false);
       }

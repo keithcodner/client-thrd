@@ -36,3 +36,16 @@ export const sendMessage = async (messageData: SendMessageData) => {
     throw error;
   }
 };
+
+export const getConversationMessages = async (conversationId: number, limit: number = 30) => {
+  try {
+    const response = await axiosInstance.post("/chat", {
+      conversation_id: conversationId,
+      limit,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching conversation messages:", error);
+    throw error;
+  }
+};

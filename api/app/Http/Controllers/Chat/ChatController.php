@@ -155,6 +155,88 @@ class ChatController extends Controller
         ], 200);
     }
 
+    public function getConversationChats(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Validate request data
+            $validated = $request->validate([
+                'conversation_id' => 'required|integer|exists:conversations,id',
+                'limit' => 'nullable|integer|min:1|max:100',
+            ]);
+
+            $conversationId = $validated['conversation_id'];
+            $limit = $validated['limit'] ?? 30;
+
+            // Get the conversation
+            $conversation = Conversation::findOrFail($conversationId);
+
+            // Verify user has access to this conversation
+            // For circle conversations, check if user is a member
+            if ($conversation->circle_id) {
+                $isMember = CircleMemberTracker::where('circle_id', $conversation->circle_id)
+                    ->where('user_id', $user->id)
+                    ->where('status', ActiveEnum::STATUS_ACTIVE)
+                    ->exists();
+
+                if (!$isMember) {
+                    return response()->json([
+                        'message' => 'You do not have access to this conversation.',
+                    ], 403);
+                }
+            }
+
+            // Fetch messages with user info
+            $messages = ConversationChat::where('conversation_id', $conversationId)
+                ->with(['user:id,name,email']) // Load user relationship
+                ->orderBy('created_at', 'desc')
+                ->limit($limit)
+                ->get()
+                ->reverse() // Reverse to get chronological order
+                ->values(); // Re-index array
+
+            // Transform messages to include sender info
+            $formattedMessages = $messages->map(function ($message) use ($user) {
+                return [
+                    'id' => $message->id,
+                    'sender' => $message->user->name ?? 'Unknown',
+                    'senderId' => $message->init_user_id,
+                    'content' => $message->content,
+                    'timestamp' => $message->created_at->format('g:i A'),
+                    'createdAt' => $message->created_at->toISOString(),
+                    'isSystemMessage' => in_array($message->type, ['system', 'announcement']),
+                    'isCurrentUser' => $message->init_user_id === $user->id,
+                ];
+            });
+
+            Log::info('Messages fetched successfully', [
+                'user_id' => $user->id,
+                'conversation_id' => $conversationId,
+                'message_count' => $formattedMessages->count(),
+            ]);
+
+            return response()->json([
+                'messages' => $formattedMessages,
+                'conversation' => [
+                    'id' => $conversation->id,
+                    'title' => $conversation->title,
+                    'type' => $conversation->type,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching messages: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id(),
+                'request_data' => $request->all(),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to fetch messages. Please try again later.',
+            ], 500);
+        }
+    }
+
     public function postChat(Request $request)
     {
         try {

@@ -4,6 +4,7 @@ namespace App\Models\Conversation;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class ConversationChat extends Model
 {
@@ -27,4 +28,20 @@ class ConversationChat extends Model
         'created_at',
         'updated_at',
     ];
+
+    /**
+     * Get the user who sent the message
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'init_user_id');
+    }
+
+    /**
+     * Get the conversation this message belongs to
+     */
+    public function conversation()
+    {
+        return $this->belongsTo(Conversation::class);
+    }
 }
