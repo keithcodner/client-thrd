@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Soketi (Node 18)",
+      "type": "shell",
+      "command": "${workspaceFolder}/api/start-soketi.bat",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev-servers"
+      }
+    },
+    {
+      "label": "Start Laravel API",
+      "type": "shell",
+      "command": "${workspaceFolder}/api/start-laravel.bat",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev-servers"
+      }
+    },
+    {
+      "label": "Start Expo (Node 20)",
+      "type": "shell",
+      "command": "${workspaceFolder}/mobile/start-expo.bat",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev-servers"
+      }
+    },
+    {
+      "label": "Start All Dev Servers",
+      "dependsOn": [
+        "Start Soketi (Node 18)",
+        "Start Laravel API",
+        "Start Expo (Node 20)"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

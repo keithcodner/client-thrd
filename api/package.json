@@ -4,7 +4,10 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "soketi": "soketi start --config=soketi.config.json",
+        "laravel": "php artisan serve",
+        "dev:all": "concurrently -n soketi,laravel,vite -c cyan,magenta,yellow \"npm run soketi\" \"npm run laravel\" \"npm run dev\""
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",

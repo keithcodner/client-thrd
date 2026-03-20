@@ -58,32 +58,60 @@ React Native Expo application for iOS and Android.
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ (for mobile)
+- **Node.js**: Version 18 for API (Soketi), Version 20+ for Mobile (Expo)
+- **Node Version Manager (nvm)**: Required for switching between Node versions
 - PHP 8+ and Composer (for API)
 - MySQL 8.0+
-- Expo CLI (`npm install -g expo-cli`)
+- XAMPP or similar (for local development)
 
-### Quick Start
+### Development Setup
 
-**Mobile Development:**
+**⚠️ This project requires different Node.js versions for different components.**
+
+See **[DEV_SETUP.md](DEV_SETUP.md)** for complete development environment setup instructions.
+
+#### Quick Start - Automated (Recommended)
+
+Run all services with one command:
+
+**Windows PowerShell:**
+```powershell
+.\start-dev.ps1
+```
+
+**Command Prompt:**
+```cmd
+start-dev.bat
+```
+
+**VS Code:**
+1. Press `Ctrl+Shift+P`
+2. Type "Tasks: Run Task"
+3. Select "Start All Dev Servers"
+
+#### Quick Start - Manual
+
+**Mobile Development (Node 20):**
 ```bash
 cd mobile
+nvm use 20
 npm install
-npm start
-# or run on iOS/Android
-npm run ios
-npm run android
+npm run start:clean
 ```
 
-**API Development:**
+**API Development (Node 18 for Soketi):**
 ```bash
 cd api
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan serve
+nvm use 18
+npm run soketi          # WebSocket server
+
+# In another terminal:
+cd api
+php artisan serve       # Laravel API
 ```
+
+For complete setup instructions, troubleshooting, and development workflow, see **[DEV_SETUP.md](DEV_SETUP.md)**.
+
 
 ## Key Features
 
