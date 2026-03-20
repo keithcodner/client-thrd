@@ -10,6 +10,7 @@ use App\Models\Circles\CircleDetail;
 use App\Models\Circles\CircleIdeaBoard;
 use App\Models\Circles\CircleMemberTracker;
 
+use App\Events\NewChatMessage;
 use App\Models\Conversation\Conversation;
 use App\Models\Conversation\ConversationChat;
 
@@ -141,5 +142,32 @@ class ChatController extends Controller
         return response()->json([
             'circles' => $circles,
         ], 200);
+    }
+
+    public function postChat(Request $request){
+       
+        $chat_an_id = $request->value4;
+        
+        $newChatMessage = '';
+
+        //this check should stop users from sending messages to themselves
+        if(Auth::user()->id == $request->value2){
+            // do nothing
+            return 'init and end users are the same, they should not be';
+        }else if(Auth::user()->id != $request->value2){
+            $newChatMessage = ConversationChat::create([
+                'init_user_id' => Auth::user()->id, // I clicked the msg btn
+                'end_user_id' => $request->value2, //other user
+                'conversation_id' => $request->value3,
+                'seen_by_other_user' => 'false',
+                'seen_by_received_user' => 'false',
+                'chat_an_id' => $chat_an_id,
+                'content' => $request->value1,
+            ]);
+        }
+
+        broadcast(new NewChatMessage($newChatMessage))->toOthers();
+        //event(new NewChatMessage($newChatMessage));
+        return 'user id: ' . Auth::user()->id . ' -  end user id: '. $request->value2;
     }
 }
