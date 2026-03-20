@@ -7,9 +7,10 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  Keyboard
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { ChevronLeft, Info, Plus, Mic, X, Send, BarChart3, Calendar, Image } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
@@ -123,6 +124,7 @@ const ChatDetail = () => {
   const colours = useThemeColours();
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
   const [messageText, setMessageText] = useState('');
   const { user, session } = useSession();
@@ -135,6 +137,7 @@ const ChatDetail = () => {
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const [chatName, setChatName] = useState<string>('Loading...');
   const [isLoadingChatInfo, setIsLoadingChatInfo] = useState(true);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   
   // Pagination state
   const [hasMore, setHasMore] = useState(false);
@@ -154,6 +157,36 @@ const ChatDetail = () => {
     const minutesStr = minutes < 10 ? '0' + minutes : minutes;
     return `${hours}:${minutesStr} ${ampm}`;
   };
+
+  // Handle keyboard visibility and hide tabs when keyboard is shown
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        setIsKeyboardVisible(true);
+        // Hide tab bar when keyboard is shown
+        navigation.setOptions({
+          tabBarStyle: { display: 'none' }
+        });
+      }
+    );
+
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setIsKeyboardVisible(false);
+        // Show tab bar when keyboard is hidden
+        navigation.setOptions({
+          tabBarStyle: undefined
+        });
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, [navigation]);
 
   const handleSendMessage = async () => {
     if (messageText.trim() && user) {
@@ -409,9 +442,10 @@ const ChatDetail = () => {
   return (
     <>
       <KeyboardAvoidingView 
-        className="flex-1 "
+        className="flex-1"
         style={{ backgroundColor: colours.background }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
       {/* Header */}
       <View className="mt-8 pt-12 pb-4 px-5 flex-row items-center justify-between" style={{ backgroundColor: colours.background }}>

@@ -218,6 +218,7 @@ class ChatController extends Controller
             $hasMore = ConversationChat::where('conversation_id', $conversationId)
                 ->orderBy('created_at', 'desc')
                 ->skip($offset + $limit)
+                ->take(1) // MySQL requires LIMIT with OFFSET
                 ->exists();
 
             Log::info('Messages fetched successfully', [
