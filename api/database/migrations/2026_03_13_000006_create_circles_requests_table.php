@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('circles_requests', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('circle_id')->nullable();
+            $table->unsignedBigInteger('requester_user_id')->nullable();
             $table->unsignedBigInteger('requesting_to_join_user_id')->nullable();
             $table->string('type', 50)->nullable();
             $table->string('status', 50)->nullable();
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->dateTime('updated_at')->nullable();
 
             $table->foreign('circle_id')->references('id')->on('circles')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('requester_user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('requesting_to_join_user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
     }

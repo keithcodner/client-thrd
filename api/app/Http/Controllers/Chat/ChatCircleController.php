@@ -64,4 +64,20 @@ class ChatCircleController extends Controller
             'users' => $users
         ]);
     }
+
+    public function sendCircleChatInvite(Request $request)
+    {
+    
+    }
+
+    public function acceptCircleChatInvite(Request $request)
+    {
+    
+    }
+
+    public function denyCircleChatInvite(Request $request)
+    {
+    
+    }
+
 }

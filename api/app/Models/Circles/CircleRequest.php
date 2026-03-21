@@ -10,6 +10,7 @@ class CircleRequest extends Model
 
     protected $fillable = [
         'circle_id',
+        'requester_user_id',
         'requesting_to_join_user_id',
         'type',
         'status',
