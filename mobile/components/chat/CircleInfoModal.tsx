@@ -8,11 +8,12 @@ import {
   StyleSheet,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { ChevronLeft, ChevronDown, Camera, FileText, UserPlus, Palette, Users, Bell, Lock, X } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
-import { searchUsersForInvite } from '@/services/chatService';
+import { searchUsersForInvite, sendCircleInvite } from '@/services/chatService';
 
 interface CircleInfoModalProps {
   visible: boolean;
@@ -38,6 +39,8 @@ export const CircleInfoModal = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [invitedUsers, setInvitedUsers] = useState<Set<number>>(new Set());
+  const [sendingInvite, setSendingInvite] = useState<number | null>(null);
   const colors = useThemeColours();
 
   const toggleSection = (section: string) => {
@@ -49,6 +52,7 @@ export const CircleInfoModal = ({
     if (!showInviteSection) {
       setSearchQuery('');
       setSearchResults([]);
+      setInvitedUsers(new Set());
     }
   };
 
@@ -72,9 +76,35 @@ export const CircleInfoModal = ({
     }
   };
 
-  const handleSendInvite = (userId: number) => {
-    // TODO: Implement invite functionality
-    console.log('Send invite to user:', userId);
+  const handleSendInvite = async (userId: number) => {
+    if (sendingInvite || invitedUsers.has(userId)) return;
+
+    setSendingInvite(userId);
+    try {
+      const response = await sendCircleInvite(parseInt(circleId), userId);
+      
+      if (response.success) {
+        // Add to invited users set
+        setInvitedUsers(prev => new Set([...prev, userId]));
+        
+        Alert.alert(
+          'Success',
+          response.message || 'Invite sent successfully',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Error',
+          response.message || 'Failed to send invite',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to send invite. Please try again.';
+      Alert.alert('Error', errorMessage, [{ text: 'OK' }]);
+    } finally {
+      setSendingInvite(null);
+    }
   };
 
   return (
@@ -152,6 +182,9 @@ export const CircleInfoModal = ({
               <ScrollView style={styles.searchResults} nestedScrollEnabled>
                 {searchResults.map((user) => {
                   const displayName = user.firstname || user.name || user.username || 'User';
+                  const isInvited = invitedUsers.has(user.id);
+                  const isSending = sendingInvite === user.id;
+                  
                   return (
                   <View key={user.id} style={[styles.userResultItem, { borderBottomColor: colors.border }]}>
                     <View style={styles.userResultLeft}>
@@ -161,10 +194,21 @@ export const CircleInfoModal = ({
                       <Text style={[styles.userName, { color: colors.text }]}>{displayName}</Text>
                     </View>
                     <Pressable 
-                      style={[styles.inviteButton, { backgroundColor: colors.info }]}
+                      style={[
+                        styles.inviteButton, 
+                        { backgroundColor: isInvited ? colors.border : colors.info },
+                        (isSending || isInvited) && styles.inviteButtonDisabled
+                      ]}
                       onPress={() => handleSendInvite(user.id)}
+                      disabled={isSending || isInvited}
                     >
-                      <Text style={styles.inviteButtonText}>Invite</Text>
+                      {isSending ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text style={styles.inviteButtonText}>
+                          {isInvited ? 'Invited' : 'Invite'}
+                        </Text>
+                      )}
                     </Pressable>
                   </View>
                   );
@@ -410,6 +454,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
+  },
+  inviteButtonDisabled: {
+    opacity: 0.6,
   },
   inviteButtonText: {
     color: '#fff',

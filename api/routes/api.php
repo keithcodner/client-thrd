@@ -63,6 +63,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //:::SEARCH USERS FOR INVITE:::
         Route::post('/search-users', [ChatCircleController::class, 'searchUsers'])->middleware(TrackUserActivity::class)->name('search-users');
 
+        //:::SEND CIRCLE CHAT INVITE:::
+        Route::post('/send-circle-invite', [ChatCircleController::class, 'sendCircleChatInvite'])->middleware(TrackUserActivity::class)->name('send-circle-invite');
+
+        //:::ACCEPT CIRCLE CHAT INVITE:::
+        Route::post('/accept-circle-invite', [ChatCircleController::class, 'acceptCircleChatInvite'])->middleware(TrackUserActivity::class)->name('accept-circle-invite');
+
+        //:::DENY CIRCLE CHAT INVITE:::
+        Route::post('/deny-circle-invite', [ChatCircleController::class, 'denyCircleChatInvite'])->middleware(TrackUserActivity::class)->name('deny-circle-invite');
+
         // Route::get('/get-conversations', [ChatController::class, 'getConversations'])->middleware(TrackUserActivity::class)->name('get-conversations');
         // Route::get('/poll-chat', [ChatController::class, 'pollChat'])->middleware(TrackUserActivity::class)->name('poll-chat');
 

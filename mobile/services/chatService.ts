@@ -162,3 +162,62 @@ export const searchUsersForInvite = async (query: string) => {
     throw error;
   }
 };
+
+/**
+ * Send a circle invite to a user
+ * 
+ * @param circleId - Circle ID
+ * @param invitedUserId - User ID of the person being invited
+ * @returns Response from the API
+ */
+export const sendCircleInvite = async (circleId: number, invitedUserId: number) => {
+  try {
+    const response = await axiosInstance.post("/send-circle-invite", {
+      circle_id: circleId,
+      invited_user_id: invitedUserId,
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error sending circle invite:", error);
+    throw error;
+  }
+};
+
+/**
+ * Accept a circle invite
+ * 
+ * @param requestId - Circle request ID
+ * @returns Response from the API
+ */
+export const acceptCircleInvite = async (requestId: number) => {
+  try {
+    const response = await axiosInstance.post("/accept-circle-invite", {
+      request_id: requestId,
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error accepting circle invite:", error);
+    throw error;
+  }
+};
+
+/**
+ * Deny a circle invite
+ * 
+ * @param requestId - Circle request ID
+ * @returns Response from the API
+ */
+export const denyCircleInvite = async (requestId: number) => {
+  try {
+    const response = await axiosInstance.post("/deny-circle-invite", {
+      request_id: requestId,
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error denying circle invite:", error);
+    throw error;
+  }
+};
