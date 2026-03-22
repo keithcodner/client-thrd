@@ -3,6 +3,7 @@ import { useStorageState } from "@/hooks/useStorageState";
 import { router } from "expo-router";
 import axios from "axios";
 import axiosInstance from "@/config/axiosConfig";
+import { clearAllChatCaches } from "@/services/cacheService";
 
 interface User {
     id: number;
@@ -68,6 +69,10 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
     const handleSignIn = async (token: string, userData: User) => {
         try {
+            // SECURITY: Clear all caches before signing in to prevent showing previous user's data
+            await clearAllChatCaches();
+            console.log('🛡️ Cache cleared before sign in');
+            
             await setSession(token);
             await setUser(JSON.stringify(userData));
         } catch (error) {
@@ -79,6 +84,10 @@ export function SessionProvider({ children }: PropsWithChildren) {
     const handleSignOut = async () => {
        try {
                 if (session) {
+                // SECURITY: Clear all caches on logout to prevent data leakage
+                await clearAllChatCaches();
+                console.log('🛡️ Cache cleared on logout');
+                
                 await axiosInstance.post("/logout", null);
 
                 setSession(null);
@@ -87,6 +96,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
             }
        } catch (error) {
             console.error("Error during sign out:", error);
+            
+            // Even if logout API fails, clear local data
+            await clearAllChatCaches();
+            setSession(null);
+            setUser(null);
+            router.replace("/sign-in");
        }
     };
 
