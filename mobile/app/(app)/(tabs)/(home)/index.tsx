@@ -74,7 +74,7 @@ const HomeScreen = () => {
   };
 
   const handleOpenNotifications = () => {
-    router.push('/(app)/notifications');
+    router.push('/(app)/(notifications)');
   };
 
   const handleAddEvent = () => {

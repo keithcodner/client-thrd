@@ -1,174 +1,313 @@
 <?php
 
-namespace App\Http\Controllers\Core;
+namespace App\Http\Controllers\Notifications;
 
-use App\Models\Conversation\ConversationChats;
-use App\Models\User;
 use App\Models\Notification;
+use App\Models\Circles\CircleRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Core\SiteHelperController;
 
+/**
+ * NotificationsController
+ * 
+ * Handles all notification-related operations including:
+ * - Fetching notifications with filtering by type
+ * - Marking notifications as read
+ * - Fetching notification details with related data
+ * - Getting unread notification counts
+ * 
+ * **Notification Types:**
+ * - circle_request: Invitation to join a circle
+ * - message: New message notification
+ * - calendar: Calendar event notification
+ * - system: System announcements
+ * 
+ * **Status Values:**
+ * - unread: New notification
+ * - read: User has viewed the notification
+ */
 class NotificationsController extends Controller
 {
-    public function __construct()
+    /**
+     * Get notifications for the authenticated user
+     * Supports filtering by type and pagination
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getNotifications(Request $request)
     {
-        //$this->middleware(['auth']);
-    }
-
-    public function index(Request $request)
-    {
-        //notifID
-        if(Notification::where('user_id', auth()->user()->id)->exists()){
-
-            //TODO: Add functionality where, if you scroll down past limit, and theres more records, then load them
-            if(isset($request->notif)){
-
-                $update_status = Notification::where('notif_an_id', $request->notif)->update([
-                    "status" => "read",
-                ]);
-
-                $notifications = $this->displaySiteNotifications(99, 'DESC', $request->notif);
-                $data = Notification::where('user_id', auth()->user()->id)->where('notif_an_id', $request->notif)->limit(1)->first();
-
-                return view('old1.pages.notifications', [
-                    'results' => $notifications,
-                    'data' => $data
-                ]);
-            }else{  
-                $notifications = $this->displaySiteNotifications(99, 'DESC');
-                return view('old1.pages.notifications', [
-                    'results' => $notifications,
-                    'data' => ''
-                ]);
-            }
+        try {
+            $user = $request->user();
             
-        }else{
-            return view('old1.pages.notifications', [
-                'results' => 'No Notifications...'
+            $validated = $request->validate([
+                'type' => 'nullable|string|in:circle_request,message,calendar,system',
+                'status' => 'nullable|string|in:read,unread',
+                'limit' => 'nullable|integer|min:1|max:100',
+                'offset' => 'nullable|integer|min:0',
             ]);
-        }
-    }
 
-    public function store()
-    {
-        
-    }
+            $query = Notification::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc');
 
-    public function displaySiteNotifications($limit, $order, $an_id='default')
-    {
-        $notifications = Notification::where('user_id', auth()->user()->id)->limit($limit)->orderBy('created_at', $order)->get();
-            $full_notifications = '';
-            foreach($notifications as $notif ){
-
-                $initial = app(SiteHelperController::class)->grabFirstCharacter(trim($notif->title));
-                $color = app(SiteHelperController::class)->randomColor();
-
-                $isRead = 'true';
-                $isSelected = 'false';
-
-                if($notif->status == 'unread'){
-                    $isRead = 'false';
-                }
-
-                //determine which notif should be selected
-                if(trim($an_id) == 'default'){
-                    $isSelected = 'false';
-                }else if(trim($an_id) == trim($notif->notif_an_id)){
-                    $isSelected = 'true';
-                }
-
-
-                $full_notifications .= notifMessageList(
-                    strtoupper($initial),
-                    \Illuminate\Support\Str::limit($notif->comment,  $limit = 15, $end = '...'),
-                    \Illuminate\Support\Str::limit($notif->title,  $limit = 25, $end = '...'),
-                    $notif->id,
-                    $isSelected,
-                    $notif->color_status.'-'. rand(5,9).'00',
-                    $notif->created_at->diffForHumans(),
-                    $notif->notif_an_id,
-                    strtoupper($notif->status),
-                );
+            // Filter by type if provided
+            if (isset($validated['type'])) {
+                $query->where('type', $validated['type']);
             }
 
-        return $full_notifications;
-    }
+            // Filter by status if provided
+            if (isset($validated['status'])) {
+                $query->where('status', $validated['status']);
+            }
 
-    public function generateSiteNotification($title, $description, $msg_type, $user_id, $from_id, $email='false')
-    {
-        //Notif id
-        $notif_an_id = uniqid().'-'.uniqid().'-'.uniqid().'-'.uniqid().'-'.now()->timestamp;
+            $limit = $validated['limit'] ?? 30;
+            $offset = $validated['offset'] ?? 0;
 
-        //Set notification only if its a new message
-        $notif = Notification::create([
-            'user_id' => $user_id, // other user
-            'notif_an_id' => $notif_an_id,
-            'from_id' => $from_id, // I clicked the msg btn
-            'type' => $msg_type,
-            'title' => $title,
-            'comment' => $description,
-            'status' => 'unread',
-            'color_status' => app(SiteHelperController::class)->randomColor(),
-        ]);
+            $notifications = $query->skip($offset)
+                ->take($limit)
+                ->get();
 
-        //determines if we want an email sent as well
-        if($email == 'true'){
-            $user = User::where('id', $user_id)->first();
-            //dd($user->email);
-             app(SiteHelperController::class)->sendSiteEmail(
-                 $user->email,
-                 $title,
-                 $description,
-                 $user->firstname
-             );
+            // Load related user data for notifications
+            $notifications = $notifications->map(function ($notification) {
+                $data = $notification->toArray();
+                
+                // Load sender info if from_id exists
+                if ($notification->from_id) {
+                    $fromUser = User::find($notification->from_id);
+                    if ($fromUser) {
+                        $data['from_user'] = [
+                            'id' => $fromUser->id,
+                            'name' => $fromUser->name,
+                            'firstname' => $fromUser->firstname,
+                            'username' => $fromUser->username,
+                        ];
+                    }
+                }
+
+                return $data;
+            });
+
+            // Check if there are more notifications
+            $hasMore = Notification::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->skip($offset + $limit)
+                ->exists();
+
+            Log::info('Notifications fetched', [
+                'user_id' => $user->id,
+                'count' => $notifications->count(),
+                'type' => $validated['type'] ?? 'all',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'notifications' => $notifications,
+                'hasMore' => $hasMore,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching notifications: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => $request->user()->id ?? null,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch notifications.',
+            ], 500);
         }
-
-        return $notif;
     }
 
-    public function getChatNotifications(Request $request)
+    /**
+     * Get a single notification by ID with full details
+     * Includes related circle request data if applicable
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getNotificationById(Request $request)
     {
-        $chat_id = $request->value1;
-        $chats = ConversationChats::where('end_user_id', $chat_id)->where('seen_by_other_user', 'false')->count();
-        return $chats;
+        try {
+            $user = $request->user();
+            
+            $validated = $request->validate([
+                'notification_id' => 'required|integer|exists:notifications,id',
+            ]);
+
+            $notification = Notification::find($validated['notification_id']);
+
+            if (!$notification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification not found.',
+                ], 404);
+            }
+
+            // Verify user owns this notification
+            if ($notification->user_id != $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to notification.',
+                ], 403);
+            }
+
+            $data = $notification->toArray();
+
+            // Load sender info
+            if ($notification->from_id) {
+                $fromUser = User::find($notification->from_id);
+                if ($fromUser) {
+                    $data['from_user'] = [
+                        'id' => $fromUser->id,
+                        'name' => $fromUser->name,
+                        'firstname' => $fromUser->firstname,
+                        'username' => $fromUser->username,
+                    ];
+                }
+            }
+
+            // Load circle request details if this is a circle_request notification
+            if ($notification->type === 'circle_request' && $notification->fk_circle_item_post_id) {
+                $circleRequest = CircleRequest::with(['circle', 'requester'])
+                    ->where('circle_id', $notification->fk_circle_item_post_id)
+                    ->where('requesting_to_join_user_id', $user->id)
+                    ->where('status', 'pending')
+                    ->first();
+
+                if ($circleRequest) {
+                    $data['circle_request'] = [
+                        'id' => $circleRequest->id,
+                        'circle_id' => $circleRequest->circle_id,
+                        'circle_name' => $circleRequest->circle->name ?? 'Unknown Circle',
+                        'requester_id' => $circleRequest->requester_user_id,
+                        'requester_name' => $circleRequest->requester->name ?? 'Unknown',
+                        'status' => $circleRequest->status,
+                        'created_at' => $circleRequest->created_at,
+                    ];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'notification' => $data,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching notification: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => $request->user()->id ?? null,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch notification.',
+            ], 500);
+        }
     }
 
-    public function getSiteNotifications(Request $request)
+    /**
+     * Mark a notification as read
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markAsRead(Request $request)
     {
-        $notif_user_id = $request->value1;
-        $notifs = Notification::where('user_id', $notif_user_id)->where('status', 'unread')->count();
-        return $notifs;
+        try {
+            $user = $request->user();
+            
+            $validated = $request->validate([
+                'notification_id' => 'required|integer|exists:notifications,id',
+            ]);
+
+            $notification = Notification::find($validated['notification_id']);
+
+            if (!$notification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification not found.',
+                ], 404);
+            }
+
+            // Verify user owns this notification
+            if ($notification->user_id != $user->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to notification.',
+                ], 403);
+            }
+
+            // Update status to read
+            $notification->update([
+                'status' => 'read',
+            ]);
+
+            Log::info('Notification marked as read', [
+                'notification_id' => $notification->id,
+                'user_id' => $user->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error marking notification as read: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => $request->user()->id ?? null,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark notification as read.',
+            ], 500);
+        }
     }
 
-    public function getSiteNotificationsData(Request $request)
+    /**
+     * Get unread notification count
+     * Optionally filter by type
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUnreadCount(Request $request)
     {
-        $notif_user_id = $request->value1;
-        $notifs = Notification::where('user_id', $notif_user_id)->where('status', 'unread')->orderBy('created_at', 'DESC')->limit(25)->get()->toJson();;
-        return $notifs;
-    }
+        try {
+            $user = $request->user();
+            
+            $validated = $request->validate([
+                'type' => 'nullable|string|in:circle_request,message,calendar,system',
+            ]);
 
-    public function getIndividualConversationNotificationStatusForAUser(Request $request)
-    {
-        $chat_end_user_id = $request->value1;
-        $chats1 = DB::select("SELECT end_user_id, conversation_id, COUNT(conversation_id) AS 'convo_count' FROM chat WHERE end_user_id = ".$chat_end_user_id." AND seen_by_other_user = 'false' GROUP BY conversation_id;");
+            $query = Notification::where('user_id', $user->id)
+                ->where('status', 'unread');
 
-        $chats2 = DB::select("SELECT init_user_id, conversation_id, COUNT(conversation_id) AS 'convo_count' FROM chat WHERE init_user_id = ".$chat_end_user_id." AND seen_by_other_user = 'false' GROUP BY conversation_id;");
-        
-        return [
-            "end_user_id_count" => $chats1,
-            "init_user_id_count" => $chats2,
-        ];
-    }
+            if (isset($validated['type'])) {
+                $query->where('type', $validated['type']);
+            }
 
-    public function updateSiteNotifStatusOnceRead(Request $request)
-    {
-        $notif_user_id = $request->id;
-        $update_convo = Notification::where('id', $notif_user_id)->update([
-            "status" => "read",
-        ]);
+            $count = $query->count();
 
-        //return redirect()->route('notifications');
+            return response()->json([
+                'success' => true,
+                'unread_count' => $count,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting unread count: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => $request->user()->id ?? null,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get unread count.',
+            ], 500);
+        }
     }
 }

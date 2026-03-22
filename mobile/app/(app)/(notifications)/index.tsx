@@ -1,300 +1,301 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TextInput, Pressable, ActivityIndicator } from "react-native";
-import { Plus, Search, SlidersHorizontal } from "lucide-react-native";
-import { useThemeColours } from "@/hooks/useThemeColours";
-import { ChatListItem, ChatItemData } from "@/components/chat/ChatListItem";
-import { ChatManagementOverlay } from "@/components/chat/ChatManagementOverlay";
-import { FAB } from "@/components/FAB";
-import { CreateCircleModal } from "@/components/app/CreateCircleModal";
-import { createCircle, getUserCircleData } from "@/services/chatService";
-import Toast from "react-native-toast-message";
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { X } from 'lucide-react-native';
+import { useThemeColours } from '@/hooks/useThemeColours';
+import { NotificationItem } from '@/components/notifications/NotificationItem';
+import {
+  getNotifications,
+  Notification,
+  NotificationType,
+  notificationWebSocket,
+} from '@/services/notificationService';
 
-/**
- * ChatHome - Main chat list screen
- * 
- * Features:
- * - Search and filter chats
- * - Long press chat items to open ChatManagementOverlay
- * - Quick actions: delete, pin, view info, leave, clear
- * - Owner-specific actions (delete circle)
- * 
- * See: mobile/docs/CHAT_MANAGEMENT_OVERLAY.md
- */
+type FilterType = 'ALL' | 'INVITES' | 'MESSAGES' | 'CIRCLES' | 'CALENDAR';
 
-// Dummy chat data
-const DUMMY_CHATS: ChatItemData[] = [
-  {
-    id: '1',
-    name: 'THRD',
-    lastMessage: 'test',
-    timestamp: '1:49 AM',
-    unread: false,
-  }
-];
-
-const ChatHome = () => {
-  const colours = useThemeColours();
-  const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isCreatingCircle, setIsCreatingCircle] = useState(false);
-  const [chats, setChats] = useState<ChatItemData[]>([]);
+export default function NotificationsScreen() {
+  const router = useRouter();
+  const colors = useThemeColours();
+  
+  const [activeFilter, setActiveFilter] = useState<FilterType>('ALL');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedChat, setSelectedChat] = useState<ChatItemData | null>(null);
-  const [showManagementOverlay, setShowManagementOverlay] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [offset, setOffset] = useState(0);
 
-  const fetchUserCircles = async () => {
+  const LIMIT = 30;
+
+  // Map filter to API type
+  const getNotificationType = (filter: FilterType): NotificationType | undefined => {
+    switch (filter) {
+      case 'INVITES':
+        return NotificationType.CIRCLE_REQUEST;
+      case 'MESSAGES':
+        return NotificationType.MESSAGE;
+      case 'CALENDAR':
+        return NotificationType.CALENDAR;
+      default:
+        return undefined;
+    }
+  };
+
+  // Fetch notifications
+  const fetchNotifications = useCallback(async (refresh = false) => {
     try {
-      setIsLoading(true);
-      const response = await getUserCircleData();
-      
-      console.log('📊 getUserCircleData response:', JSON.stringify(response, null, 2));
-      console.log('📊 Circles count:', response?.circles?.length || 0);
-      
-      // Check if response has circles array
-      if (!response || !Array.isArray(response.circles)) {
-        console.error('❌ Invalid response structure:', response);
-        setChats(DUMMY_CHATS);
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: 'Invalid data format received.',
-        });
-        return;
-      }
-      
-      // Transform API response to ChatItemData format
-      const circleChats: ChatItemData[] = response.circles.map((circle: any) => ({
-        id: circle.id.toString(),
-        name: circle.name,
-        lastMessage: 'No messages yet',
-        timestamp: new Date(circle.updated_at).toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit' 
-        }),
-        unread: false,
-        isPrivate: circle.type === 'private_circle',
-      }));
-      
-      console.log('📊 Transformed circle chats:', circleChats);
-      
-      // Keep DUMMY_CHATS first, then add circle chats
-      setChats([...DUMMY_CHATS, ...circleChats]);
-    } catch (error) {
-      console.error('❌ Error fetching user circles:', error);
-      // Set DUMMY_CHATS even on error so the THRD chat appears
-      setChats(DUMMY_CHATS);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to load circles. Please try again.',
+      const newOffset = refresh ? 0 : offset;
+      if (refresh) setIsRefreshing(true);
+      else if (newOffset === 0) setIsLoading(true);
+
+      const type = getNotificationType(activeFilter);
+      const result = await getNotifications({
+        type,
+        limit: LIMIT,
+        offset: newOffset,
       });
+
+      if (refresh) {
+        setNotifications(result.notifications);
+        setOffset(LIMIT);
+      } else {
+        setNotifications((prev) => 
+          newOffset === 0 ? result.notifications : [...prev, ...result.notifications]
+        );
+        setOffset(newOffset + LIMIT);
+      }
+
+      setHasMore(result.hasMore);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
-  };
+  }, [activeFilter, offset]);
 
+  // Initial load and filter change
   useEffect(() => {
-    fetchUserCircles();
-  }, []);
+    setOffset(0);
+    setNotifications([]);
+    fetchNotifications(true);
+  }, [activeFilter]);
 
-  const handleCreateCircle = () => {
-    setShowCreateCircleModal(true);
+  // Subscribe to real-time notifications
+  useEffect(() => {
+    // Initialize WebSocket connection
+    notificationWebSocket.initialize();
+
+    // Subscribe to new notifications
+    const unsubscribe = notificationWebSocket.onNotification((newNotification) => {
+      console.log('📬 New notification arrived:', newNotification);
+      
+      // Add to list if it matches current filter
+      const filterType = getNotificationType(activeFilter);
+      if (!filterType || newNotification.type === filterType) {
+        setNotifications((prev) => [newNotification, ...prev]);
+      }
+    });
+
+    // Cleanup
+    return () => {
+      unsubscribe();
+      notificationWebSocket.disconnect();
+    };
+  }, [activeFilter]);
+
+  const handleFilterPress = (filter: FilterType) => {
+    setActiveFilter(filter);
   };
 
-  const handleCircleSubmit = async (circleData: any) => {
-    try {
-      setIsCreatingCircle(true);
-      await createCircle(circleData);
-      setShowCreateCircleModal(false);
-      Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: 'Circle created successfully!',
-      });
-      // Refresh the circles list
-      await fetchUserCircles();
-    } catch (error) {
-      console.error("Error creating circle:", error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to create circle. Please try again.',
-      });
-    } finally {
-      setIsCreatingCircle(false);
+  const handleNotificationPress = (notificationId: number) => {
+    router.push(`/(app)/(notifications)/${notificationId}`);
+  };
+
+  const handleClose = () => {
+    router.back();
+  };
+
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      fetchNotifications(false);
     }
   };
 
-  /**
-   * Long press handler for chat items
-   * Opens the ChatManagementOverlay with quick actions and menu options
-   * See: mobile/docs/CHAT_MANAGEMENT_OVERLAY.md
-   */
-  const handleChatLongPress = (chat: ChatItemData) => {
-    setSelectedChat(chat);
-    setShowManagementOverlay(true);
+  const handleRefresh = () => {
+    fetchNotifications(true);
   };
 
-  /**
-   * Close overlay with animation
-   * Clears selected chat after animation completes to prevent visual glitches
-   */
-  const handleCloseOverlay = () => {
-    setShowManagementOverlay(false);
-    setTimeout(() => setSelectedChat(null), 300);
+  const renderNotificationItem = ({ item }: { item: Notification }) => (
+    <NotificationItem
+      notification={item}
+      onPress={() => handleNotificationPress(item.id)}
+    />
+  );
+
+  const renderEmptyState = () => {
+    if (isLoading) return null;
+    
+    return (
+      <View style={styles.emptyState}>
+        <Text style={[styles.emptyStateText, { color: colors.secondaryText }]}>
+          No notifications yet
+        </Text>
+      </View>
+    );
   };
 
-  const handleDeleteChat = (chatId: string) => {
-    // Remove chat from list
-    setChats(chats.filter(chat => chat.id !== chatId));
-    Toast.show({
-      type: 'success',
-      text1: 'Deleted',
-      text2: 'Chat removed from your list.',
-    });
+  const renderFooter = () => {
+    if (!isLoading || offset === 0) return null;
+    
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator size="small" color={colors.info} />
+      </View>
+    );
   };
 
-  const handlePinChat = (chatId: string) => {
-    Toast.show({
-      type: 'success',
-      text1: 'Pinned',
-      text2: 'Chat pinned to top.',
-    });
-    // TODO: Implement pin functionality
-  };
-
-  const handleLeaveCircle = (chatId: string) => {
-    Toast.show({
-      type: 'info',
-      text1: 'Left Circle',
-      text2: 'You have left the circle.',
-    });
-    // TODO: Implement leave circle API call
-    handleDeleteChat(chatId);
-  };
-
-  const handleClearChats = (chatId: string) => {
-    Toast.show({
-      type: 'success',
-      text1: 'Cleared',
-      text2: 'All messages have been cleared.',
-    });
-    // TODO: Implement clear chats API call
-  };
-
-  const filteredChats = searchQuery
-    ? chats.filter(chat =>
-        chat.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : chats;
+  const filters: FilterType[] = ['ALL', 'INVITES', 'MESSAGES', 'CIRCLES', 'CALENDAR'];
 
   return (
-    <>
-      <View className="flex-1" style={{ backgroundColor: colours.background }}>
-        {/* Header */}
-        <View className="px-5 pt-12 pb-4">
-          <Text className="text-4xl mb-5" style={{ fontFamily: 'serif', fontWeight: '400', color: colours.text }}>
-            Chats
-          </Text>
-
-          {/* Search Bar */}
-          <View className="flex-row items-center">
-            <View className="flex-1 flex-row items-center rounded-lg px-3 py-2 mr-3" style={{ backgroundColor: colours.card }}>
-              <Search size={18} color={colours.secondaryText} />
-              <TextInput
-                className="flex-1 ml-2 text-sm"
-                placeholder="Search"
-                placeholderTextColor={colours.secondaryText}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                style={{ color: colours.text }}
-              />
-            </View>
-            <Pressable
-              className="w-10 h-10 items-center justify-center rounded-lg"
-              style={{ backgroundColor: colours.card }}
-              onPress={() => console.log('Open filter')}
-            >
-              <SlidersHorizontal size={18} color={colours.secondaryText} />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Messages Section */}
-        <View className="px-5 py-3 border-b" style={{ borderBottomColor: colours.border }}>
-          <Text className="text-xs font-semibold uppercase tracking-widest" style={{ color: colours.secondaryText }}>
-            MESSAGES
-          </Text>
-        </View>
-
-        {/* Chat List */}
-        <ScrollView 
-          className="flex-1" 
-          style={{ backgroundColor: colours.background }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1 }}
-        >
-          {isLoading ? (
-            <View className="flex-1 justify-center items-center py-20">
-              <ActivityIndicator size="large" color={colours.primary} />
-              <Text className="mt-4 text-sm" style={{ color: colours.secondaryText }}>
-                Loading circles...
-              </Text>
-            </View>
-          ) : filteredChats.length > 0 ? (
-            filteredChats.map(chat => (
-              <ChatListItem 
-                key={chat.id} 
-                chat={chat} 
-                onLongPress={handleChatLongPress}
-              />
-            ))
-          ) : (
-            <View className="flex-1 justify-center items-center py-20">
-              <Text className="text-sm" style={{ color: colours.secondaryText }}>
-                {searchQuery ? 'No circles found' : 'No circles yet'}
-              </Text>
-            </View>
-          )}
-        </ScrollView>
-
-        {/* FAB */}
-        <FAB
-          colors={colours}
-          actions={[
-            {
-              id: 'create-circle',
-              label: 'Create Circle',
-              icon: Plus,
-              color: '#4c8bf5',
-              onPress: handleCreateCircle,
-            },
-          ]}
-          onCreateCircle={handleCreateCircle}
-        />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Activity</Text>
+        <Pressable onPress={handleClose} style={styles.closeButton}>
+          <X size={24} color={colors.text} />
+        </Pressable>
       </View>
 
-      {/* Create Circle Modal */}
-      <CreateCircleModal
-        visible={showCreateCircleModal}
-        onClose={() => setShowCreateCircleModal(false)}
-        onSubmit={handleCircleSubmit}
-        isLoading={isCreatingCircle}
-      />
+      {/* Filter Tabs */}
+      <View style={[styles.filterContainer, { borderBottomColor: colors.border }]}>
+        {filters.map((filter) => (
+          <Pressable
+            key={filter}
+            onPress={() => handleFilterPress(filter)}
+            style={[
+              styles.filterButton,
+              activeFilter === filter && [
+                styles.filterButtonActive,
+                { backgroundColor: colors.info },
+              ],
+            ]}
+          >
+            <Text
+              style={[
+                styles.filterButtonText,
+                { color: activeFilter === filter ? '#fff' : colors.secondaryText },
+                activeFilter === filter && styles.filterButtonTextActive,
+              ]}
+            >
+              {filter}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
 
-      {/* Chat Management Overlay */}
-      <ChatManagementOverlay
-        visible={showManagementOverlay}
-        chat={selectedChat}
-        onClose={handleCloseOverlay}
-        onDelete={handleDeleteChat}
-        onPin={handlePinChat}
-        onLeave={handleLeaveCircle}
-        onClearChats={handleClearChats}
-        isOwner={selectedChat?.id !== '1'} // THRD chat is not user-owned
-      />
-    </>
+      {/* Notifications List */}
+      {isLoading && offset === 0 ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.info} />
+        </View>
+      ) : (
+        <FlatList
+          data={notifications}
+          renderItem={renderNotificationItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={renderEmptyState}
+          ListFooterComponent={renderFooter}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.info}
+            />
+          }
+        />
+      )}
+    </View>
   );
-};
+}
 
-export default ChatHome;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 50,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '300',
+    fontFamily: 'Georgia',
+  },
+  closeButton: {
+    padding: 4,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 8,
+    borderBottomWidth: 1,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  filterButtonActive: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  filterButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  filterButtonTextActive: {
+    color: '#fff',
+  },
+  listContent: {
+    flexGrow: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    fontSize: 16,
+  },
+  footer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+});

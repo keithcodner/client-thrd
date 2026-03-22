@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Chat\ChatController;
 use App\Http\Controllers\Chat\ChatCircleController;
+use App\Http\Controllers\Notifications\NotificationsController;
 use App\Http\Controllers\CreditPaymentController;
 use \App\Http\Middleware\TrackUserActivity;
 use App\Http\Controllers\ImageController;
@@ -99,6 +100,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Route::post('/remove-convo-from-convo-category', [ChatController::class, 'removeConvoFromConvoCategory'])->middleware(TrackUserActivity::class)->name('remove-convo-from-convo-category');
         // Route::post('/reset-conversations-to-default-conversation-category', [ChatController::class, 'resetConversationsToDefaultConversationCategory'])->middleware(TrackUserActivity::class)->name('reset-conversations-to-default-conversation-category');
         // Route::post('/update-expand-state', [ChatController::class, 'updateExpandState'])->middleware(TrackUserActivity::class)->name('update-expand-state');
+    });
+
+    //:::::::::::::::::: NOTIFICATION ROUTES::::::::::::::::::
+    Route::group([], function () {
+        //:::GET NOTIFICATIONS:::
+        Route::post('/notifications', [NotificationsController::class, 'getNotifications'])->middleware(TrackUserActivity::class)->name('get-notifications');
+
+        //:::GET NOTIFICATION BY ID:::
+        Route::post('/notification', [NotificationsController::class, 'getNotificationById'])->middleware(TrackUserActivity::class)->name('get-notification');
+
+        //:::MARK NOTIFICATION AS READ:::
+        Route::post('/notification/mark-read', [NotificationsController::class, 'markAsRead'])->middleware(TrackUserActivity::class)->name('mark-notification-read');
+
+        //:::GET UNREAD COUNT:::
+        Route::get('/notifications/unread-count', [NotificationsController::class, 'getUnreadCount'])->middleware(TrackUserActivity::class)->name('get-unread-count');
     });
 
     //:::::::::::::::::: TEMPLATE ROUTES::::::::::::::::::
