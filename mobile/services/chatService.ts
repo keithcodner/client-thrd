@@ -221,3 +221,23 @@ export const denyCircleInvite = async (requestId: number) => {
     throw error;
   }
 };
+
+/**
+ * Get pending circle invites for a circle
+ * Returns array of user IDs that have pending invites
+ * 
+ * @param circleId - Circle ID
+ * @returns Response with pending_user_ids array
+ */
+export const getPendingCircleInvites = async (circleId: number) => {
+  try {
+    const response = await axiosInstance.post("/get-pending-circle-invites", {
+      circle_id: circleId,
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching pending circle invites:", error);
+    throw error;
+  }
+};

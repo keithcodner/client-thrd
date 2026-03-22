@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
 import { ChevronLeft, ChevronDown, Camera, FileText, UserPlus, Palette, Users, Bell, Lock, X } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
-import { searchUsersForInvite, sendCircleInvite } from '@/services/chatService';
+import { searchUsersForInvite, sendCircleInvite, getPendingCircleInvites } from '@/services/chatService';
 
 interface CircleInfoModalProps {
   visible: boolean;
@@ -41,7 +41,30 @@ export const CircleInfoModal = ({
   const [isSearching, setIsSearching] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState<Set<number>>(new Set());
   const [sendingInvite, setSendingInvite] = useState<number | null>(null);
+  const [loadingPendingInvites, setLoadingPendingInvites] = useState(false);
   const colors = useThemeColours();
+
+  // Fetch pending invites when invite section is opened
+  useEffect(() => {
+    const fetchPendingInvites = async () => {
+      if (showInviteSection) {
+        setLoadingPendingInvites(true);
+        try {
+          const response = await getPendingCircleInvites(parseInt(circleId));
+          if (response.success && response.pending_user_ids) {
+            // Initialize invitedUsers with pending invite user IDs
+            setInvitedUsers(new Set(response.pending_user_ids));
+          }
+        } catch (error) {
+          console.error('Error fetching pending invites:', error);
+        } finally {
+          setLoadingPendingInvites(false);
+        }
+      }
+    };
+
+    fetchPendingInvites();
+  }, [showInviteSection, circleId]);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -52,7 +75,7 @@ export const CircleInfoModal = ({
     if (!showInviteSection) {
       setSearchQuery('');
       setSearchResults([]);
-      setInvitedUsers(new Set());
+      // Don't reset invitedUsers here - it will be reset by useEffect
     }
   };
 
@@ -171,9 +194,19 @@ export const CircleInfoModal = ({
                 placeholderTextColor={colors.secondaryText}
                 value={searchQuery}
                 onChangeText={handleSearchChange}
+                editable={!loadingPendingInvites}
               />
 
-              {isSearching && (
+              {loadingPendingInvites && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={colors.info} />
+                  <Text style={[styles.loadingText, { color: colors.secondaryText }]}>
+                    Loading pending invites...
+                  </Text>
+                </View>
+              )}
+
+              {isSearching && !loadingPendingInvites && (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={colors.info} />
                 </View>
@@ -206,7 +239,7 @@ export const CircleInfoModal = ({
                         <ActivityIndicator size="small" color="#fff" />
                       ) : (
                         <Text style={styles.inviteButtonText}>
-                          {isInvited ? 'Invited' : 'Invite'}
+                          {isInvited ? 'Pending' : 'Invite'}
                         </Text>
                       )}
                     </Pressable>
@@ -417,6 +450,10 @@ const styles = StyleSheet.create({
   loadingContainer: {
     padding: 20,
     alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 14,
   },
   searchResults: {
     maxHeight: 250,

@@ -250,4 +250,39 @@ class ChatCircleController extends Controller
         ]);
     }
 
+    public function getPendingCircleInvites(Request $request)
+    {
+        $request->validate([
+            'circle_id' => 'required|integer|exists:circles,id',
+        ]);
+
+        $circleId = $request->input('circle_id');
+        $currentUserId = $request->user()->id;
+
+        // Verify user is a member of the circle
+        $isMember = CircleMemberTracker::where('circle_id', $circleId)
+            ->where('user_id', $currentUserId)
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$isMember) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have access to this circle.'
+            ], 403);
+        }
+
+        // Get all pending invites for this circle
+        $pendingInvites = CircleRequest::where('circle_id', $circleId)
+            ->where('status', 'pending')
+            ->where('type', 'circle_request')
+            ->pluck('requesting_to_join_user_id')
+            ->toArray();
+
+        return response()->json([
+            'success' => true,
+            'pending_user_ids' => $pendingInvites,
+        ]);
+    }
+
 }

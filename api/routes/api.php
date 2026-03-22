@@ -72,6 +72,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //:::DENY CIRCLE CHAT INVITE:::
         Route::post('/deny-circle-invite', [ChatCircleController::class, 'denyCircleChatInvite'])->middleware(TrackUserActivity::class)->name('deny-circle-invite');
 
+        //:::GET PENDING CIRCLE INVITES:::
+        Route::post('/get-pending-circle-invites', [ChatCircleController::class, 'getPendingCircleInvites'])->middleware(TrackUserActivity::class)->name('get-pending-circle-invites');
+
         // Route::get('/get-conversations', [ChatController::class, 'getConversations'])->middleware(TrackUserActivity::class)->name('get-conversations');
         // Route::get('/poll-chat', [ChatController::class, 'pollChat'])->middleware(TrackUserActivity::class)->name('poll-chat');
 
