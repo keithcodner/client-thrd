@@ -3,7 +3,7 @@
 namespace App\Models\Circles;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Circle;
+use App\Models\Circles\Circle;
 use App\Models\User;
 
 class CircleRequest extends Model

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useSession } from "@/context/AuthContext";
 import { useProfileOverlay } from "@/context/ProfileOverlayContext";
 import Home  from "./home";
 import axiosInstance from "@/config/axiosConfig";
 import { CreateCircleModal } from "@/components/app/CreateCircleModal";
 import { createCircle } from "@/services/chatService";
+import { getUnreadCount, notificationWebSocket } from "@/services/notificationService";
 import Toast from "react-native-toast-message";
 
 const HomeScreen = () => {
@@ -20,6 +21,17 @@ const HomeScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
+
+  // Fetch notification count
+  const fetchNotificationCount = async () => {
+    try {
+      const count = await getUnreadCount();
+      setNotificationsCount(count);
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+      setNotificationsCount(0);
+    }
+  };
 
   // Fetch home feed data
   useEffect(() => {
@@ -39,12 +51,7 @@ const HomeScreen = () => {
         setTodos(todosRes.data.data || todosRes.data || []);
         
         // Fetch notification count
-        try {
-          const notifRes = await axiosInstance.get('/notifications/unread-count');
-          setNotificationsCount(notifRes.data.count || 0);
-        } catch (e) {
-          setNotificationsCount(0);
-        }
+        await fetchNotificationCount();
       } catch (error) {
         console.error('Error fetching home data:', error);
       } finally {
@@ -55,6 +62,35 @@ const HomeScreen = () => {
     if (currentUser) {
       fetchHomeData();
     }
+  }, [currentUser]);
+
+  // Refresh notification count when screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      if (currentUser) {
+        fetchNotificationCount();
+      }
+    }, [currentUser])
+  );
+
+  // Listen for real-time notifications and update count
+  useEffect(() => {
+    if (!currentUser) return;
+
+    // Initialize WebSocket
+    notificationWebSocket.initialize();
+
+    // Subscribe to new notifications
+    const unsubscribe = notificationWebSocket.onNotification((notification) => {
+      console.log('📬 New notification received on home screen');
+      // Increment count
+      setNotificationsCount((prev) => prev + 1);
+    });
+
+    // Cleanup
+    return () => {
+      unsubscribe();
+    };
   }, [currentUser]);
 
   const handleNavigate = (screen: string) => {

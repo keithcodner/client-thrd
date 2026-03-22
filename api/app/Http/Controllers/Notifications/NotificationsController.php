@@ -94,6 +94,7 @@ class NotificationsController extends Controller
             $hasMore = Notification::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->skip($offset + $limit)
+                ->take(1)
                 ->exists();
 
             Log::info('Notifications fetched', [
