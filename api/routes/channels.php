@@ -16,29 +16,31 @@ use App\Models\Circles\CircleMemberTracker;
 */
 
 // Helper function to authorize conversation access
-function authorizeConversationAccess($user, $conversationId)
-{
-    $conversation = Conversation::find($conversationId);
-    
-    if (!$conversation) {
+if (!function_exists('authorizeConversationAccess')) {
+    function authorizeConversationAccess($user, $conversationId)
+    {
+        $conversation = Conversation::find($conversationId);
+        
+        if (!$conversation) {
+            return false;
+        }
+        
+        // For 1-to-1 conversations (couple)
+        if ($conversation->type === 'couple') {
+            return $conversation->owner_user_id === $user->id || 
+                   $conversation->to_id === $user->id;
+        }
+        
+        // For circle conversations (group)
+        if ($conversation->circle_id) {
+            return CircleMemberTracker::where('circle_id', $conversation->circle_id)
+                ->where('user_id', $user->id)
+                ->where('status', 'active')
+                ->exists();
+        }
+        
         return false;
     }
-    
-    // For 1-to-1 conversations (couple)
-    if ($conversation->type === 'couple') {
-        return $conversation->owner_user_id === $user->id || 
-               $conversation->to_id === $user->id;
-    }
-    
-    // For circle conversations (group)
-    if ($conversation->circle_id) {
-        return CircleMemberTracker::where('circle_id', $conversation->circle_id)
-            ->where('user_id', $user->id)
-            ->where('status', 'active')
-            ->exists();
-    }
-    
-    return false;
 }
 
 // Authenticate private chat channels

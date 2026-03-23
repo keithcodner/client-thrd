@@ -80,9 +80,21 @@ class ChatCircleController extends Controller
         $invitedUserId = $request->input('invited_user_id');
         $currentUserId = $request->user()->id;
 
-        // Check if request already exists
+        // Check if user is already a member of the circle
+        $isAlreadyMember = CircleMemberTracker::where('circle_id', $circleId)
+            ->where('user_id', $invitedUserId)
+            ->where('status', 'active')
+            ->exists();
+
+        if ($isAlreadyMember) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This user is already a member of the circle.'
+            ], 400);
+        }
+
+        // Check if ANY pending request already exists for this user and circle
         $existingRequest = CircleRequest::where('circle_id', $circleId)
-            ->where('requester_user_id', $currentUserId)
             ->where('requesting_to_join_user_id', $invitedUserId)
             ->where('status', 'pending')
             ->first();
@@ -90,7 +102,7 @@ class ChatCircleController extends Controller
         if ($existingRequest) {
             return response()->json([
                 'success' => false,
-                'message' => 'An invite has already been sent to this user.'
+                'message' => 'A pending invite already exists for this user.'
             ], 400);
         }
 
