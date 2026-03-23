@@ -1,5 +1,25 @@
 # THRD Application
 
+## About the Application
+
+THRD is a modern, full-stack application designed to provide seamless real-time communication and collaboration. It integrates a Laravel backend, a React Native mobile frontend, and a WebSocket server powered by Soketi. The application is optimized for both development and production environments, ensuring high performance and scalability.
+
+### Key Features
+- **Real-Time Messaging**: Instant communication powered by Laravel broadcasting and Soketi.
+- **Cross-Platform Support**: React Native for mobile and web compatibility.
+- **Scalable Backend**: Laravel API with support for queue workers and database broadcasting.
+- **Customizable UI**: Tailwind CSS and NativeWind for flexible styling.
+- **Developer-Friendly**: Comprehensive documentation and automated scripts for easy setup.
+
+### Tech Stack
+- **Frontend**: React Native, Expo, TypeScript
+- **Backend**: Laravel, PHP, MySQL
+- **WebSocket Server**: Soketi
+- **Styling**: Tailwind CSS, NativeWind
+- **Testing**: PHPUnit, PestPHP
+
+For more details, refer to the [Documentation](#documentation) section.
+
 ## Quick Start
 
 To start the development environment:
