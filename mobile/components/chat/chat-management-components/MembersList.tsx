@@ -36,6 +36,8 @@ export const MembersList: React.FC<MembersListProps> = ({
 }) => {
   const colours = useThemeColours();
 
+  console.log('👥 MembersList render - visible:', visible, 'members:', members.length, 'isLoading:', isLoading);
+
   if (!visible) return null;
 
   return (

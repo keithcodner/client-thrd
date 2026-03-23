@@ -10,10 +10,19 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { ChevronLeft, ChevronDown, Camera, FileText, UserPlus, Palette, Users, Bell, Lock, X } from 'lucide-react-native';
+import { ChevronLeft, ChevronDown, ChevronUp, Camera, FileText, UserPlus, Palette, Users, Bell, Lock, X } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
-import { searchUsersForInvite, sendCircleInvite, getPendingCircleInvites } from '@/services/chatService';
+import { searchUsersForInvite, sendCircleInvite, getPendingCircleInvites, getCircleMembers } from '@/services/chatService';
+import websocketService from '@/services/websocketService';
+
+interface CircleMember {
+  id: number;
+  name: string;
+  email: string;
+  type: string;
+  joined_at: string;
+}
 
 interface CircleInfoModalProps {
   visible: boolean;
@@ -42,6 +51,9 @@ export const CircleInfoModal = ({
   const [invitedUsers, setInvitedUsers] = useState<Set<number>>(new Set());
   const [sendingInvite, setSendingInvite] = useState<number | null>(null);
   const [loadingPendingInvites, setLoadingPendingInvites] = useState(false);
+  const [members, setMembers] = useState<CircleMember[]>([]);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
   const colors = useThemeColours();
 
   // Fetch pending invites when invite section is opened
@@ -65,6 +77,56 @@ export const CircleInfoModal = ({
 
     fetchPendingInvites();
   }, [showInviteSection, circleId]);
+
+  // Fetch circle members and subscribe to presence when members section is expanded
+  useEffect(() => {
+    if (expandedSection !== 'members' || circleId === '1') return;
+
+    const fetchMembers = async () => {
+      setIsLoadingMembers(true);
+      try {
+        console.log('📡 Fetching members for circle:', circleId);
+        const circleMembers = await getCircleMembers(parseInt(circleId));
+        console.log('✅ Received members:', circleMembers, 'Count:', circleMembers.length);
+        setMembers(circleMembers);
+        
+        // Subscribe to presence channel for online/offline tracking
+        websocketService.subscribeToPresence(
+          circleId,
+          (member: any) => {
+            console.log('👤 User came online:', member);
+            setOnlineUsers(prev => new Set(prev).add(member.id));
+          },
+          (member: any) => {
+            console.log('👤 User went offline:', member);
+            setOnlineUsers(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(member.id);
+              return newSet;
+            });
+          },
+          (memberList: any[]) => {
+            console.log('👥 Initial online members:', memberList);
+            const onlineIds = new Set(memberList.map((m: any) => m.id));
+            setOnlineUsers(onlineIds);
+          }
+        );
+      } catch (error) {
+        console.error('Error fetching circle members:', error);
+      } finally {
+        setIsLoadingMembers(false);
+      }
+    };
+
+    fetchMembers();
+
+    // Cleanup: unsubscribe from presence
+    return () => {
+      if (circleId !== '1') {
+        websocketService.unsubscribeFromPresence(circleId);
+      }
+    };
+  }, [expandedSection, circleId]);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -281,11 +343,100 @@ export const CircleInfoModal = ({
                 <Users size={20} color={colors.secondaryText} />
                 <View style={styles.settingTextContainer}>
                   <Text style={[styles.settingTitle, { color: colors.text }]}>Members</Text>
-                  <Text style={[styles.settingSubtitle, { color: colors.secondaryText }]}>1 PEOPLE</Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.secondaryText }]}>
+                    {members.length > 0 ? `${members.length} ${members.length === 1 ? 'PERSON' : 'PEOPLE'}` : '1 PEOPLE'}
+                  </Text>
                 </View>
               </View>
-              <ChevronDown size={20} color={colors.secondaryText} />
+              {expandedSection === 'members' ? (
+                <ChevronUp size={20} color={colors.secondaryText} />
+              ) : (
+                <ChevronDown size={20} color={colors.secondaryText} />
+              )}
             </Pressable>
+
+            {/* Members List - Expanded */}
+            {expandedSection === 'members' && (
+              <View style={[styles.expandedSection, { backgroundColor: colors.card }]}>
+                {isLoadingMembers ? (
+                  <View style={styles.loadingMembersContainer}>
+                    <ActivityIndicator size="small" color={colors.info} />
+                    <Text style={[styles.loadingText, { color: colors.secondaryText }]}>
+                      Loading members...
+                    </Text>
+                  </View>
+                ) : members.length === 0 ? (
+                  <View style={styles.emptyMembersContainer}>
+                    <Text style={[styles.emptyText, { color: colors.secondaryText }]}>
+                      No members found
+                    </Text>
+                  </View>
+                ) : (
+                  members.map((member, index) => {
+                    const isOnline = onlineUsers.has(member.id);
+                    const isOwnerMember = member.type === 'owner';
+                    const isLastItem = index === members.length - 1;
+                    
+                    return (
+                      <View
+                        key={member.id}
+                        style={[
+                          styles.memberItem,
+                          { borderBottomColor: colors.border },
+                          isLastItem && styles.memberItemLast
+                        ]}
+                      >
+                        {/* Avatar */}
+                        <View style={styles.memberAvatarContainer}>
+                          <View
+                            style={[styles.memberAvatar, { backgroundColor: getAvatarColor(member.name) }]}
+                          >
+                            <Text style={styles.memberAvatarText}>
+                              {getInitials(member.name)}
+                            </Text>
+                          </View>
+                          {/* Online Status Indicator */}
+                          <View
+                            style={[
+                              styles.onlineIndicator,
+                              {
+                                backgroundColor: isOnline ? '#10B981' : '#6B7280',
+                                borderColor: colors.card,
+                              }
+                            ]}
+                          />
+                        </View>
+
+                        {/* Member Info */}
+                        <View style={styles.memberInfo}>
+                          <View style={styles.memberNameRow}>
+                            <Text
+                              style={[styles.memberName, { color: colors.text }]}
+                            >
+                              {member.name}
+                            </Text>
+                            {isOwnerMember && (
+                              <View
+                                style={[styles.ownerBadge, { backgroundColor: colors.info }]}
+                              >
+                                <Text style={styles.ownerBadgeText}>
+                                  OWNER
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text
+                            style={[styles.memberStatus, { color: colors.secondaryText }]}
+                          >
+                            {isOnline ? 'Online' : 'Offline'}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })
+                )}
+              </View>
+            )}
 
             {/* Notifications */}
             <Pressable
@@ -545,5 +696,82 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  expandedSection: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+  },
+  loadingMembersContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyMembersContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 14,
+  },
+  memberItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  memberItemLast: {
+    borderBottomWidth: 0,
+  },
+  memberAvatarContainer: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  memberAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  memberAvatarText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    fontStyle: 'italic',
+  },
+  onlineIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+  },
+  memberInfo: {
+    flex: 1,
+  },
+  memberNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  memberName: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  ownerBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  ownerBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  memberStatus: {
+    fontSize: 12,
+    marginTop: 2,
   },
 });

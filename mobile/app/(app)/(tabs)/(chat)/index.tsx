@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TextInput, Pressable, ActivityIndicator } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, ScrollView, TextInput, Pressable, ActivityIndicator, RefreshControl } from "react-native";
 import { Plus, Search, SlidersHorizontal } from "lucide-react-native";
+import { useFocusEffect } from '@react-navigation/native';
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatListItem, ChatItemData } from "@/components/chat/ChatListItem";
 import { ChatManagementOverlay } from "@/components/chat/ChatManagementOverlay";
@@ -14,9 +15,18 @@ import Toast from "react-native-toast-message";
  * 
  * Features:
  * - Search and filter chats
+ * - Pull-to-refresh to reload circles
+ * - Auto-refresh when screen gains focus (e.g., after accepting/denying invites)
  * - Long press chat items to open ChatManagementOverlay
  * - Quick actions: delete, pin, view info, leave, clear
  * - Owner-specific actions (delete circle)
+ * 
+ * Cache Refresh Triggers:
+ * - Screen focus (navigation back from other screens)
+ * - Pull-to-refresh gesture
+ * - Circle creation
+ * - Accepting/denying circle invites (via screen focus)
+ * - Leaving a circle
  * 
  * See: mobile/docs/CHAT_MANAGEMENT_OVERLAY.md
  */
@@ -39,6 +49,7 @@ const ChatHome = () => {
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
   const [chats, setChats] = useState<ChatItemData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedChat, setSelectedChat] = useState<ChatItemData | null>(null);
   const [showManagementOverlay, setShowManagementOverlay] = useState(false);
 
@@ -93,9 +104,23 @@ const ChatHome = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUserCircles();
+  // Refresh handler for pull-to-refresh
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchUserCircles();
+    } finally {
+      setRefreshing(false);
+    }
   }, []);
+
+  // Refresh when screen comes into focus (e.g., after accepting/denying invites)
+  useFocusEffect(
+    useCallback(() => {
+      console.log('🔄 Chat screen focused - refreshing circles');
+      fetchUserCircles();
+    }, [])
+  );
 
   const handleCreateCircle = () => {
     setShowCreateCircleModal(true);
@@ -163,14 +188,26 @@ const ChatHome = () => {
     // TODO: Implement pin functionality
   };
 
-  const handleLeaveCircle = (chatId: string) => {
-    Toast.show({
-      type: 'info',
-      text1: 'Left Circle',
-      text2: 'You have left the circle.',
-    });
-    // TODO: Implement leave circle API call
-    handleDeleteChat(chatId);
+  const handleLeaveCircle = async (chatId: string) => {
+    try {
+      Toast.show({
+        type: 'info',
+        text1: 'Left Circle',
+        text2: 'You have left the circle.',
+      });
+      // TODO: Implement leave circle API call
+      // await leaveCircle(chatId);
+      
+      // Refresh the circles list
+      await fetchUserCircles();
+    } catch (error) {
+      console.error('Error leaving circle:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to leave circle.',
+      });
+    }
   };
 
   const handleClearChats = (chatId: string) => {
@@ -233,6 +270,14 @@ const ChatHome = () => {
           style={{ backgroundColor: colours.background }}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1 }}
+          refreshControl={
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={onRefresh}
+              tintColor={colours.primary}
+              colors={[colours.primary]}
+            />
+          }
         >
           {isLoading ? (
             <View className="flex-1 justify-center items-center py-20">

@@ -116,12 +116,15 @@ export const ChatManagementOverlay = ({
 
   // Fetch circle members and subscribe to presence when members section is opened
   useEffect(() => {
+    console.log('🔍 Members useEffect triggered - chat:', chat?.id, 'showMembers:', showMembers);
     if (!chat || chat.id === '1' || !showMembers) return;
 
     const fetchMembers = async () => {
       setIsLoadingMembers(true);
       try {
+        console.log('📡 Fetching members for circle:', chat.id);
         const circleMembers = await getCircleMembers(parseInt(chat.id));
+        console.log('✅ Received members:', circleMembers, 'Count:', circleMembers.length);
         setMembers(circleMembers);
         
         // Subscribe to presence channel for online/offline tracking
@@ -166,8 +169,10 @@ export const ChatManagementOverlay = ({
   }, [chat, showMembers]);
 
   const handleViewMembers = () => {
+    console.log('🔄 handleViewMembers called, current showMembers:', showMembers);
     setShowMembers(!showMembers);
     setShowDropdown(false);
+    console.log('🔄 Setting showMembers to:', !showMembers);
   };
 
   const handleClose = () => {

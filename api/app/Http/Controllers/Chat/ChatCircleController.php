@@ -312,6 +312,11 @@ class ChatCircleController extends Controller
         $circleId = $request->input('circle_id');
         $currentUserId = $request->user()->id;
 
+        \Log::info('Getting circle members', [
+            'circle_id' => $circleId,
+            'current_user_id' => $currentUserId
+        ]);
+
         // Verify user is a member of the circle
         $isMember = CircleMemberTracker::where('circle_id', $circleId)
             ->where('user_id', $currentUserId)
@@ -329,8 +334,14 @@ class ChatCircleController extends Controller
         $members = CircleMemberTracker::where('circle_id', $circleId)
             ->where('status', 'active')
             ->with(['user:id,name,email'])
-            ->get()
-            ->map(function ($member) {
+            ->get();
+
+        \Log::info('Raw members query result', [
+            'count' => $members->count(),
+            'members' => $members->toArray()
+        ]);
+
+        $mappedMembers = $members->map(function ($member) {
                 return [
                     'id' => $member->user->id,
                     'name' => $member->user->name,
@@ -340,9 +351,14 @@ class ChatCircleController extends Controller
                 ];
             });
 
+        \Log::info('Mapped members', [
+            'count' => $mappedMembers->count(),
+            'members' => $mappedMembers->toArray()
+        ]);
+
         return response()->json([
             'success' => true,
-            'members' => $members,
+            'members' => $mappedMembers,
         ]);
     }
 
