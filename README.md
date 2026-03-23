@@ -23,4 +23,13 @@ Press `Ctrl+C` to stop all services.
 
 ## Documentation
 
-See [scripts/README.md](scripts/README.md) for more details about the development setup.
+### Quick Links
+- **Development Setup**: [scripts/README.md](scripts/README.md)
+- **Real-Time Messaging** (Frontend): [mobile/docs/WEBSOCKETS_REALTIME_MESSAGING.md](mobile/docs/WEBSOCKETS_REALTIME_MESSAGING.md)
+- **Broadcasting Setup** (Backend): [api/docs/TECH_DOCS/realtime_broadcasting_setup.md](api/docs/TECH_DOCS/realtime_broadcasting_setup.md)
+- **Navigation Architecture**: [mobile/docs/NAVIGATION_ARCHITECTURE.md](mobile/docs/NAVIGATION_ARCHITECTURE.md)
+- **Chat Management**: [mobile/docs/CHAT_MESSAGING.md](mobile/docs/CHAT_MESSAGING.md)
+
+### Technical Documentation
+- **Circles & Conversations**: [api/docs/TECH_DOCS/circles_and_conversations.md](api/docs/TECH_DOCS/circles_and_conversations.md)
+- **Notifications System**: [api/docs/TECH_DOCS/notifications_system.md](api/docs/TECH_DOCS/notifications_system.md)

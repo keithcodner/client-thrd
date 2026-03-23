@@ -34,6 +34,11 @@ exp://10.0.0.12:8081 // but check ipconfig
 
 `soketi start --config=soketi.config.json `
 
+
+7. Start database events (so web sockets work)
+
+`php artisan queue:work --tries=3 `
+
 ----------------------
 How to install and run Fresh dev instance
 
