@@ -14,7 +14,7 @@ import { ChevronLeft, ChevronDown, ChevronUp, Camera, FileText, UserPlus, Palett
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
 import { searchUsersForInvite, sendCircleInvite, getPendingCircleInvites, getCircleMembers } from '@/services/chatService';
-import websocketService from '@/services/websocketService';
+import { useSession } from '@/context/AuthContext';
 
 interface CircleMember {
   id: number;
@@ -29,6 +29,7 @@ interface CircleInfoModalProps {
   onClose: () => void;
   circleName: string;
   circleId: string;
+  conversationId?: string;
   isOwner?: boolean;
   onLeave?: () => void;
   onDelete?: () => void;
@@ -39,6 +40,7 @@ export const CircleInfoModal = ({
   onClose,
   circleName,
   circleId,
+  conversationId,
   isOwner = false,
   onLeave,
   onDelete,
@@ -52,9 +54,8 @@ export const CircleInfoModal = ({
   const [sendingInvite, setSendingInvite] = useState<number | null>(null);
   const [loadingPendingInvites, setLoadingPendingInvites] = useState(false);
   const [members, setMembers] = useState<CircleMember[]>([]);
-  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
   const colors = useThemeColours();
+  const { isUserOnline, subscribeToConversationPresence, unsubscribeFromConversationPresence } = useSession();
 
   // Fetch pending invites when invite section is opened
   useEffect(() => {
@@ -78,55 +79,39 @@ export const CircleInfoModal = ({
     fetchPendingInvites();
   }, [showInviteSection, circleId]);
 
-  // Fetch circle members and subscribe to presence when members section is expanded
+  // Fetch circle members when modal opens (to show correct count)
   useEffect(() => {
-    if (expandedSection !== 'members' || circleId === '1') return;
+    if (!visible || circleId === '1') return;
 
-    const fetchMembers = async () => {
-      setIsLoadingMembers(true);
+    const fetchMemberCount = async () => {
       try {
-        console.log('📡 Fetching members for circle:', circleId);
+        console.log('📡 Fetching member count for circle:', circleId);
         const circleMembers = await getCircleMembers(parseInt(circleId));
-        console.log('✅ Received members:', circleMembers, 'Count:', circleMembers.length);
+        console.log('✅ Received members count:', circleMembers.length);
         setMembers(circleMembers);
-        
-        // Subscribe to presence channel for online/offline tracking
-        websocketService.subscribeToPresence(
-          circleId,
-          (member: any) => {
-            console.log('👤 User came online:', member);
-            setOnlineUsers(prev => new Set(prev).add(member.id));
-          },
-          (member: any) => {
-            console.log('👤 User went offline:', member);
-            setOnlineUsers(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(member.id);
-              return newSet;
-            });
-          },
-          (memberList: any[]) => {
-            console.log('👥 Initial online members:', memberList);
-            const onlineIds = new Set(memberList.map((m: any) => m.id));
-            setOnlineUsers(onlineIds);
-          }
-        );
       } catch (error) {
-        console.error('Error fetching circle members:', error);
-      } finally {
-        setIsLoadingMembers(false);
+        console.error('Error fetching member count:', error);
       }
     };
 
-    fetchMembers();
+    fetchMemberCount();
+  }, [visible, circleId]);
 
-    // Cleanup: unsubscribe from presence
+  // Subscribe to presence when members section is expanded
+  useEffect(() => {
+    if (expandedSection !== 'members' || !conversationId || circleId === '1') {
+      return;
+    }
+
+    console.log('🔔 Subscribing to presence via AuthContext for conversation:', conversationId);
+    subscribeToConversationPresence(conversationId);
+
+    // Cleanup: unsubscribe from presence when section collapses or modal closes
     return () => {
-      if (circleId !== '1') {
-        websocketService.unsubscribeFromPresence(circleId);
-      }
+      console.log('🔕 Unsubscribing from presence via AuthContext for conversation:', conversationId);
+      unsubscribeFromConversationPresence(conversationId);
     };
-  }, [expandedSection, circleId]);
+  }, [expandedSection, conversationId, circleId]);
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -358,14 +343,7 @@ export const CircleInfoModal = ({
             {/* Members List - Expanded */}
             {expandedSection === 'members' && (
               <View style={[styles.expandedSection, { backgroundColor: colors.card }]}>
-                {isLoadingMembers ? (
-                  <View style={styles.loadingMembersContainer}>
-                    <ActivityIndicator size="small" color={colors.info} />
-                    <Text style={[styles.loadingText, { color: colors.secondaryText }]}>
-                      Loading members...
-                    </Text>
-                  </View>
-                ) : members.length === 0 ? (
+                {members.length === 0 ? (
                   <View style={styles.emptyMembersContainer}>
                     <Text style={[styles.emptyText, { color: colors.secondaryText }]}>
                       No members found
@@ -373,7 +351,7 @@ export const CircleInfoModal = ({
                   </View>
                 ) : (
                   members.map((member, index) => {
-                    const isOnline = onlineUsers.has(member.id);
+                    const isOnline = isUserOnline(member.id);
                     const isOwnerMember = member.type === 'owner';
                     const isLastItem = index === members.length - 1;
                     

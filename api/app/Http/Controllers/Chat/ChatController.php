@@ -143,7 +143,19 @@ class ChatController extends Controller
         ->with(['details', 'ideaBoard', 'members' => function ($query) {
             $query->where('status', ActiveEnum::STATUS_ACTIVE);
         }])
-        ->get();
+        ->get()
+        ->map(function ($circle) {
+            // Get the conversation for this circle
+            $conversation = Conversation::where('circle_id', $circle->id)
+                ->where('status', ActiveEnum::STATUS_ACTIVE)
+                ->first();
+            
+            // Add conversation_id to circle data
+            $circleData = $circle->toArray();
+            $circleData['conversation_id'] = $conversation ? $conversation->id : null;
+            
+            return $circleData;
+        });
 
         Log::info('getUserCircleData result', [
             'user_id' => $user->id,

@@ -199,32 +199,63 @@ class WebSocketService {
     conversationId: string,
     onUserJoined: (member: any) => void,
     onUserLeft: (member: any) => void,
-    onMemberList: (members: any[]) => void
+    onMemberList: (members: any[]) => void,
+    onError?: (error: any) => void
   ) {
     if (!this.pusher) {
-      console.error('WebSocket not connected');
+      console.error('❌ WebSocket not connected');
+      if (onError) onError({ message: 'WebSocket not connected' });
       return null;
     }
 
     const channelName = `presence-conversation.${conversationId}`;
     
+    console.log('🔔 Subscribing to presence channel:', channelName);
+    console.log('🔌 Current WebSocket state:', this.pusher.connection.state);
+    
     if (this.channels.has(channelName)) {
+      console.log('♻️ Channel already exists, reusing:', channelName);
       return this.channels.get(channelName);
     }
 
     const channel = this.pusher.subscribe(channelName);
 
+    // Handle subscription errors
+    channel.bind('pusher:subscription_error', (error: any) => {
+      console.error('❌ Presence subscription error:', channelName, error);
+      if (onError) onError(error);
+    });
+
     channel.bind('pusher:subscription_succeeded', (members: any) => {
-      const memberList = Object.values(members.members);
+      console.log('✅ Presence subscription succeeded:', channelName);
+      console.log('📊 Raw members object:', members);
+      console.log('📊 Members.members:', members.members);
+      console.log('📊 Members.count:', members.count);
+      
+      // Extract member list - Pusher uses user IDs as keys
+      const memberList = Object.keys(members.members).map(userId => ({
+        id: parseInt(userId),
+        ...members.members[userId]
+      }));
+      
+      console.log('📊 Parsed member list:', memberList);
       onMemberList(memberList);
     });
 
     channel.bind('pusher:member_added', (member: any) => {
-      onUserJoined(member.info);
+      console.log('➕ Member joined:', member);
+      console.log('➕ Member ID:', member.id);
+      console.log('➕ Member info:', member.info);
+      // Pusher sends member.id and member.info
+      onUserJoined({ id: parseInt(member.id), ...member.info });
     });
 
     channel.bind('pusher:member_removed', (member: any) => {
-      onUserLeft(member.info);
+      console.log('➖ Member left:', member);
+      console.log('➖ Member ID:', member.id);
+      console.log('➖ Member info:', member.info);
+      // Pusher sends member.id and member.info
+      onUserLeft({ id: parseInt(member.id), ...member.info });
     });
 
     this.channels.set(channelName, channel);

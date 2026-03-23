@@ -5,13 +5,14 @@ import { useThemeColours } from '@/hooks/useThemeColours';
 import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
 
 export interface ChatItemData {
-  id: string;
+  id: string; // conversation_id
   name: string;
   lastMessage: string;
   timestamp: string;
   unread?: boolean;
   avatar?: string;
   isPrivate?: boolean;
+  circleId?: number; // circle_id for reference
 }
 
 interface ChatListItemProps {

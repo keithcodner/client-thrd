@@ -75,7 +75,7 @@ const ChatHome = () => {
       
       // Transform API response to ChatItemData format
       const circleChats: ChatItemData[] = response.circles.map((circle: any) => ({
-        id: circle.id.toString(),
+        id: circle.conversation_id?.toString() || circle.id.toString(), // Use conversation_id if available, fallback to circle.id
         name: circle.name,
         lastMessage: 'No messages yet',
         timestamp: new Date(circle.updated_at).toLocaleTimeString('en-US', { 
@@ -84,6 +84,7 @@ const ChatHome = () => {
         }),
         unread: false,
         isPrivate: circle.type === 'private_circle',
+        circleId: circle.id, // Keep circle ID for reference
       }));
       
       console.log('📊 Transformed circle chats:', circleChats);

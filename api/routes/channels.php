@@ -68,13 +68,33 @@ Broadcast::channel('typing.{conversationId}', function ($user, $conversationId) 
 
 // Presence channel for online status
 Broadcast::channel('presence-conversation.{conversationId}', function ($user, $conversationId) {
+    \Log::info('Presence Channel Authorization Attempt', [
+        'user_id' => $user->id,
+        'user_name' => $user->name,
+        'conversation_id' => $conversationId,
+    ]);
+    
     if (authorizeConversationAccess($user, $conversationId)) {
-        return [
+        $presenceData = [
             'id' => $user->id,
             'name' => $user->name,
             'avatar' => $user->avatar ?? null,
             'last_active' => $user->updated_at->toISOString(),
         ];
+        
+        \Log::info('Presence Channel Authorized', [
+            'user_id' => $user->id,
+            'conversation_id' => $conversationId,
+            'presence_data' => $presenceData,
+        ]);
+        
+        return $presenceData;
     }
+    
+    \Log::warning('Presence Channel Access Denied', [
+        'user_id' => $user->id,
+        'conversation_id' => $conversationId,
+    ]);
+    
     return false;
 });

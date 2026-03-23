@@ -142,6 +142,7 @@ const ChatDetail = () => {
   const [isLoadingChatInfo, setIsLoadingChatInfo] = useState(true);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [circleId, setCircleId] = useState<string | undefined>(undefined);
   
   // Pagination state
   const [hasMore, setHasMore] = useState(false);
@@ -354,24 +355,29 @@ const ChatDetail = () => {
           // Special case for THRD system chat
           setChatName('THRD');
           setIsOwner(false); // THRD is not user-owned
+          setCircleId(undefined);
         } else {
           // Fetch circle data to get the circle name
+          // chatId is now the conversation_id
           const response = await getUserCircleData();
-          const circle = response.circles.find((c: any) => c.id.toString() === chatId);
+          const circle = response.circles.find((c: any) => c.conversation_id?.toString() === chatId);
           
           if (circle) {
             setChatName(circle.name);
+            setCircleId(circle.id.toString());
             // Check if current user is the owner
             setIsOwner(user?.id === circle.user_owner_id);
           } else {
             setChatName('Chat');
+            setCircleId(undefined);
             setIsOwner(false);
-            console.warn(`Circle with id ${chatId} not found`);
+            console.warn(`Circle with conversation_id ${chatId} not found`);
           }
         }
       } catch (error) {
         console.error('Error loading chat info:', error);
         setChatName('Chat');
+        setCircleId(undefined);
         setIsOwner(false);
       } finally {
         setIsLoadingChatInfo(false);
@@ -491,10 +497,9 @@ const ChatDetail = () => {
       return;
     }
 
-    console.log('🔌 Connecting to WebSocket...');
+    console.log('🔌 Subscribing to conversation messages...');
     
-    // Connect WebSocket
-    websocketService.connect(session, user.id);
+    // WebSocket is already connected via AuthContext, just subscribe to this conversation
 
     // Subscribe to conversation
     const handleNewMessage = (data: any) => {
@@ -798,7 +803,8 @@ const ChatDetail = () => {
       visible={showCircleInfo}
       onClose={() => setShowCircleInfo(false)}
       circleName={chatName}
-      circleId={chatId}
+      circleId={circleId || chatId}
+      conversationId={chatId}
       isOwner={isOwner}
       onLeave={handleLeaveCircle}
       onDelete={handleDeleteCircle}

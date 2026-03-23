@@ -14,7 +14,7 @@ import { useThemeColours } from '@/hooks/useThemeColours';
 import { useRouter } from 'expo-router';
 import { ChatItemData } from './ChatListItem';
 import { getCircleMembers } from '@/services/chatService';
-import websocketService from '@/services/websocketService';
+import { useSession } from '@/context/AuthContext';
 import {
   OverlayHeader,
   DropdownMenu,
@@ -83,11 +83,11 @@ export const ChatManagementOverlay = ({
 }: ChatManagementOverlayProps) => {
   const colours = useThemeColours();
   const router = useRouter();
+  const { onlineUsers, subscribeToConversationPresence, unsubscribeFromConversationPresence } = useSession();
   const [showDropdown, setShowDropdown] = useState(false);
   const [slideAnim] = useState(new Animated.Value(-OVERLAY_HEIGHT));
   const [showMembers, setShowMembers] = useState(false);
   const [members, setMembers] = useState<CircleMember[]>([]);
-  const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
 
   // Animate overlay in/out
@@ -127,30 +127,8 @@ export const ChatManagementOverlay = ({
         console.log('✅ Received members:', circleMembers, 'Count:', circleMembers.length);
         setMembers(circleMembers);
         
-        // Subscribe to presence channel for online/offline tracking
-        websocketService.subscribeToPresence(
-          chat.id,
-          (member: any) => {
-            // User joined (came online)
-            console.log('👤 User came online:', member);
-            setOnlineUsers(prev => new Set(prev).add(member.id));
-          },
-          (member: any) => {
-            // User left (went offline)
-            console.log('👤 User went offline:', member);
-            setOnlineUsers(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(member.id);
-              return newSet;
-            });
-          },
-          (memberList: any[]) => {
-            // Initial member list
-            console.log('👥 Initial online members:', memberList);
-            const onlineIds = new Set(memberList.map((m: any) => m.id));
-            setOnlineUsers(onlineIds);
-          }
-        );
+        // Subscribe to presence via AuthContext
+        subscribeToConversationPresence(chat.id);
       } catch (error) {
         console.error('Error fetching circle members:', error);
       } finally {
@@ -163,7 +141,7 @@ export const ChatManagementOverlay = ({
     // Cleanup: unsubscribe from presence
     return () => {
       if (chat && chat.id !== '1') {
-        websocketService.unsubscribeFromPresence(chat.id);
+        unsubscribeFromConversationPresence(chat.id);
       }
     };
   }, [chat, showMembers]);
