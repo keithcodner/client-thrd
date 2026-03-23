@@ -11,6 +11,7 @@ use App\Models\Circles\CircleIdeaBoard;
 use App\Models\Circles\CircleMemberTracker;
 
 use App\Events\NewChatMessage;
+use App\Events\UserTyping;
 use App\Models\Conversation\Conversation;
 use App\Models\Conversation\ConversationChat;
 
@@ -323,6 +324,47 @@ class ChatController extends Controller
 
             return response()->json([
                 'message' => 'Failed to send message. Please try again later.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Update typing status for a conversation
+     * Broadcasts to other users that the current user is typing or stopped typing
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateTypingStatus(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Validate request data
+            $validated = $request->validate([
+                'conversation_id' => 'required|integer|exists:conversations,id',
+                'is_typing' => 'required|boolean',
+            ]);
+
+            // Broadcast typing status to other users in the conversation
+            broadcast(new UserTyping(
+                $validated['conversation_id'],
+                $user,
+                $validated['is_typing']
+            ))->toOthers();
+
+            return response()->json([
+                'message' => 'Typing status updated successfully.',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error updating typing status: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id(),
+                'request_data' => $request->all(),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to update typing status.',
             ], 500);
         }
     }

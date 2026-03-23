@@ -17,7 +17,7 @@ import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
 import { CircleInfoModal } from "@/components/chat/CircleInfoModal";
 import { useSession } from "@/context/AuthContext";
-import { sendMessage, getUserCircleData, getConversationMessages } from "@/services/chatService";
+import { sendMessage, getUserCircleData, getConversationMessages, updateTypingStatus } from "@/services/chatService";
 import websocketService from "@/services/websocketService";
 import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
 import Toast from "react-native-toast-message";
@@ -150,6 +150,10 @@ const ChatDetail = () => {
   const scrollContentHeight = useRef(0);
   const scrollViewHeight = useRef(0);
 
+  // Typing indicator state
+  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
+  const typingTimeoutRef = useRef<number | undefined>(undefined);
+
   // Format current time
   const getCurrentTime = () => {
     const now = new Date();
@@ -208,6 +212,15 @@ const ChatDetail = () => {
   const handleSendMessage = async () => {
     if (messageText.trim() && user) {
       setIsSending(true);
+      
+      // Clear typing timeout and send typing=false
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      if (chatId !== '1') {
+        updateTypingStatus(parseInt(chatId), false);
+      }
+      
       try {
         // Create optimistic message for immediate UI update
         const optimisticMessage: MessageData = {
@@ -261,6 +274,75 @@ const ChatDetail = () => {
         setIsSending(false);
       }
     }
+  };
+
+  /**
+   * Handle text input changes and manage typing status
+   * Sends typing=true when user starts typing
+   * Auto-sends typing=false after 3 seconds of inactivity
+   */
+  const handleTextChange = (text: string) => {
+    setMessageText(text);
+
+    // Skip typing status for THRD system chat
+    if (chatId === '1') {
+      return;
+    }
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Send typing=true if there's text
+    if (text.trim()) {
+      updateTypingStatus(parseInt(chatId), true);
+
+      // Auto-send typing=false after 3 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        updateTypingStatus(parseInt(chatId), false);
+      }, 3000);
+    } else {
+      // Empty text = not typing
+      updateTypingStatus(parseInt(chatId), false);
+    }
+  };
+
+  /**
+   * Handle key press events for Enter/Shift+Enter behavior
+   * - Enter: Send message
+   * - Shift+Enter: New line
+   * Note: This primarily works on web/desktop platforms
+   */
+  const handleKeyPress = (e: any) => {
+    // Check if Enter key is pressed without Shift
+    if (e.nativeEvent.key === 'Enter' && !e.nativeEvent.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+    // If Shift+Enter, React Native will handle it naturally (new line)
+  };
+
+  /**
+   * Render typing indicator below messages
+   */
+  const renderTypingIndicator = () => {
+    if (typingUsers.size === 0) return null;
+
+    const typingText = typingUsers.size === 1
+      ? `${Array.from(typingUsers)[0]} is typing...`
+      : `${typingUsers.size} people are typing...`;
+
+    return (
+      <View className="px-4 py-2">
+        <Text 
+          className="text-xs italic" 
+          style={{ color: colours.secondaryText }}
+        >
+          {typingText}
+        </Text>
+      </View>
+    );
   };
 
   // Load circle/chat info on mount
@@ -445,10 +527,33 @@ const ChatDetail = () => {
 
     websocketService.subscribeToConversation(chatId, handleNewMessage);
 
+    // Subscribe to typing status
+    const handleTypingChange = (data: { user_id: number; user_name: string; is_typing: boolean }) => {
+      console.log('⌨️ Typing status changed:', data);
+      
+      // Ignore own typing
+      if (data.user_id === user.id) {
+        return;
+      }
+
+      setTypingUsers(prev => {
+        const newSet = new Set(prev);
+        if (data.is_typing) {
+          newSet.add(data.user_name);
+        } else {
+          newSet.delete(data.user_name);
+        }
+        return newSet;
+      });
+    };
+
+    websocketService.subscribeToTyping(chatId, handleTypingChange);
+
     // Cleanup on unmount
     return () => {
       console.log('🔕 Unsubscribing from conversation');
       websocketService.unsubscribeFromConversation(chatId);
+      websocketService.unsubscribeFromTyping(chatId);
     };
   }, [chatId, user, session]);
 
@@ -600,6 +705,9 @@ const ChatDetail = () => {
         )}
       </ScrollView>
 
+      {/* Typing Indicator */}
+      {renderTypingIndicator()}
+
       {/* Separator line between messages and input */}
       <View style={{ height: 1, backgroundColor: colours.border }} />
 
@@ -655,9 +763,9 @@ const ChatDetail = () => {
               placeholder="Type something..."
               placeholderTextColor={colours.secondaryText}
               value={messageText}
-              onChangeText={setMessageText}
-              onSubmitEditing={handleSendMessage}
-              returnKeyType="send"
+              onChangeText={handleTextChange}
+              onKeyPress={handleKeyPress}
+              blurOnSubmit={false}
               multiline
               style={{ color: colours.text }}
             />

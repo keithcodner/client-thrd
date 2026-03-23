@@ -241,3 +241,22 @@ export const getPendingCircleInvites = async (circleId: number) => {
     throw error;
   }
 };
+
+/**
+ * Update typing status for a conversation
+ * Broadcasts to other users that the current user is typing or stopped typing
+ * 
+ * @param conversationId - The conversation ID
+ * @param isTyping - Whether the user is currently typing
+ */
+export const updateTypingStatus = async (conversationId: number, isTyping: boolean) => {
+  try {
+    await axiosInstance.post("/typing-status", {
+      conversation_id: conversationId,
+      is_typing: isTyping,
+    });
+  } catch (error) {
+    console.error("Error updating typing status:", error);
+    // Don't throw error - typing status is not critical
+  }
+};

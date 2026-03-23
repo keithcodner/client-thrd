@@ -61,6 +61,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //:::POST CHAT MESSAGE:::
         Route::post('/post-chat', [ChatController::class, 'postChat'])->middleware(TrackUserActivity::class)->name('post-chat');
 
+        //:::UPDATE TYPING STATUS:::
+        Route::post('/typing-status', [ChatController::class, 'updateTypingStatus'])->middleware(TrackUserActivity::class)->name('typing-status');
+
         //:::SEARCH USERS FOR INVITE:::
         Route::post('/search-users', [ChatCircleController::class, 'searchUsers'])->middleware(TrackUserActivity::class)->name('search-users');
 

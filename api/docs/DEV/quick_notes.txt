@@ -39,6 +39,10 @@ exp://10.0.0.12:8081 // but check ipconfig
 
 `php artisan queue:work --tries=3 `
 
+8. Access multiple instances via web client
+
+` http://localhost:8081/ `
+
 ----------------------
 How to install and run Fresh dev instance
 
