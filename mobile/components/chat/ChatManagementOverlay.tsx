@@ -7,46 +7,25 @@ import {
   Animated,
   StyleSheet,
   Dimensions,
-  ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { X, Trash2, Pin, MoreVertical, Info, LogOut, MessageSquare, Users } from 'lucide-react-native';
+import { Trash2, Pin, MoreVertical, Info, LogOut, MessageSquare, Users } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { useRouter } from 'expo-router';
 import { ChatItemData } from './ChatListItem';
-import { LucideIcon } from 'lucide-react-native';
 import { getCircleMembers } from '@/services/chatService';
 import websocketService from '@/services/websocketService';
-import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
+import {
+  OverlayHeader,
+  DropdownMenu,
+  MembersList,
+  CircleMember,
+  DropdownMenuItem,
+  QuickActionButtonData,
+} from './chat-management-components';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const OVERLAY_HEIGHT = 240; // Height of the action bar
-
-interface CircleMember {
-  id: number;
-  name: string;
-  email: string;
-  type: string;
-  joined_at: string;
-}
-
-interface DropdownMenuItem {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-  color?: string;
-  onPress: () => void;
-  showOnlyForOwner?: boolean;
-}
-
-interface QuickActionButton {
-  id: string;
-  icon: LucideIcon;
-  color: string;
-  onPress: () => void;
-  specialStyle?: boolean; // For the "more" button that changes background
-}
 
 export interface ChatManagementOverlayProps {
   visible: boolean;
@@ -242,10 +221,11 @@ export const ChatManagementOverlay = ({
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
+    setShowMembers(false); // Close members when toggling dropdown
   };
 
   // Quick action buttons configuration
-  const quickActionButtons: QuickActionButton[] = [
+  const quickActionButtons: QuickActionButtonData[] = [
     {
       id: 'delete',
       icon: Trash2,
@@ -312,28 +292,6 @@ export const ChatManagementOverlay = ({
     item => !item.showOnlyForOwner || (item.showOnlyForOwner && isOwner)
   );
 
-  /**
-   * QuickActionButton Component
-   * Renders individual quick action buttons with consistent styling
-   * Handles special styling for buttons like "more" that change based on state
-   */
-  const QuickActionButton = ({ button }: { button: QuickActionButton }) => {
-    const Icon = button.icon;
-    const backgroundColor = button.specialStyle && showDropdown 
-      ? colours.primary 
-      : colours.surface;
-
-    return (
-      <Pressable
-        onPress={button.onPress}
-        className="w-10 h-10 items-center justify-center rounded-full"
-        style={{ backgroundColor }}
-      >
-        <Icon size={18} color={button.color} />
-      </Pressable>
-    );
-  };
-
   if (!chat) return null;
 
   return (
@@ -365,159 +323,26 @@ export const ChatManagementOverlay = ({
         ]}
       >
         {/* Header with Quick Actions */}
-        <View 
-          style={{ 
-            backgroundColor: colours.background,
-            borderBottomColor: colours.border,
-            borderBottomWidth: 1,
-          }} 
-          className="pt-12 pb-4 px-5"
-        >
-          <View className="flex-row items-center justify-between mb-3">
-            {/* Back Button */}
-            <Pressable
-              onPress={handleClose}
-              className="w-10 h-10 items-center justify-center rounded-full"
-              style={{ backgroundColor: colours.surface }}
-            >
-              <X size={20} color={colours.text} />
-            </Pressable>
-
-            <Text className="text-lg font-semibold flex-1 text-center" style={{ color: colours.text }}>
-              {chat.name}
-            </Text>
-
-            {/* Quick Action Buttons */}
-            <View className="flex-row gap-2">
-              {quickActionButtons.map(button => (
-                <QuickActionButton key={button.id} button={button} />
-              ))}
-            </View>
-          </View>
-        </View>
+        <OverlayHeader
+          chatName={chat.name}
+          onClose={handleClose}
+          quickActionButtons={quickActionButtons}
+          isDropdownActive={showDropdown}
+        />
 
         {/* Dropdown Menu */}
-        {showDropdown && (
-          <View
-            style={{ backgroundColor: colours.card }}
-            className="mx-5 mt-2 rounded-lg overflow-hidden"
-          >
-            {visibleMenuItems.map((item, index) => {
-              const Icon = item.icon;
-              const isLastItem = index === visibleMenuItems.length - 1;
-              
-              return (
-                <Pressable
-                  key={item.id}
-                  onPress={item.onPress}
-                  className={`flex-row items-center px-4 py-3 ${!isLastItem ? 'border-b' : ''}`}
-                  style={({ pressed }) => ({
-                    backgroundColor: pressed ? colours.surface : colours.card,
-                    borderBottomColor: colours.border,
-                  })}
-                >
-                  <Icon size={20} color={item.color || colours.text} />
-                  <Text 
-                    className="ml-3 text-base" 
-                    style={{ 
-                      color: item.id === 'delete-circle' ? colours.error : colours.text 
-                    }}
-                  >
-                    {item.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
+        <DropdownMenu
+          visible={showDropdown}
+          items={visibleMenuItems}
+        />
 
         {/* Members List */}
-        {showMembers && (
-          <ScrollView
-            style={{ 
-              backgroundColor: colours.card,
-              maxHeight: 300,
-            }}
-            className="mx-5 mt-2 rounded-lg"
-          >
-            {isLoadingMembers ? (
-              <View className="py-8 items-center">
-                <ActivityIndicator size="small" color={colours.primary} />
-                <Text className="mt-2 text-sm" style={{ color: colours.secondaryText }}>
-                  Loading members...
-                </Text>
-              </View>
-            ) : members.length === 0 ? (
-              <View className="py-8 items-center">
-                <Text className="text-sm" style={{ color: colours.secondaryText }}>
-                  No members found
-                </Text>
-              </View>
-            ) : (
-              members.map((member, index) => {
-                const isOnline = onlineUsers.has(member.id);
-                const isOwner = member.type === 'owner';
-                const isLastItem = index === members.length - 1;
-                
-                return (
-                  <View
-                    key={member.id}
-                    className={`flex-row items-center px-4 py-3 ${!isLastItem ? 'border-b' : ''}`}
-                    style={{ borderBottomColor: colours.border }}
-                  >
-                    {/* Avatar */}
-                    <View className="relative">
-                      <View
-                        className="w-10 h-10 rounded-full items-center justify-center"
-                        style={{ backgroundColor: getAvatarColor(member.name) }}
-                      >
-                        <Text className="text-white font-semibold text-sm">
-                          {getInitials(member.name)}
-                        </Text>
-                      </View>
-                      {/* Online Status Indicator */}
-                      <View
-                        className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2"
-                        style={{
-                          backgroundColor: isOnline ? '#10B981' : '#6B7280',
-                          borderColor: colours.card,
-                        }}
-                      />
-                    </View>
-
-                    {/* Member Info */}
-                    <View className="flex-1 ml-3">
-                      <View className="flex-row items-center">
-                        <Text
-                          className="text-base font-medium"
-                          style={{ color: colours.text }}
-                        >
-                          {member.name}
-                        </Text>
-                        {isOwner && (
-                          <View
-                            className="ml-2 px-2 py-0.5 rounded"
-                            style={{ backgroundColor: colours.primary }}
-                          >
-                            <Text className="text-xs font-semibold text-white">
-                              OWNER
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                      <Text
-                        className="text-xs mt-0.5"
-                        style={{ color: colours.secondaryText }}
-                      >
-                        {isOnline ? 'Online' : 'Offline'}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              })
-            )}
-          </ScrollView>
-        )}
+        <MembersList
+          visible={showMembers}
+          members={members}
+          onlineUsers={onlineUsers}
+          isLoading={isLoadingMembers}
+        />
 
         {/* Helper Text */}
         {!showDropdown && !showMembers && (
