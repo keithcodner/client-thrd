@@ -79,6 +79,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //:::GET PENDING CIRCLE INVITES:::
         Route::post('/get-pending-circle-invites', [ChatCircleController::class, 'getPendingCircleInvites'])->middleware(TrackUserActivity::class)->name('get-pending-circle-invites');
 
+        //:::GET CIRCLE MEMBERS:::
+        Route::post('/get-circle-members', [ChatCircleController::class, 'getCircleMembers'])->middleware(TrackUserActivity::class)->name('get-circle-members');
+
         // Route::get('/get-conversations', [ChatController::class, 'getConversations'])->middleware(TrackUserActivity::class)->name('get-conversations');
         // Route::get('/poll-chat', [ChatController::class, 'pollChat'])->middleware(TrackUserActivity::class)->name('poll-chat');
 

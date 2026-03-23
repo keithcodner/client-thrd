@@ -260,3 +260,22 @@ export const updateTypingStatus = async (conversationId: number, isTyping: boole
     // Don't throw error - typing status is not critical
   }
 };
+
+/**
+ * Get all members of a circle
+ * 
+ * @param circleId - The circle ID
+ * @returns Array of circle members with user information
+ */
+export const getCircleMembers = async (circleId: number) => {
+  try {
+    const response = await axiosInstance.post("/get-circle-members", {
+      circle_id: circleId,
+    });
+    
+    return response.data.members || [];
+  } catch (error) {
+    console.error("Error fetching circle members:", error);
+    throw error;
+  }
+};

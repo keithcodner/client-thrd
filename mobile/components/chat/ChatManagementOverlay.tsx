@@ -7,16 +7,29 @@ import {
   Animated,
   StyleSheet,
   Dimensions,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { X, Trash2, Pin, MoreVertical, Info, LogOut, MessageSquare } from 'lucide-react-native';
+import { X, Trash2, Pin, MoreVertical, Info, LogOut, MessageSquare, Users } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
 import { useRouter } from 'expo-router';
 import { ChatItemData } from './ChatListItem';
 import { LucideIcon } from 'lucide-react-native';
+import { getCircleMembers } from '@/services/chatService';
+import websocketService from '@/services/websocketService';
+import { getInitials, getAvatarColor } from '@/utils/avatarUtils';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const OVERLAY_HEIGHT = 240; // Height of the action bar
+
+interface CircleMember {
+  id: number;
+  name: string;
+  email: string;
+  type: string;
+  joined_at: string;
+}
 
 interface DropdownMenuItem {
   id: string;
@@ -93,6 +106,10 @@ export const ChatManagementOverlay = ({
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const [slideAnim] = useState(new Animated.Value(-OVERLAY_HEIGHT));
+  const [showMembers, setShowMembers] = useState(false);
+  const [members, setMembers] = useState<CircleMember[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set());
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
 
   // Animate overlay in/out
   useEffect(() => {
@@ -113,12 +130,70 @@ export const ChatManagementOverlay = ({
         useNativeDriver: true,
       }).start(() => {
         setShowDropdown(false);
+        setShowMembers(false);
       });
     }
   }, [visible]);
 
+  // Fetch circle members and subscribe to presence when members section is opened
+  useEffect(() => {
+    if (!chat || chat.id === '1' || !showMembers) return;
+
+    const fetchMembers = async () => {
+      setIsLoadingMembers(true);
+      try {
+        const circleMembers = await getCircleMembers(parseInt(chat.id));
+        setMembers(circleMembers);
+        
+        // Subscribe to presence channel for online/offline tracking
+        websocketService.subscribeToPresence(
+          chat.id,
+          (member: any) => {
+            // User joined (came online)
+            console.log('👤 User came online:', member);
+            setOnlineUsers(prev => new Set(prev).add(member.id));
+          },
+          (member: any) => {
+            // User left (went offline)
+            console.log('👤 User went offline:', member);
+            setOnlineUsers(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(member.id);
+              return newSet;
+            });
+          },
+          (memberList: any[]) => {
+            // Initial member list
+            console.log('👥 Initial online members:', memberList);
+            const onlineIds = new Set(memberList.map((m: any) => m.id));
+            setOnlineUsers(onlineIds);
+          }
+        );
+      } catch (error) {
+        console.error('Error fetching circle members:', error);
+      } finally {
+        setIsLoadingMembers(false);
+      }
+    };
+
+    fetchMembers();
+
+    // Cleanup: unsubscribe from presence
+    return () => {
+      if (chat && chat.id !== '1') {
+        websocketService.unsubscribeFromPresence(chat.id);
+      }
+    };
+  }, [chat, showMembers]);
+
+  const handleViewMembers = () => {
+    setShowMembers(!showMembers);
+    setShowDropdown(false);
+  };
+
   const handleClose = () => {
     setShowDropdown(false);
+    setShowMembers(false);
     onClose();
   };
 
@@ -194,6 +269,13 @@ export const ChatManagementOverlay = ({
 
   // Dropdown menu items configuration
   const dropdownMenuItems: DropdownMenuItem[] = [
+    {
+      id: 'members',
+      label: 'Members',
+      icon: Users,
+      color: colours.primary,
+      onPress: handleViewMembers,
+    },
     {
       id: 'view-info',
       label: 'View Info',
@@ -349,8 +431,96 @@ export const ChatManagementOverlay = ({
           </View>
         )}
 
+        {/* Members List */}
+        {showMembers && (
+          <ScrollView
+            style={{ 
+              backgroundColor: colours.card,
+              maxHeight: 300,
+            }}
+            className="mx-5 mt-2 rounded-lg"
+          >
+            {isLoadingMembers ? (
+              <View className="py-8 items-center">
+                <ActivityIndicator size="small" color={colours.primary} />
+                <Text className="mt-2 text-sm" style={{ color: colours.secondaryText }}>
+                  Loading members...
+                </Text>
+              </View>
+            ) : members.length === 0 ? (
+              <View className="py-8 items-center">
+                <Text className="text-sm" style={{ color: colours.secondaryText }}>
+                  No members found
+                </Text>
+              </View>
+            ) : (
+              members.map((member, index) => {
+                const isOnline = onlineUsers.has(member.id);
+                const isOwner = member.type === 'owner';
+                const isLastItem = index === members.length - 1;
+                
+                return (
+                  <View
+                    key={member.id}
+                    className={`flex-row items-center px-4 py-3 ${!isLastItem ? 'border-b' : ''}`}
+                    style={{ borderBottomColor: colours.border }}
+                  >
+                    {/* Avatar */}
+                    <View className="relative">
+                      <View
+                        className="w-10 h-10 rounded-full items-center justify-center"
+                        style={{ backgroundColor: getAvatarColor(member.name) }}
+                      >
+                        <Text className="text-white font-semibold text-sm">
+                          {getInitials(member.name)}
+                        </Text>
+                      </View>
+                      {/* Online Status Indicator */}
+                      <View
+                        className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2"
+                        style={{
+                          backgroundColor: isOnline ? '#10B981' : '#6B7280',
+                          borderColor: colours.card,
+                        }}
+                      />
+                    </View>
+
+                    {/* Member Info */}
+                    <View className="flex-1 ml-3">
+                      <View className="flex-row items-center">
+                        <Text
+                          className="text-base font-medium"
+                          style={{ color: colours.text }}
+                        >
+                          {member.name}
+                        </Text>
+                        {isOwner && (
+                          <View
+                            className="ml-2 px-2 py-0.5 rounded"
+                            style={{ backgroundColor: colours.primary }}
+                          >
+                            <Text className="text-xs font-semibold text-white">
+                              OWNER
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text
+                        className="text-xs mt-0.5"
+                        style={{ color: colours.secondaryText }}
+                      >
+                        {isOnline ? 'Online' : 'Offline'}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })
+            )}
+          </ScrollView>
+        )}
+
         {/* Helper Text */}
-        {!showDropdown && (
+        {!showDropdown && !showMembers && (
           <View className="px-5 py-4">
             <Text className="text-sm text-center" style={{ color: colours.secondaryText }}>
               Tap the three dots for more options

@@ -297,4 +297,53 @@ class ChatCircleController extends Controller
         ]);
     }
 
+    /**
+     * Get all members of a circle with their user information
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCircleMembers(Request $request)
+    {
+        $request->validate([
+            'circle_id' => 'required|integer|exists:circles,id',
+        ]);
+
+        $circleId = $request->input('circle_id');
+        $currentUserId = $request->user()->id;
+
+        // Verify user is a member of the circle
+        $isMember = CircleMemberTracker::where('circle_id', $circleId)
+            ->where('user_id', $currentUserId)
+            ->where('status', 'active')
+            ->exists();
+
+        if (!$isMember) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have access to this circle.'
+            ], 403);
+        }
+
+        // Get all active members of the circle with user information
+        $members = CircleMemberTracker::where('circle_id', $circleId)
+            ->where('status', 'active')
+            ->with(['user:id,name,email'])
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->user->id,
+                    'name' => $member->user->name,
+                    'email' => $member->user->email,
+                    'type' => $member->type,
+                    'joined_at' => $member->created_at,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'members' => $members,
+        ]);
+    }
+
 }
