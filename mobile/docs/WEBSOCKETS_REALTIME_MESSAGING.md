@@ -7,7 +7,10 @@ This document outlines the implementation of real-time messaging features using 
 ✅ **Soketi WebSocket server configured and ready**  
 ✅ **Laravel Broadcasting system enabled**  
 ✅ **Channel authorization implemented**  
-✅ **Real-time message delivery active**  
+✅ **Real-time message delivery active (web & mobile)**  
+✅ **Platform-specific host configuration (localhost for web, network IP for mobile)**  
+✅ **Queue worker auto-start with Laravel server**  
+✅ **Platform-aware storage wrapper (web localStorage, mobile SecureStore)**  
 ⏳ **Typing indicators (documented, not yet implemented)**  
 ⏳ **Online presence tracking (documented, not yet implemented)**
 
@@ -21,6 +24,7 @@ This document outlines the implementation of real-time messaging features using 
 - [React Native Integration](#react-native-integration)
 - [Message Persistence](#message-persistence)
 - [Security Considerations](#security-considerations)
+- [Troubleshooting](#troubleshooting)
 - [Implementation Roadmap](#implementation-roadmap)
 
 ---
@@ -1140,6 +1144,456 @@ export const getMessages = async (conversationId: number, limit = 30, beforeId?:
     throw error;
   }
 };
+```
+
+---
+
+## Troubleshooting
+
+This section covers common issues encountered during WebSocket setup and their solutions.
+
+### Issue 1: Messages Not Appearing in Real-Time
+
+**Symptoms:**
+- Messages save successfully to database
+- No broadcast events appear in Soketi logs
+- Messages only appear after refreshing or navigating away and back
+- Laravel logs show "Chat message sent successfully" but no broadcasts
+
+**Root Cause:**
+Broadcasts are queued (`QUEUE_CONNECTION=database`) but no queue worker is running to process them.
+
+**Solution:**
+
+**Option A: Use Sync Queue (Development)**
+```env
+# api/.env
+QUEUE_CONNECTION=sync
+```
+Then clear config: `php artisan config:clear`
+
+Broadcasts fire immediately without needing a queue worker.
+
+**Option B: Run Queue Worker (Production - Recommended)**
+```bash
+cd api
+php artisan queue:work --tries=3
+```
+
+**Automated Solution:**
+Queue worker automatically starts with Laravel server via startup scripts:
+- `api/start-laravel.bat` - Opens worker in separate window
+- `scripts/start-laravel.bat` - Same for scripts directory
+
+**Verification:**
+After starting queue worker, Soketi logs should show:
+```
+✈ Sent message to client: { event: 'newMessage', channel: 'private-sitePrivateChat.12' }
+```
+
+---
+
+### Issue 2: WebSocket Connection Fails on Web Platform
+
+**Symptoms:**
+- Android connects successfully (IP: `10.0.0.12:6001`)
+- Web shows: `WebSocket connection to 'ws://10.0.0.12:6001/app/thrd-app-key' failed`
+- Browser cannot reach mobile IP address
+
+**Root Cause:**
+Web browsers must connect to `localhost` WebSocket server, not mobile device IP.
+
+**Solution:**
+
+Platform-specific hosts in `mobile/config/env.ts`:
+
+```typescript
+import { Platform } from 'react-native';
+
+export const getWebSocketHost = () => {
+  if (Platform.OS === 'web') {
+    return 'localhost';
+  }
+  return '10.0.0.12'; // Your local network IP
+};
+
+export const getApiUrl = () => {
+  if (Platform.OS === 'web') {
+    return 'http://localhost:8000';
+  }
+  return 'http://10.0.0.12:8000';
+};
+
+export const PUSHER_CONFIG = {
+  key: 'thrd-app-key',
+  cluster: 'mt1',
+  wsHost: getWebSocketHost(),
+  wsPort: 6001,
+  wssPort: 6001,
+  forceTLS: false,
+  apiUrl: getApiUrl(),
+};
+```
+
+**Updated Services:**
+- `mobile/services/websocketService.ts` - Uses `PUSHER_CONFIG` with platform detection
+- `mobile/services/notificationService.ts` - Uses same config
+
+**CORS Configuration:**
+Ensure `api/config/cors.php` allows web origin:
+```php
+'allowed_origins' => [
+    'http://localhost:8081',  // Web
+    'http://10.0.0.12:8081',  // Mobile
+],
+```
+
+---
+
+### Issue 3: Soketi Server Crashes on Connection
+
+**Symptoms:**
+```
+TypeError: Cannot read properties of undefined (reading 'enabled')
+```
+
+**Root Cause:**
+Missing or incorrect `appManager` driver specification in `soketi.config.json`.
+
+**Solution:**
+
+Use dot-notation format for config:
+
+```json
+{
+  "debug": false,
+  "port": 6001,
+  "appManager.array.apps": [
+    {
+      "id": "thrd-app",
+      "key": "thrd-app-key",
+      "secret": "thrd-app-secret",
+      "enableClientMessages": true,
+      "enabled": true
+    }
+  ],
+  "cors.credentials": true,
+  "cors.origin": ["*"]
+}
+```
+
+**Key Points:**
+- Use `"appManager.array.apps"` (dot-notation)
+- NOT nested `"appManager": { "array": { ... } }`
+- Restart Soketi after config changes
+
+---
+
+### Issue 4: Spam of Ping/Pong Messages in Logs
+
+**Symptoms:**
+Soketi logs flooded with:
+```
+⚡ New message received: { event: 'pusher:ping' }
+✈ Sent message to client: { event: 'pusher:pong' }
+```
+
+**Root Cause:**
+`debug: true` in Soketi config logs all WebSocket heartbeat messages.
+
+**Solution:**
+
+```json
+{
+  "debug": false,  // Disable verbose logging
+  "port": 6001,
+  // ... rest of config
+}
+```
+
+Restart Soketi. Connection/subscription events still log, but not heartbeats.
+
+---
+
+### Issue 5: React Native Web SSR Warnings Spam
+
+**Symptoms:**
+Metro bundler console flooded with:
+```
+ERROR Received false for a non-boolean attribute collapsable
+WARN props.pointerEvents is deprecated
+WARN shadow* style props are deprecated
+```
+
+**Root Cause:**
+React Native Web's Server-Side Rendering (SSR) layer validates props against DOM spec. RN's `collapsable` (Android optimization) doesn't exist in web.
+
+**Solution:**
+
+**Filter in Metro Config** (`mobile/metro.config.js`):
+```javascript
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.error = (...args) => {
+  const msg = args[0]?.toString() || '';
+  if (
+    msg.includes('non-boolean attribute') && msg.includes('collapsable')
+  ) return;
+  originalError(...args);
+};
+
+console.warn = (...args) => {
+  const msg = args[0]?.toString() || '';
+  if (
+    msg.includes('props.pointerEvents is deprecated') ||
+    msg.includes('shadow*" style props are deprecated')
+  ) return;
+  originalWarn(...args);
+};
+```
+
+**Filter in App Entry** (`mobile/app/_layout.tsx`):
+```typescript
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  const originalError = console.error;
+  
+  console.warn = (...args: any[]) => {
+    const msg = args[0]?.toString() || '';
+    if (
+      msg.includes('props.pointerEvents is deprecated') ||
+      msg.includes('shadow*" style props are deprecated')
+    ) return;
+    originalWarn(...args);
+  };
+  
+  console.error = (...args: any[]) => {
+    const msg = args[0]?.toString() || '';
+    if (msg.includes('non-boolean attribute') && msg.includes('collapsable')) return;
+    originalError(...args);
+  };
+}
+```
+
+Restart Expo dev server for changes to take effect.
+
+---
+
+### Issue 6: Platform-Aware Storage for Web vs Mobile
+
+**Symptoms:**
+- Login button not working on web
+- Error: `expo-secure-store is not available on web`
+
+**Root Cause:**
+`expo-secure-store` only works on iOS/Android, not web platform.
+
+**Solution:**
+
+Platform-aware storage wrapper (`mobile/utils/storage.ts`):
+
+```typescript
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+
+async function getItem(key: string): Promise<string | null> {
+  if (Platform.OS === 'web') {
+    return localStorage.getItem(key);
+  }
+  return await SecureStore.getItemAsync(key);
+}
+
+async function setItem(key: string, value: string): Promise<void> {
+  if (Platform.OS === 'web') {
+    localStorage.setItem(key, value);
+  } else {
+    await SecureStore.setItemAsync(key, value);
+  }
+}
+
+async function removeItem(key: string): Promise<void> {
+  if (Platform.OS === 'web') {
+    localStorage.removeItem(key);
+  } else {
+    await SecureStore.deleteItemAsync(key);
+  }
+}
+
+export { getItem, setItem, removeItem };
+```
+
+**Update Services:**
+Replace direct `SecureStore` calls with storage utility:
+- `mobile/hooks/useStorageState.tsx`
+- `mobile/config/axiosConfig.ts`
+- `mobile/services/notificationService.ts`
+- `mobile/services/cacheService.ts`
+
+---
+
+### Debugging Tips
+
+#### Enable Debug Logging
+
+**WebSocket Connection Logs:**
+```typescript
+// mobile/services/websocketService.ts
+console.log('🔌 Initializing WebSocket connection...', {
+  platform: Platform.OS,
+  wsHost: PUSHER_CONFIG.wsHost,
+  wsPort: PUSHER_CONFIG.wsPort,
+  apiUrl: PUSHER_CONFIG.apiUrl,
+});
+```
+
+**Verify Active Connections:**
+```bash
+# Check Soketi connections
+netstat -ano | findstr :6001
+
+# Check Laravel server
+netstat -ano | findstr :8000
+```
+
+#### Test WebSocket from Browser Console
+
+```javascript
+// Connect to Soketi from browser
+const pusher = new Pusher('thrd-app-key', {
+  wsHost: 'localhost',
+  wsPort: 6001,
+  cluster: 'mt1',
+  forceTLS: false,
+});
+
+pusher.connection.bind('connected', () => {
+  console.log('✅ Connected to Soketi');
+});
+
+const channel = pusher.subscribe('private-sitePrivateChat.12');
+channel.bind('newMessage', (data) => {
+  console.log('📨 Message:', data);
+});
+```
+
+#### Check Laravel Broadcasting
+
+```bash
+# Clear all caches
+php artisan config:clear
+php artisan cache:clear
+
+# Check queue jobs
+php artisan queue:failed  # View failed jobs
+php artisan queue:retry all  # Retry failed jobs
+
+# Monitor queue in real-time
+php artisan queue:work --verbose
+```
+
+#### Verify Soketi Health
+
+```bash
+# Soketi status
+curl http://localhost:6001/
+
+# Expected: {"soketi":"Welcome!"}
+```
+
+#### Check CORS Headers
+
+```bash
+# Test CORS from web origin
+curl -H "Origin: http://localhost:8081" \
+     -H "Access-Control-Request-Method: POST" \
+     -H "Access-Control-Request-Headers: Authorization" \
+     -X OPTIONS \
+     http://localhost:8000/broadcasting/auth -v
+```
+
+---
+
+### Common Error Messages
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `Cannot read properties of undefined (reading 'enabled')` | Soketi config format error | Use dot-notation: `"appManager.array.apps"` |
+| `WebSocket connection to 'ws://10.0.0.12:6001' failed` | Wrong host for web | Use `localhost` for web, IP for mobile |
+| `Received false for non-boolean attribute collapsable` | RN Web SSR warning | Add console filters in metro.config.js |
+| `expo-secure-store is not available on web` | Platform-specific API | Use storage utility with Platform.OS check |
+| Messages don't appear in real-time | No queue worker | Start `php artisan queue:work` or use sync |
+| `CORS policy: No 'Access-Control-Allow-Origin'` | CORS not configured | Add origin to `api/config/cors.php` |
+| `pusher:subscription_error` | Auth endpoint failing | Check `/broadcasting/auth` route & token |
+| Soketi won't start | Port 6001 in use | Kill process: `taskkill /PID <pid> /F` |
+
+---
+
+### Performance Optimization
+
+#### Connection Pooling
+```typescript
+// Reuse single Pusher instance
+const pusher = websocketService.connect(token, userId);
+
+// Subscribe to multiple channels
+websocketService.subscribeToConversation('12', handleMessage);
+websocketService.subscribeToConversation('15', handleMessage);
+```
+
+#### Unsubscribe When Not Needed
+```typescript
+useEffect(() => {
+  const channel = websocketService.subscribeToConversation(
+    conversationId,
+    handleNewMessage
+  );
+
+  return () => {
+    websocketService.unsubscribeFromConversation(conversationId);
+  };
+}, [conversationId]);
+```
+
+#### Batch Queue Processing
+```env
+# Process multiple jobs per cycle
+QUEUE_CONNECTION=database
+```
+
+```bash
+# Process with backoff on failure
+php artisan queue:work --tries=3 --backoff=5
+```
+
+---
+
+### Production Checklist
+
+- [ ] Soketi running with `debug: false`
+- [ ] Queue worker running (`php artisan queue:work`)
+- [ ] CORS configured for production domains
+- [ ] Platform-specific hosts configured (`env.ts`)
+- [ ] Storage utility used instead of direct SecureStore
+- [ ] Console filters active to reduce noise
+- [ ] WebSocket logs added for debugging
+- [ ] Queue jobs monitored (Laravel Horizon recommended)
+- [ ] SSL/TLS enabled for production Soketi
+- [ ] Environment variables secured (`.env` not committed)
+
+---
+
+## Additional Resources
+
+- **Soketi Documentation:** https://docs.soketi.app/
+- **Laravel Broadcasting:** https://laravel.com/docs/10.x/broadcasting
+- **Pusher JS Client:** https://pusher.com/docs/channels/using_channels/client-api/
+- **React Native Platform:** https://reactnative.dev/docs/platform-specific-code
+
+---
+
+**Last Updated:** March 23, 2026  
+**Status:** ✅ Real-time messaging fully operational on web and mobile platforms
 ```
 
 **Implement in Chat Screen:**
