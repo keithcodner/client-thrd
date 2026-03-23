@@ -118,7 +118,7 @@ class ChatCircleController extends Controller
         // Create notification for the invited user
         Notification::create([
             'user_id' => $invitedUserId,
-            'from_id' => 0,
+            'from_id' => $currentUserId,
             'fk_circle_item_post_id' => $circleId,
             'type' => 'circle_request',
             'title' => "You received an invite from {$circleName}",
@@ -189,7 +189,7 @@ class ChatCircleController extends Controller
         // Create notification for the requester
         Notification::create([
             'user_id' => $circleRequest->requester_user_id,
-            'from_id' => 0,
+            'from_id' => $currentUserId,
             'fk_circle_item_post_id' => $circleRequest->circle_id,
             'type' => 'circle_request',
             'title' => 'Your circle invite has been accepted',

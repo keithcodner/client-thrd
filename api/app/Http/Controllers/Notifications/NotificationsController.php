@@ -175,7 +175,6 @@ class NotificationsController extends Controller
                 $circleRequest = CircleRequest::with(['circle', 'requester'])
                     ->where('circle_id', $notification->fk_circle_item_post_id)
                     ->where('requesting_to_join_user_id', $user->id)
-                    ->where('status', 'pending')
                     ->first();
 
                 if ($circleRequest) {

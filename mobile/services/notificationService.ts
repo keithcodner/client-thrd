@@ -21,7 +21,7 @@ import axiosInstance from '@/config/axiosConfig';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import Pusher from 'pusher-js/react-native';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '@/utils/storage';
 
 // Notification types enum
 export enum NotificationType {
@@ -184,14 +184,14 @@ class NotificationWebSocketManager {
   async initialize() {
     try {
       // Get auth token
-      const token = await SecureStore.getItemAsync('authToken');
+      const token = await storage.getItem('authToken');
       if (!token) {
         console.warn('No auth token found, cannot initialize notifications');
         return;
       }
 
       // Get user ID
-      const userJson = await SecureStore.getItemAsync('user');
+      const userJson = await storage.getItem('user');
       if (!userJson) {
         console.warn('No user found, cannot initialize notifications');
         return;

@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    'allowed_origins' => [
+        env('FRONTEND_URL', 'http://localhost:3000'),
+        'http://localhost:8081', // Expo web
+        'http://10.0.0.12:8081', // Expo web (network)
+    ],
 
     'allowed_origins_patterns' => [],
 

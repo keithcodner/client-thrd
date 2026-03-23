@@ -24,7 +24,7 @@ export const NotificationItem = ({
         notification.from_user.firstname ||
         notification.from_user.name ||
         notification.from_user.username ||
-        'Unknown'
+        notification.from_user.name
       );
     }
     return 'Unknown';

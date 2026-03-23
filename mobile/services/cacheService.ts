@@ -22,7 +22,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '@/utils/storage';
 
 /**
  * Get the current user ID from secure storage
@@ -30,7 +30,7 @@ import * as SecureStore from 'expo-secure-store';
  */
 const getCurrentUserId = async (): Promise<string | null> => {
   try {
-    const userJson = await SecureStore.getItemAsync('user');
+    const userJson = await storage.getItem('user');
     if (!userJson) return null;
     
     const user = JSON.parse(userJson);

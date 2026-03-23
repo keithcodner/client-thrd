@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "./env";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
 // Add a request interceptor to include the auth token in headers
 axiosInstance.interceptors.request.use(
     async (config) => {
-        const token = await SecureStore.getItemAsync("session");
+        const token = await storage.getItem("session");
         if (token) {
             config.headers["Authorization"] = `Bearer ${token}`;
         }
