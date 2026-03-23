@@ -6,6 +6,27 @@ import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { SessionProvider, useSession } from "@/context/AuthContext";
 import Toast from "react-native-toast-message";
 
+// Suppress noisy React Native Web SSR warnings
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  const originalError = console.error;
+  
+  console.warn = (...args: any[]) => {
+    const msg = args[0]?.toString() || '';
+    if (
+      msg.includes('props.pointerEvents is deprecated') ||
+      msg.includes('shadow*" style props are deprecated')
+    ) return;
+    originalWarn(...args);
+  };
+  
+  console.error = (...args: any[]) => {
+    const msg = args[0]?.toString() || '';
+    if (msg.includes('non-boolean attribute') && msg.includes('collapsable')) return;
+    originalError(...args);
+  };
+}
+
 /**
  * NavigationGuard - Root-level auth guard
  * 

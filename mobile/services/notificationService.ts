@@ -22,6 +22,7 @@ import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import Pusher from 'pusher-js/react-native';
 import { storage } from '@/utils/storage';
+import { PUSHER_CONFIG } from '@/config/env';
 
 // Notification types enum
 export enum NotificationType {
@@ -198,22 +199,34 @@ class NotificationWebSocketManager {
       }
       const user = JSON.parse(userJson);
 
-      // Initialize Pusher (using Soketi config from backend)
-      this.pusher = new Pusher('app-key', {
-        wsHost: 'localhost',
-        wsPort: 6001,
-        forceTLS: false,
+      console.log('🔔 Initializing notification WebSocket...', {
+        platform: Platform.OS,
+        wsHost: PUSHER_CONFIG.wsHost,
+        wsPort: PUSHER_CONFIG.wsPort,
+        userId: user.id,
+      });
+
+      // Initialize Pusher (using Soketi config)
+      this.pusher = new Pusher(PUSHER_CONFIG.key, {
+        wsHost: PUSHER_CONFIG.wsHost,
+        wsPort: PUSHER_CONFIG.wsPort,
+        forceTLS: PUSHER_CONFIG.forceTLS,
         disableStats: true,
         enabledTransports: ['ws', 'wss'],
-        cluster: 'mt1',
+        cluster: PUSHER_CONFIG.cluster,
       });
+
+      console.log('📡 Subscribing to notification channel...');
 
       // Subscribe to user's private notification channel
       this.channel = this.pusher.subscribe(`private-notifications.${user.id}`);
 
       // Listen for new notifications
       this.channel.bind('notification.new', (data: Notification) => {
-        console.log('📨 New notification received:', data);
+        console.log('📨 New notification received:', {
+          platform: Platform.OS,
+          data,
+        });
         
         // Vibrate phone
         vibrateForNotification(data.type);
