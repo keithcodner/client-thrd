@@ -150,11 +150,34 @@ class ChatController extends Controller
                 ->where('status', ActiveEnum::STATUS_ACTIVE)
                 ->first();
             
-            // Add conversation_id to circle data
-            $circleData = $circle->toArray();
-            $circleData['conversation_id'] = $conversation ? $conversation->id : null;
+            // Convert circle to array
+            $circleArray = is_array($circle) ? $circle : $circle->toArray();
             
-            return $circleData;
+            // Add conversation_id to circle data
+            $circleArray['conversation_id'] = $conversation ? $conversation->id : null;
+            
+            // Get the latest message for this conversation
+            if ($conversation) {
+                $latestMessage = ConversationChat::where('conversation_id', $conversation->id)
+                    ->with('user:id,name')
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                
+                if ($latestMessage) {
+                    $circleArray['latest_message'] = [
+                        'content' => $latestMessage->content,
+                        'sender_name' => $latestMessage->user->name ?? 'Unknown',
+                        'created_at' => $latestMessage->created_at->toISOString(),
+                        'timestamp' => $latestMessage->created_at->format('g:i A'),
+                    ];
+                } else {
+                    $circleArray['latest_message'] = null;
+                }
+            } else {
+                $circleArray['latest_message'] = null;
+            }
+            
+            return $circleArray;
         });
 
         Log::info('getUserCircleData result', [

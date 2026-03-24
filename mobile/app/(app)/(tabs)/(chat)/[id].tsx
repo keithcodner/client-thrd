@@ -270,7 +270,7 @@ const ChatDetail = () => {
       } catch (error) {
         console.error('Error sending message:', error);
         // Optionally remove the optimistic message on error
-        setMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')));
+        setMessages(prev => prev.filter(msg => !String(msg.id).startsWith('temp-')));
         // Show error to user
         alert('Failed to send message. Please try again.');
       } finally {

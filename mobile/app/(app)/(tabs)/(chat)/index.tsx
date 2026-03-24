@@ -78,14 +78,24 @@ const ChatHome = () => {
       // Transform API response to ChatItemData format
       const circleChats: ChatItemData[] = response.circles.map((circle: any) => {
         const conversationId = circle.conversation_id?.toString() || circle.id.toString();
+        
+        // Get last message from latest_message or default
+        let lastMessage = 'No messages yet';
+        let timestamp = new Date(circle.updated_at).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit' 
+        });
+        
+        if (circle.latest_message) {
+          lastMessage = circle.latest_message.content;
+          timestamp = circle.latest_message.timestamp;
+        }
+        
         return {
           id: conversationId, // Use conversation_id if available, fallback to circle.id
           name: circle.name,
-          lastMessage: 'No messages yet',
-          timestamp: new Date(circle.updated_at).toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            minute: '2-digit' 
-          }),
+          lastMessage: lastMessage,
+          timestamp: timestamp,
           unread: (unreadByConversation[conversationId] || 0) > 0,
           isPrivate: circle.type === 'private_circle',
           circleId: circle.id, // Keep circle ID for reference
@@ -138,6 +148,22 @@ const ChatHome = () => {
     useCallback(() => {
       console.log('🔄 Chat screen focused - refreshing circles');
       fetchUserCircles();
+    }, [])
+  );
+
+  // Poll for latest messages every 30 seconds while screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      // Set up polling interval for latest messages
+      const pollInterval = setInterval(() => {
+        console.log('🔄 Polling for circle updates...');
+        fetchUserCircles();
+      }, 30000); // 30 seconds
+
+      // Cleanup interval when screen loses focus
+      return () => {
+        clearInterval(pollInterval);
+      };
     }, [])
   );
 
