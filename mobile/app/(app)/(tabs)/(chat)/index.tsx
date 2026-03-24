@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TextInput, Pressable, ActivityIndicator, Refres
 import { Plus, Search, SlidersHorizontal } from "lucide-react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import { useThemeColours } from "@/hooks/useThemeColours";
+import { useUnreadMessagesContext } from "@/context/UnreadMessagesContext";
 import { ChatListItem, ChatItemData } from "@/components/chat/ChatListItem";
 import { ChatManagementOverlay } from "@/components/chat/ChatManagementOverlay";
 import { FAB } from "@/components/FAB";
@@ -44,6 +45,7 @@ const DUMMY_CHATS: ChatItemData[] = [
 
 const ChatHome = () => {
   const colours = useThemeColours();
+  const { unreadByConversation, refresh: refreshUnreadCounts } = useUnreadMessagesContext();
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
@@ -74,18 +76,21 @@ const ChatHome = () => {
       }
       
       // Transform API response to ChatItemData format
-      const circleChats: ChatItemData[] = response.circles.map((circle: any) => ({
-        id: circle.conversation_id?.toString() || circle.id.toString(), // Use conversation_id if available, fallback to circle.id
-        name: circle.name,
-        lastMessage: 'No messages yet',
-        timestamp: new Date(circle.updated_at).toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit' 
-        }),
-        unread: false,
-        isPrivate: circle.type === 'private_circle',
-        circleId: circle.id, // Keep circle ID for reference
-      }));
+      const circleChats: ChatItemData[] = response.circles.map((circle: any) => {
+        const conversationId = circle.conversation_id?.toString() || circle.id.toString();
+        return {
+          id: conversationId, // Use conversation_id if available, fallback to circle.id
+          name: circle.name,
+          lastMessage: 'No messages yet',
+          timestamp: new Date(circle.updated_at).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit' 
+          }),
+          unread: (unreadByConversation[conversationId] || 0) > 0,
+          isPrivate: circle.type === 'private_circle',
+          circleId: circle.id, // Keep circle ID for reference
+        };
+      });
       
       console.log('📊 Transformed circle chats:', circleChats);
       
@@ -109,11 +114,24 @@ const ChatHome = () => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await fetchUserCircles();
+      await Promise.all([
+        fetchUserCircles(),
+        refreshUnreadCounts(),
+      ]);
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [refreshUnreadCounts]);
+
+  // Update chats when unread counts change
+  useEffect(() => {
+    setChats(prevChats => 
+      prevChats.map(chat => ({
+        ...chat,
+        unread: (unreadByConversation[chat.id] || 0) > 0,
+      }))
+    );
+  }, [unreadByConversation]);
 
   // Refresh when screen comes into focus (e.g., after accepting/denying invites)
   useFocusEffect(

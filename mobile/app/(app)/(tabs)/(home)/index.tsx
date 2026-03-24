@@ -121,7 +121,7 @@ const HomeScreen = () => {
   }, [currentUser]);
 
   const handleNavigate = (screen: string) => {
-    router.push(`/(app)/(tabs)/(${screen})/`);
+    router.push(`/(app)/(tabs)/(chat)`);
   };
 
   const handleOpenProfile = () => {

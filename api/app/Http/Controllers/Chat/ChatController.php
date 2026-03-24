@@ -380,4 +380,131 @@ class ChatController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get unread message counts for all user's conversations
+     * Returns total unread count and per-conversation unread counts
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUnreadMessageCounts(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Get all circles where user is an active member
+            $userCircleIds = CircleMemberTracker::where('user_id', $user->id)
+                ->where('status', ActiveEnum::STATUS_ACTIVE)
+                ->pluck('circle_id');
+
+            // Get conversations for these circles
+            $conversations = Conversation::whereIn('circle_id', $userCircleIds)
+                ->where('status', ActiveEnum::STATUS_ACTIVE)
+                ->pluck('id');
+
+            // Count unread messages per conversation
+            // Messages are unread if they were sent by someone else and not seen
+            $unreadCounts = [];
+            $totalUnread = 0;
+
+            foreach ($conversations as $conversationId) {
+                $unreadCount = ConversationChat::where('conversation_id', $conversationId)
+                    ->where('init_user_id', '!=', $user->id) // Not sent by current user
+                    ->where('seen_by_other_user', '!=', 'true') // Not yet seen
+                    ->count();
+
+                if ($unreadCount > 0) {
+                    $unreadCounts[$conversationId] = $unreadCount;
+                    $totalUnread += $unreadCount;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'total_unread' => $totalUnread,
+                'unread_by_conversation' => $unreadCounts,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting unread message counts: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get unread message counts.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark messages as read for a conversation
+     * Updates all unread messages in a conversation to mark them as seen
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markMessagesAsRead(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Validate request data
+            $validated = $request->validate([
+                'conversation_id' => 'required|integer|exists:conversations,id',
+            ]);
+
+            $conversationId = $validated['conversation_id'];
+
+            // Get the conversation
+            $conversation = Conversation::findOrFail($conversationId);
+
+            // Verify user has access to this conversation
+            if ($conversation->circle_id) {
+                $isMember = CircleMemberTracker::where('circle_id', $conversation->circle_id)
+                    ->where('user_id', $user->id)
+                    ->where('status', ActiveEnum::STATUS_ACTIVE)
+                    ->exists();
+
+                if (!$isMember) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You do not have access to this conversation.',
+                    ], 403);
+                }
+            }
+
+            // Mark all messages in this conversation (except user's own) as read
+            $updatedCount = ConversationChat::where('conversation_id', $conversationId)
+                ->where('init_user_id', '!=', $user->id) // Not sent by current user
+                ->where('seen_by_other_user', '!=', 'true') // Not already marked as read
+                ->update(['seen_by_other_user' => 'true']);
+
+            Log::info('Messages marked as read', [
+                'user_id' => $user->id,
+                'conversation_id' => $conversationId,
+                'updated_count' => $updatedCount,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Messages marked as read.',
+                'updated_count' => $updatedCount,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error marking messages as read: ' . $e->getMessage(), [
+                'exception' => $e,
+                'user_id' => Auth::id(),
+                'request_data' => $request->all(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark messages as read.',
+            ], 500);
+        }
+    }
 }

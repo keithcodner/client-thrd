@@ -399,6 +399,59 @@ export const updateTypingStatus = async (conversationId: number, isTyping: boole
 };
 
 /**
+ * Get unread message counts for all user's conversations
+ * 
+ * Fetches the total number of unread messages and per-conversation unread counts.
+ * Used for displaying badge counts on the chat tab and individual chat items.
+ * 
+ * @returns Object containing total unread count and unread counts by conversation
+ * @throws Error if the request fails
+ * 
+ * @example
+ * ```typescript
+ * const { total_unread, unread_by_conversation } = await getUnreadMessageCounts();
+ * console.log(`You have ${total_unread} unread messages`);
+ * console.log(unread_by_conversation); // { 123: 5, 456: 2 }
+ * ```
+ */
+export const getUnreadMessageCounts = async () => {
+  try {
+    const response = await axiosInstance.get("/unread-message-counts");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching unread message counts:", error);
+    throw error;
+  }
+};
+
+/**
+ * Mark messages as read for a conversation
+ * 
+ * Marks all unread messages in a conversation as read when the user views the chat.
+ * This updates the unread badge counts.
+ * 
+ * @param conversationId - The conversation ID to mark messages as read
+ * @returns Response object with success status and updated count
+ * @throws Error if the request fails
+ * 
+ * @example
+ * ```typescript
+ * await markMessagesAsRead(123);
+ * ```
+ */
+export const markMessagesAsRead = async (conversationId: number) => {
+  try {
+    const response = await axiosInstance.post("/mark-messages-read", {
+      conversation_id: conversationId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+    // Don't throw - this is not critical
+  }
+};
+
+/**
  * Get all members of a circle
  * 
  * Retrieves all active members of the specified circle with their user information.

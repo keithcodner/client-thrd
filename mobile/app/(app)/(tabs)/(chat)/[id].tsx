@@ -17,7 +17,8 @@ import { useThemeColours } from "@/hooks/useThemeColours";
 import { ChatMessage, MessageData } from "@/components/chat/ChatMessage";
 import { CircleInfoModal } from "@/components/chat/CircleInfoModal";
 import { useSession } from "@/context/AuthContext";
-import { sendMessage, getUserCircleData, getConversationMessages, updateTypingStatus } from "@/services/chatService";
+import { useUnreadMessagesContext } from "@/context/UnreadMessagesContext";
+import { sendMessage, getUserCircleData, getConversationMessages, updateTypingStatus, markMessagesAsRead } from "@/services/chatService";
 import websocketService from "@/services/websocketService";
 import { getInitials, getAvatarColor } from "@/utils/avatarUtils";
 import Toast from "react-native-toast-message";
@@ -131,6 +132,7 @@ const ChatDetail = () => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [messageText, setMessageText] = useState('');
   const { user, session } = useSession();
+  const { refresh: refreshUnreadCounts } = useUnreadMessagesContext();
 
   const chatId = Array.isArray(id) ? id[0] : id || '1';
   const [messages, setMessages] = useState<MessageData[]>([]);
@@ -412,6 +414,14 @@ const ChatDetail = () => {
             setMessages(response.messages);
             setHasMore(response.hasMore || false);
             setOffset(response.messages.length); // Set offset for next load
+            
+            // Mark messages as read after loading and refresh unread counts
+            markMessagesAsRead(parseInt(chatId))
+              .then(() => {
+                // Immediately refresh unread counts to update badge
+                refreshUnreadCounts();
+              })
+              .catch(err => console.log('⚠️ Failed to mark messages as read:', err));
           } else {
             // If no messages returned, set empty array
             setMessages([]);

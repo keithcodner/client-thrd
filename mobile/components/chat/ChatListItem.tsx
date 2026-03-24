@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useThemeColours } from '@/hooks/useThemeColours';
@@ -27,8 +27,16 @@ interface ChatListItemProps {
 export const ChatListItem = ({ chat, onLongPress }: ChatListItemProps) => {
   const colors = useThemeColours();
   const router = useRouter();
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(chat.unread || false);
+
+  // Update local state when prop changes (from polling)
+  useEffect(() => {
+    setHasUnreadMessages(chat.unread || false);
+  }, [chat.unread]);
 
   const handlePress = () => {
+    // Clear unread status when user opens the chat
+    setHasUnreadMessages(false);
     router.push(`/${chat.id}`);
   };
 
@@ -103,10 +111,10 @@ export const ChatListItem = ({ chat, onLongPress }: ChatListItemProps) => {
           >
             {chat.lastMessage}
           </Text>
-          {chat.unread && (
+          {hasUnreadMessages && (
             <View 
-              className="w-2 h-2 rounded-full ml-2"
-              style={{ backgroundColor: colors.primary }}
+              className="w-3 h-3 rounded-full ml-2"
+              style={{ backgroundColor: '#10B981' }}
             />
           )}
         </View>

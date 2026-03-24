@@ -68,6 +68,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         //:::UPDATE TYPING STATUS:::
         Route::post('/typing-status', [ChatController::class, 'updateTypingStatus'])->middleware(TrackUserActivity::class)->name('typing-status');
 
+        //:::GET UNREAD MESSAGE COUNTS:::
+        Route::get('/unread-message-counts', [ChatController::class, 'getUnreadMessageCounts'])->middleware(TrackUserActivity::class)->name('unread-message-counts');
+
+        //:::MARK MESSAGES AS READ:::
+        Route::post('/mark-messages-read', [ChatController::class, 'markMessagesAsRead'])->middleware(TrackUserActivity::class)->name('mark-messages-read');
+
         //:::SEARCH USERS FOR INVITE:::
         Route::post('/search-users', [ChatCircleController::class, 'searchUsers'])->middleware(TrackUserActivity::class)->name('search-users');
 
