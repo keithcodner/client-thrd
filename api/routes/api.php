@@ -12,6 +12,7 @@ use \App\Http\Middleware\TrackUserActivity;
 use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 
 
 
@@ -31,6 +32,9 @@ Route::middleware("guest")->group(function () {
 
 // Authenticated Routes
 Route::middleware(['auth:sanctum'])->group(function () {
+    
+    // Broadcasting Auth Route for WebSocket
+    Broadcast::routes();
     
     //:::::::::::::::::: LOGOUT ROUTES::::::::::::::::::
     Route::group([], function () {

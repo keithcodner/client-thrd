@@ -145,10 +145,27 @@ export function SessionProvider({ children }: PropsWithChildren) {
     useEffect(() => {
         if (session && parsedUser && !isLoading) {
             const wsState = websocketService.getConnectionState();
+            console.log('🔌 WebSocket initialization check:', {
+                hasSession: !!session,
+                hasUser: !!parsedUser,
+                isLoading,
+                wsState,
+                userId: parsedUser.id,
+                sessionLength: session.length
+            });
+            
             if (wsState !== 'connected' && wsState !== 'connecting') {
                 console.log('🔌 Initializing WebSocket connection for authenticated user');
                 websocketService.connect(session, parsedUser.id);
+            } else {
+                console.log('🔌 WebSocket already connected/connecting, skipping initialization');
             }
+        } else {
+            console.log('⏭️ Skipping WebSocket init:', {
+                hasSession: !!session,
+                hasUser: !!parsedUser,
+                isLoading
+            });
         }
     }, [session, parsedUser, isLoading]);
 
@@ -164,11 +181,37 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
     // Check if a user is online
     const isUserOnline = (userId: number): boolean => {
-        return onlineUsers.has(userId);
+        const isOnline = onlineUsers.has(userId);
+        console.log(`🔍 Checking if user ${userId} is online:`, isOnline, '| All online users:', Array.from(onlineUsers));
+        return isOnline;
     };
 
     // Subscribe to a conversation's presence channel
     const subscribeToConversationPresence = (conversationId: string) => {
+        if (!conversationId) {
+            console.warn('⚠️ Cannot subscribe to presence: conversationId is missing');
+            return;
+        }
+
+        // Check WebSocket connection state
+        const wsState = websocketService.getConnectionState();
+        console.log('🔌 WebSocket state when subscribing:', wsState, 'for conversation:', conversationId);
+        
+        if (wsState !== 'connected') {
+            console.warn('⚠️ WebSocket not connected yet (state:', wsState, '), retrying in 1 second...');
+            // Retry after a short delay if WebSocket is still connecting
+            setTimeout(() => {
+                const retryState = websocketService.getConnectionState();
+                console.log('🔄 Retry - WebSocket state:', retryState);
+                if (retryState === 'connected') {
+                    subscribeToConversationPresence(conversationId);
+                } else {
+                    console.error('❌ WebSocket still not connected after retry, cannot subscribe to presence');
+                }
+            }, 1000);
+            return;
+        }
+
         if (activePresenceChannels.has(conversationId)) {
             console.log('📍 Already subscribed to presence for conversation:', conversationId);
             return;
@@ -176,36 +219,34 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
         console.log('📍 AuthContext subscribing to presence for conversation:', conversationId);
         
-        websocketService.subscribeToPresence(
+        const channel = websocketService.subscribeToPresence(
             conversationId,
             // User joined
             (member: any) => {
-                console.log('✅ User came online (AuthContext):', member.id);
+                console.log('✅ User came online (AuthContext):', member, 'ID:', member.id);
                 setOnlineUsers(prev => {
                     const newSet = new Set(prev);
                     newSet.add(member.id);
+                    console.log('📊 Online users after join:', Array.from(newSet));
                     return newSet;
                 });
             },
             // User left
             (member: any) => {
-                console.log('❌ User went offline (AuthContext):', member.id);
+                console.log('❌ User went offline (AuthContext):', member, 'ID:', member.id);
                 setOnlineUsers(prev => {
                     const newSet = new Set(prev);
                     newSet.delete(member.id);
+                    console.log('📊 Online users after leave:', Array.from(newSet));
                     return newSet;
                 });
             },
             // Initial member list
             (memberList: any[]) => {
                 console.log('👥 Initial members (AuthContext):', memberList);
-                setOnlineUsers(prev => {
-                    const newSet = new Set(prev);
-                    memberList.forEach((m: any) => {
-                        if (m.id) newSet.add(m.id);
-                    });
-                    return newSet;
-                });
+                const onlineIds = new Set(memberList.map((m: any) => m.id).filter(Boolean));
+                console.log('📊 Setting online users to:', Array.from(onlineIds));
+                setOnlineUsers(onlineIds);
             },
             // Error handler
             (error: any) => {
@@ -213,9 +254,15 @@ export function SessionProvider({ children }: PropsWithChildren) {
             }
         );
 
+        if (!channel) {
+            console.error('❌ Failed to create presence channel for conversation:', conversationId);
+            return;
+        }
+
         setActivePresenceChannels(prev => {
             const newSet = new Set(prev);
             newSet.add(conversationId);
+            console.log('📍 Active presence channels:', Array.from(newSet));
             return newSet;
         });
     };

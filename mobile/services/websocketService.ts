@@ -32,7 +32,7 @@ class WebSocketService {
         forceTLS: PUSHER_CONFIG.forceTLS,
         enabledTransports: ['ws', 'wss'],
         cluster: PUSHER_CONFIG.cluster,
-        authEndpoint: `${PUSHER_CONFIG.apiUrl}/broadcasting/auth`,
+        authEndpoint: `${PUSHER_CONFIG.apiUrl}/api/broadcasting/auth`,
         auth: {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -42,6 +42,7 @@ class WebSocketService {
       });
 
       console.log('📡 Pusher instance created, attempting connection...');
+      console.log('🔐 Auth endpoint:', `${PUSHER_CONFIG.apiUrl}/api/broadcasting/auth`);
 
       this.pusher.connection.bind('connected', () => {
         console.log('✅ WebSocket connected successfully!', {
