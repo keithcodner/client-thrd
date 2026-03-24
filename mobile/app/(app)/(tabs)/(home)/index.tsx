@@ -5,7 +5,7 @@ import { useProfileOverlay } from "@/context/ProfileOverlayContext";
 import Home  from "./home";
 import axiosInstance from "@/config/axiosConfig";
 import { CreateCircleModal } from "@/components/app/CreateCircleModal";
-import { createCircle } from "@/services/chatService";
+import { createCircle, getUserCircleData } from "@/services/chatService";
 import { getUnreadCount, notificationWebSocket } from "@/services/notificationService";
 import Toast from "react-native-toast-message";
 
@@ -14,9 +14,9 @@ const HomeScreen = () => {
   const { user: currentUser } = useSession();
   const { openProfileOverlay } = useProfileOverlay();
   
-  const [spaces, setSpaces] = useState([]);
-  const [groups, setGroups] = useState([]);
-  const [todos, setTodos] = useState([]);
+  const [spaces, setSpaces] = useState<any[]>([]);
+  const [groups, setGroups] = useState<any[]>([]);
+  const [todos, setTodos] = useState<any[]>([]);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
@@ -39,15 +39,42 @@ const HomeScreen = () => {
       try {
         setIsLoading(true);
         
-        // Fetch spaces, groups, and todos in parallel
-        const [spacesRes, groupsRes, todosRes] = await Promise.all([
+        // Fetch spaces, circles, and todos in parallel
+        const [spacesRes, circlesRes, todosRes] = await Promise.all([
           axiosInstance.get('/spaces').catch(() => ({ data: [] })),
-          axiosInstance.get('/groups').catch(() => ({ data: [] })),
+          getUserCircleData(false).catch(() => ({ circles: [] })),
           axiosInstance.get('/todos?per_page=4').catch(() => ({ data: [] })),
         ]);
 
         setSpaces(spacesRes.data.data || spacesRes.data || []);
-        setGroups(groupsRes.data.data || groupsRes.data || []);
+        
+        // Format circles data - always include THRD system chat first, then latest 9 user circles
+        const userCircles = circlesRes.circles || [];
+        const thrdChat = {
+          id: '1',
+          conversation_id: '1',
+          name: 'THRD',
+          description: 'System updates and announcements',
+          customization: { headerBanner: null },
+          isPinned: true,
+        };
+        
+        // Take the latest 9 circles (they're already sorted by most recent)
+        const formattedCircles = [
+          thrdChat,
+          ...userCircles.slice(0, 9).map((circle: any) => ({
+            id: circle.id?.toString() || '',
+            conversation_id: circle.conversation_id?.toString() || circle.id?.toString() || '',
+            name: circle.name || 'Unnamed Circle',
+            description: circle.description || '',
+            customization: {
+              headerBanner: circle.customization?.headerBanner || null,
+            },
+            isPinned: false,
+          }))
+        ];
+        
+        setGroups(formattedCircles);
         setTodos(todosRes.data.data || todosRes.data || []);
         
         // Fetch notification count
@@ -102,7 +129,10 @@ const HomeScreen = () => {
   };
 
   const handleSelectGroup = (groupId: string) => {
-    router.push(`/(app)/(tabs)/(chat)/${groupId}`);
+    // Find the group to get its conversation_id
+    const group = groups.find((g: any) => g.id === groupId);
+    const conversationId = group?.conversation_id || groupId;
+    router.push(`/(app)/(tabs)/(chat)/${conversationId}`);
   };
 
   const handleSelectSpace = (spaceId: string) => {

@@ -54,81 +54,6 @@ const DUMMY_SPACES = [
   },
 ];
 
-const DUMMY_GROUPS = [
-  {
-    id: "g1",
-    name: "THRD",
-    description: "Main group",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: true,
-  },
-  {
-    id: "g2",
-    name: "Friends",
-    description: "Close friends",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: true,
-  },
-  {
-    id: "g3",
-    name: "Work Squad",
-    description: "Colleagues",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: true,
-  },
-  {
-    id: "g4",
-    name: "Gym Buddies",
-    description: "Fitness enthusiasts",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: true,
-  },
-  {
-    id: "g5",
-    name: "Book Club",
-    description: "Monthly reads",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: true,
-  },
-  {
-    id: "g6",
-    name: "Foodies",
-    description: "Restaurant explorers",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: false,
-  },
-  {
-    id: "g7",
-    name: "Gamers",
-    description: "Gaming nights",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: false,
-  },
-  {
-    id: "g8",
-    name: "Hikers",
-    description: "Nature lovers",
-    customization: {
-      headerBanner: null,
-    },
-    isPinned: false,
-  },
-];
-
 const DUMMY_TODOS = [
   {
     id: "t1",
@@ -159,7 +84,7 @@ const DUMMY_TODOS = [
 export const Home = ({
   currentUser = { name: "Alex", avatar: null },
   spaces = DUMMY_SPACES,
-  groups = DUMMY_GROUPS,
+  groups = [],
   todos = DUMMY_TODOS,
   notificationsCount = 2,
   onNavigate = () => {},
@@ -186,10 +111,6 @@ export const Home = ({
       : null;
 
   const mySpaces = spaces.filter((s) => s.ownerId === currentUser?.id);
-
-  const recentGroups = [...groups]
-    .sort((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1))
-    .slice(0, 8);
 
   const upcomingTodos = todos
     .filter((t) => t.status === "confirmed")
@@ -256,7 +177,7 @@ export const Home = ({
 
         <MyCircles
           colors={colors}
-          groups={recentGroups}
+          groups={groups}
           onNavigate={onNavigate}
           onSelectGroup={onSelectGroup}
         />

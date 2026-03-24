@@ -22,9 +22,8 @@ export const MyCircles = ({
   onNavigate = () => {},
   onSelectGroup = () => {},
 }: MyCirclesProps) => {
-  const recentGroups = [...groups]
-    .sort((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1))
-    .slice(0, 8);
+  // Display all groups passed (up to 10), maintaining the order
+  const displayGroups = groups.slice(0, 10);
 
   return (
     <View style={styles.section}>
@@ -44,8 +43,8 @@ export const MyCircles = ({
         showsHorizontalScrollIndicator={false}
         style={styles.circlesScroll}
       >
-        {recentGroups.length > 0 ? (
-          recentGroups.map((group, idx) => (
+        {displayGroups.length > 0 ? (
+          displayGroups.map((group, idx) => (
             <Pressable
               key={group.id}
               style={styles.groupItem}
