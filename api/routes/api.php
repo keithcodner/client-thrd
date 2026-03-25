@@ -33,6 +33,8 @@ Route::middleware("guest")->group(function () {
 
 // Authenticated Routes
 Route::middleware(['auth:sanctum'])->group(function () {
+
+    Broadcast::routes();
     
     //:::::::::::::::::: LOGOUT ROUTES::::::::::::::::::
     Route::group([], function () {

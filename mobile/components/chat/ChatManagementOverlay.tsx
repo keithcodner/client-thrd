@@ -116,12 +116,11 @@ export const ChatManagementOverlay = ({
 
   // Fetch circle members and subscribe to presence when members section is opened
   useEffect(() => {
-    console.log('🔍 ========== CHATMANAGEMENTOVERLAY: Members Effect ==========');
-    console.log('🔍 Chat ID (conversation):', chat?.id, 'Type:', typeof chat?.id);
-    console.log('🔍 Circle ID:', chat?.circleId, 'Type:', typeof chat?.circleId);
-    console.log('🔍 Show Members:', showMembers);
-    
     if (!chat || chat.id === '1' || !showMembers) return;
+
+    console.log('🔍 ========== CHATMANAGEMENTOVERLAY: Members Effect ==========');
+    console.log('🔍 Chat ID (conversation):', chat.id, 'Type:', typeof chat.id);
+    console.log('🔍 Circle ID:', chat.circleId, 'Type:', typeof chat.circleId);
 
     // Ensure we have a valid circleId
     if (!chat.circleId) {
