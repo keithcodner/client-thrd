@@ -133,8 +133,9 @@ export const ChatManagementOverlay = ({
     const fetchMembers = async () => {
       setIsLoadingMembers(true);
       try {
-        console.log('📡 Fetching members for circle:', chat.circleId, 'Type:', typeof chat.circleId);
-        const circleMembers = await getCircleMembers(chat.circleId);
+        const circleId = chat.circleId!; // Already validated above
+        console.log('📡 Fetching members for circle:', circleId, 'Type:', typeof circleId);
+        const circleMembers = await getCircleMembers(circleId);
         console.log('✅ Received members:', circleMembers, 'Count:', circleMembers.length);
         setMembers(circleMembers);
         

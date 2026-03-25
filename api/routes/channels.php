@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Broadcast;
 use App\Models\Conversation\Conversation;
 use App\Models\Circles\CircleMemberTracker;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,7 @@ use App\Models\Circles\CircleMemberTracker;
 if (!function_exists('authorizeConversationAccess')) {
     function authorizeConversationAccess($user, $conversationId)
     {
-        \Log::info('authorizeConversationAccess called', [
+        Log::info('authorizeConversationAccess called', [
             'user_id' => $user->id,
             'conversation_id' => $conversationId,
         ]);
@@ -27,14 +28,14 @@ if (!function_exists('authorizeConversationAccess')) {
         $conversation = Conversation::find($conversationId);
         
         if (!$conversation) {
-            \Log::warning('Conversation not found', [
+            Log::warning('Conversation not found', [
                 'conversation_id' => $conversationId,
                 'user_id' => $user->id,
             ]);
             return false;
         }
         
-        \Log::info('Conversation found', [
+        Log::info('Conversation found', [
             'conversation_id' => $conversationId,
             'type' => $conversation->type,
             'circle_id' => $conversation->circle_id,
@@ -45,7 +46,7 @@ if (!function_exists('authorizeConversationAccess')) {
         if ($conversation->type === 'couple') {
             $authorized = $conversation->owner_user_id === $user->id || 
                    $conversation->to_id === $user->id;
-            \Log::info('Couple conversation authorization', [
+            Log::info('Couple conversation authorization', [
                 'authorized' => $authorized,
                 'user_id' => $user->id,
             ]);
@@ -54,7 +55,7 @@ if (!function_exists('authorizeConversationAccess')) {
         
         // For circle conversations (group)
         if ($conversation->circle_id) {
-            \Log::info('Checking circle membership', [
+            Log::info('Checking circle membership', [
                 'circle_id' => $conversation->circle_id,
                 'user_id' => $user->id,
             ]);
@@ -63,7 +64,7 @@ if (!function_exists('authorizeConversationAccess')) {
             $allMembers = CircleMemberTracker::where('circle_id', $conversation->circle_id)
                 ->get(['user_id', 'status', 'type']);
             
-            \Log::info('All circle members', [
+            Log::info('All circle members', [
                 'circle_id' => $conversation->circle_id,
                 'members' => $allMembers->toArray(),
             ]);
@@ -73,7 +74,7 @@ if (!function_exists('authorizeConversationAccess')) {
                 ->where('status', 'active')
                 ->exists();
             
-            \Log::info('Circle conversation authorization result', [
+            Log::info('Circle conversation authorization result', [
                 'circle_id' => $conversation->circle_id,
                 'user_id' => $user->id,
                 'is_member' => $isMember,
@@ -87,7 +88,7 @@ if (!function_exists('authorizeConversationAccess')) {
             return $isMember;
         }
         
-        \Log::warning('Conversation has no circle_id and is not couple type', [
+        Log::warning('Conversation has no circle_id and is not couple type', [
             'conversation_id' => $conversationId,
             'type' => $conversation->type,
         ]);
@@ -98,14 +99,14 @@ if (!function_exists('authorizeConversationAccess')) {
 
 // Authenticate private chat channels
 Broadcast::channel('sitePrivateChat.{conversationId}', function ($user, $conversationId) {
-    \Log::info('WebSocket Authorization Attempt', [
+    Log::info('WebSocket Authorization Attempt', [
         'user_id' => $user->id,
         'conversation_id' => $conversationId,
     ]);
     
     $authorized = authorizeConversationAccess($user, $conversationId);
     
-    \Log::info('WebSocket Authorization Result', [
+    Log::info('WebSocket Authorization Result', [
         'user_id' => $user->id,
         'conversation_id' => $conversationId,
         'authorized' => $authorized,
@@ -121,8 +122,8 @@ Broadcast::channel('typing.{conversationId}', function ($user, $conversationId) 
 
 // Presence channel for online status
 Broadcast::channel('presence-conversation.{conversationId}', function ($user, $conversationId) {
-    \Log::info('========== PRESENCE CHANNEL AUTH START ==========');
-    \Log::info('Presence Channel Authorization Attempt', [
+    Log::info('========== PRESENCE CHANNEL AUTH START ==========');
+    Log::info('Presence Channel Authorization Attempt', [
         'user_id' => $user->id,
         'user_name' => $user->name,
         'user_email' => $user->email,
@@ -140,23 +141,23 @@ Broadcast::channel('presence-conversation.{conversationId}', function ($user, $c
             'last_active' => $user->updated_at->toISOString(),
         ];
         
-        \Log::info('✅ Presence Channel AUTHORIZED', [
+        Log::info('✅ Presence Channel AUTHORIZED', [
             'user_id' => $user->id,
             'conversation_id' => $conversationId,
             'presence_data' => $presenceData,
         ]);
-        \Log::info('========== PRESENCE CHANNEL AUTH END (SUCCESS) ==========');
+        Log::info('========== PRESENCE CHANNEL AUTH END (SUCCESS) ==========');
         
         return $presenceData;
     }
     
-    \Log::error('❌ Presence Channel ACCESS DENIED', [
+    Log::error('❌ Presence Channel ACCESS DENIED', [
         'user_id' => $user->id,
         'user_email' => $user->email,
         'conversation_id' => $conversationId,
         'reason' => 'authorizeConversationAccess returned false',
     ]);
-    \Log::info('========== PRESENCE CHANNEL AUTH END (DENIED) ==========');
+    Log::info('========== PRESENCE CHANNEL AUTH END (DENIED) ==========');
     
     return false;
 });

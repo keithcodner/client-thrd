@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Broadcast;
 
 
 
+
 // Public Routes
 Route::middleware("guest")->group(function () {
    Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -32,9 +33,6 @@ Route::middleware("guest")->group(function () {
 
 // Authenticated Routes
 Route::middleware(['auth:sanctum'])->group(function () {
-    
-    // Broadcasting Auth Route for WebSocket
-    Broadcast::routes();
     
     //:::::::::::::::::: LOGOUT ROUTES::::::::::::::::::
     Route::group([], function () {
