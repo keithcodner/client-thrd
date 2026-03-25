@@ -11,8 +11,8 @@ This document outlines the implementation of real-time messaging features using 
 ✅ **Platform-specific host configuration (localhost for web, network IP for mobile)**  
 ✅ **Queue worker auto-start with Laravel server**  
 ✅ **Platform-aware storage wrapper (web localStorage, mobile SecureStore)**  
-⏳ **Typing indicators (documented, not yet implemented)**  
-⏳ **Online presence tracking (documented, not yet implemented)**
+✅ **Online presence tracking implemented**  
+⏳ **Typing indicators (documented, not yet implemented)**
 
 ## Table of Contents
 - [Architecture](#architecture)
@@ -1429,6 +1429,118 @@ Replace direct `SecureStore` calls with storage utility:
 - `mobile/config/axiosConfig.ts`
 - `mobile/services/notificationService.ts`
 - `mobile/services/cacheService.ts`
+
+---
+
+### Issue 7: Presence Channel Always Returns 403
+
+**Symptoms:**
+- Private channels (`private-sitePrivateChat.*`, `private-typing.*`) authorize successfully
+- Presence channel (`presence-conversation.*`) always returns HTTP 403
+- Laravel logs show the auth request arriving but the presence channel callback never executes
+- No `PRESENCE CHANNEL AUTH START` log entries despite the callback containing logging
+
+**Root Cause — Channel Name Mismatch (Laravel strips prefix before matching):**
+
+Laravel's broadcasting system strips the `presence-` prefix from the channel name *before* looking up the callback in `channels.php`. This means:
+
+| Client subscribes to | Laravel looks for callback matching |
+|---|---|
+| `private-sitePrivateChat.12` | `sitePrivateChat.{id}` ✅ |
+| `private-typing.12` | `typing.{id}` ✅ |
+| `presence-conversation.12` | `conversation.{id}` ← NOT `presence-conversation.{id}` |
+
+Defining the callback as `presence-conversation.{conversationId}` means it never matches — Laravel silently returns 403.
+
+**Solution:**
+
+In `api/routes/channels.php`, the presence channel definition must NOT include the `presence-` prefix:
+
+```php
+// ❌ WRONG — callback never called, silent 403
+Broadcast::channel('presence-conversation.{conversationId}', function ($user, $conversationId) {
+    ...
+});
+
+// ✅ CORRECT — Laravel strips 'presence-' before matching
+Broadcast::channel('conversation.{conversationId}', function ($user, $conversationId) {
+    if (!$user) return false;
+    // membership check...
+    return [
+        'id' => $user->id,
+        'name' => $user->name,
+    ];
+});
+```
+
+The client-side channel name is still `presence-conversation.{id}` — only the server-side callback definition changes.
+
+**Root Cause — Stale Auth Token in WebSocket Service:**
+
+A second contributing issue: the Pusher instance was initialized once and the auth headers were locked at that moment. If `connect()` was called before the session token was ready (e.g. during app startup before SecureStore resolved), the Pusher instance was created with `Authorization: Bearer undefined`. Private channels can sometimes succeed through timing, but presence channels *always* hit `/broadcasting/auth` which requires a valid token.
+
+**Solution:**
+
+Track the current token in `websocketService.ts` and reconnect if it changes:
+
+```typescript
+private currentToken: string | null = null;
+
+connect(authToken: string, userId: number) {
+  if (!authToken) return; // guard against undefined token
+
+  if (this.currentToken === authToken && this.pusher) return; // same token, already connected
+
+  if (this.pusher && this.currentToken !== authToken) {
+    this.disconnect(); // token changed, reconnect with new token
+  }
+
+  this.currentToken = authToken;
+  // ... initialize Pusher
+}
+
+disconnect() {
+  // ...
+  this.currentToken = null; // clear on disconnect so reconnect works cleanly
+}
+```
+
+**Root Cause — Duplicate `Broadcast::routes()` Call:**
+
+A third issue found during debugging: `Broadcast::routes()` was called both in `BroadcastServiceProvider::boot()` AND inside `routes/api.php`. The second call (inside the `auth:sanctum` middleware group in api.php) re-registered the broadcasting routes separately, overriding the first registration that had the channel definitions attached.
+
+**Solution:**
+
+`Broadcast::routes()` must only be called once — in `BroadcastServiceProvider::boot()`. Do not add it to `routes/api.php`.
+
+**Auth Endpoint URL:**
+
+Because `Broadcast::routes()` is called in `BroadcastServiceProvider` (not in the `api` route group), the auth endpoint is `/broadcasting/auth`, not `/api/broadcasting/auth`.
+
+Ensure the frontend uses the correct path:
+```typescript
+// mobile/services/websocketService.ts
+authEndpoint: `${PUSHER_CONFIG.apiUrl}/broadcasting/auth`, // NO /api prefix
+```
+
+**Verification:**
+
+After the fix, Laravel logs should show the callback executing:
+```
+INFO: ========== PRESENCE CHANNEL AUTH START ==========
+INFO: Presence Channel Authorization Attempt {user_id: 1, conversation_id: "12"}
+INFO: ✅ Presence Channel AUTHORIZED
+```
+
+And the client logs should show:
+```
+✅ ========== PRESENCE SUBSCRIPTION SUCCEEDED ==========
+📊 Members.count: 2
+```
+
+**Files Changed:**
+- `api/routes/channels.php` — renamed callback from `presence-conversation.{id}` → `conversation.{id}`
+- `mobile/services/websocketService.ts` — added `currentToken` tracking, token guard, and reconnect-on-change logic
 
 ---
 

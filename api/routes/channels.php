@@ -121,7 +121,8 @@ Broadcast::channel('typing.{conversationId}', function ($user, $conversationId) 
 });
 
 // Presence channel for online status
-Broadcast::channel('presence-conversation.{conversationId}', function ($user, $conversationId) {
+// NOTE: Laravel strips the 'presence-' prefix before matching, so the name here must NOT include it
+Broadcast::channel('conversation.{conversationId}', function ($user, $conversationId) {
     Log::info('========== PRESENCE CHANNEL AUTH START ==========');
     Log::info('Presence Channel Authorization Attempt', [
         'user_id' => $user->id,

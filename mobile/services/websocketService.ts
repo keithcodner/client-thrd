@@ -6,12 +6,27 @@ class WebSocketService {
   private pusher: Pusher | null = null;
   private channels: Map<string, any> = new Map();
   private isConnecting: boolean = false;
+  private currentToken: string | null = null;
 
   connect(authToken: string, userId: number) {
-    if (this.pusher || this.isConnecting) {
+    if (!authToken) {
+      console.log('❌ No auth token provided, skipping WebSocket connection');
+      return;
+    }
+
+    // If already connected with the same token, skip
+    if (this.currentToken === authToken && this.pusher) {
       console.log('WebSocket already connected or connecting');
       return;
     }
+
+    // Token changed — reconnect with new token
+    if (this.pusher && this.currentToken !== authToken) {
+      console.log('🔄 Token changed, reinitializing WebSocket...');
+      this.disconnect();
+    }
+
+    if (this.isConnecting) return;
 
     console.log('🔌 Initializing WebSocket connection...', {
       platform: Platform.OS,
@@ -23,6 +38,7 @@ class WebSocketService {
     });
 
     this.isConnecting = true;
+    this.currentToken = authToken;
 
     try {
       this.pusher = new Pusher(PUSHER_CONFIG.key, {
@@ -32,7 +48,7 @@ class WebSocketService {
         forceTLS: PUSHER_CONFIG.forceTLS,
         enabledTransports: ['ws', 'wss'],
         cluster: PUSHER_CONFIG.cluster,
-        authEndpoint: `${PUSHER_CONFIG.apiUrl}/broadcasting/auth`,
+        authEndpoint: `${PUSHER_CONFIG.apiUrl}/api/broadcasting/auth`,
         auth: {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -42,7 +58,7 @@ class WebSocketService {
       });
 
       console.log('📡 Pusher instance created, attempting connection...');
-      console.log('🔐 Auth endpoint:', `${PUSHER_CONFIG.apiUrl}/broadcasting/auth`);
+      console.log('🔐 Auth endpoint:', `${PUSHER_CONFIG.apiUrl}/api/broadcasting/auth`);
 
       this.pusher.connection.bind('connected', () => {
         console.log('✅ WebSocket connected successfully!', {
@@ -294,6 +310,7 @@ class WebSocketService {
       this.channels.clear();
       this.pusher.disconnect();
       this.pusher = null;
+      this.currentToken = null;
       console.log('✅ WebSocket disconnected');
     }
   }
