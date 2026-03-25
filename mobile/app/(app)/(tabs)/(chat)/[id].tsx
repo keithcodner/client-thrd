@@ -131,7 +131,7 @@ const ChatDetail = () => {
   const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
   const [messageText, setMessageText] = useState('');
-  const { user, session } = useSession();
+  const { user, session, subscribeToConversationPresence, unsubscribeFromConversationPresence } = useSession();
   const { refresh: refreshUnreadCounts } = useUnreadMessagesContext();
 
   const chatId = Array.isArray(id) ? id[0] : id || '1';
@@ -542,6 +542,9 @@ const ChatDetail = () => {
 
     websocketService.subscribeToConversation(chatId, handleNewMessage);
 
+    // Subscribe to presence so this user appears online to others in the circle
+    subscribeToConversationPresence(chatId);
+
     // Subscribe to typing status
     const handleTypingChange = (data: { user_id: number; user_name: string; is_typing: boolean }) => {
       console.log('⌨️ Typing status changed:', data);
@@ -569,6 +572,7 @@ const ChatDetail = () => {
       console.log('🔕 Unsubscribing from conversation');
       websocketService.unsubscribeFromConversation(chatId);
       websocketService.unsubscribeFromTyping(chatId);
+      unsubscribeFromConversationPresence(chatId);
     };
   }, [chatId, user, session]);
 

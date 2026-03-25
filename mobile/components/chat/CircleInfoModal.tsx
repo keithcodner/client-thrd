@@ -55,7 +55,7 @@ export const CircleInfoModal = ({
   const [loadingPendingInvites, setLoadingPendingInvites] = useState(false);
   const [members, setMembers] = useState<CircleMember[]>([]);
   const colors = useThemeColours();
-  const { isUserOnline, subscribeToConversationPresence, unsubscribeFromConversationPresence } = useSession();
+  const { isUserOnline } = useSession();
 
   // Fetch pending invites when invite section is opened
   useEffect(() => {
@@ -97,34 +97,7 @@ export const CircleInfoModal = ({
     fetchMemberCount();
   }, [visible, circleId]);
 
-  // Subscribe to presence when members section is expanded
-  useEffect(() => {
-    console.log('🔔 CircleInfoModal presence effect triggered:', {
-      expandedSection,
-      conversationId,
-      conversationIdType: typeof conversationId,
-      circleId,
-      circleIdType: typeof circleId,
-    });
-    
-    if (expandedSection !== 'members' || !conversationId || circleId === '1') {
-      console.log('🔔 Skipping presence subscription:', {
-        reason: expandedSection !== 'members' ? 'section not members' : 
-                !conversationId ? 'no conversationId' : 
-                'is THRD chat',
-      });
-      return;
-    }
-
-    console.log('🔔 Subscribing to presence via AuthContext for conversation:', conversationId, 'Type:', typeof conversationId);
-    subscribeToConversationPresence(conversationId);
-
-    // Cleanup: unsubscribe from presence when section collapses or modal closes
-    return () => {
-      console.log('🔕 Unsubscribing from presence via AuthContext for conversation:', conversationId);
-      unsubscribeFromConversationPresence(conversationId);
-    };
-  }, [expandedSection, conversationId, circleId]);
+  // Presence subscription is handled by the chat screen ([id].tsx) when the conversation is opened
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);

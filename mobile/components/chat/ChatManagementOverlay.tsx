@@ -83,7 +83,7 @@ export const ChatManagementOverlay = ({
 }: ChatManagementOverlayProps) => {
   const colours = useThemeColours();
   const router = useRouter();
-  const { onlineUsers, subscribeToConversationPresence, unsubscribeFromConversationPresence } = useSession();
+  const { onlineUsers } = useSession();
   const [showDropdown, setShowDropdown] = useState(false);
   const [slideAnim] = useState(new Animated.Value(-OVERLAY_HEIGHT));
   const [showMembers, setShowMembers] = useState(false);
@@ -138,9 +138,7 @@ export const ChatManagementOverlay = ({
         console.log('✅ Received members:', circleMembers, 'Count:', circleMembers.length);
         setMembers(circleMembers);
         
-        // Subscribe to presence via AuthContext (using conversation ID)
-        console.log('🔔 Subscribing to presence for conversation:', chat.id, 'Type:', typeof chat.id);
-        subscribeToConversationPresence(chat.id);
+        // Presence is handled by the chat screen when the conversation is opened
       } catch (error) {
         console.error('Error fetching circle members:', error);
       } finally {
@@ -150,12 +148,7 @@ export const ChatManagementOverlay = ({
 
     fetchMembers();
 
-    // Cleanup: unsubscribe from presence
-    return () => {
-      if (chat && chat.id !== '1') {
-        unsubscribeFromConversationPresence(chat.id);
-      }
-    };
+    // Presence cleanup is handled by the chat screen
   }, [chat, showMembers]);
 
   const handleViewMembers = () => {
