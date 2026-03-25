@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, ScrollView } from "react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
 
-const Calendar = () => {
+const Month = () => {
   const colours = useThemeColours();
 
   return (
@@ -21,4 +21,4 @@ const Calendar = () => {
   );
 };
 
-export default Calendar;
+export default Month;
