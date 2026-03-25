@@ -188,6 +188,10 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
     // Subscribe to a conversation's presence channel
     const subscribeToConversationPresence = (conversationId: string) => {
+        console.log('📍 ========== AUTHCONTEXT: SUBSCRIBE TO PRESENCE ==========');
+        console.log('📍 Conversation ID:', conversationId, 'Type:', typeof conversationId);
+        console.log('📍 Conversation ID length:', conversationId?.length);
+        
         if (!conversationId) {
             console.warn('⚠️ Cannot subscribe to presence: conversationId is missing');
             return;

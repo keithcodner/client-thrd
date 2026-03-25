@@ -98,7 +98,7 @@ const ChatHome = () => {
           timestamp: timestamp,
           unread: (unreadByConversation[conversationId] || 0) > 0,
           isPrivate: circle.type === 'private_circle',
-          circleId: circle.id, // Keep circle ID for reference
+          circleId: parseInt(circle.id), // Keep circle ID for reference (ensure it's a number)
         };
       });
       

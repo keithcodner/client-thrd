@@ -99,11 +99,24 @@ export const CircleInfoModal = ({
 
   // Subscribe to presence when members section is expanded
   useEffect(() => {
+    console.log('🔔 CircleInfoModal presence effect triggered:', {
+      expandedSection,
+      conversationId,
+      conversationIdType: typeof conversationId,
+      circleId,
+      circleIdType: typeof circleId,
+    });
+    
     if (expandedSection !== 'members' || !conversationId || circleId === '1') {
+      console.log('🔔 Skipping presence subscription:', {
+        reason: expandedSection !== 'members' ? 'section not members' : 
+                !conversationId ? 'no conversationId' : 
+                'is THRD chat',
+      });
       return;
     }
 
-    console.log('🔔 Subscribing to presence via AuthContext for conversation:', conversationId);
+    console.log('🔔 Subscribing to presence via AuthContext for conversation:', conversationId, 'Type:', typeof conversationId);
     subscribeToConversationPresence(conversationId);
 
     // Cleanup: unsubscribe from presence when section collapses or modal closes

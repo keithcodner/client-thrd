@@ -211,8 +211,11 @@ class WebSocketService {
 
     const channelName = `presence-conversation.${conversationId}`;
     
-    console.log('🔔 Subscribing to presence channel:', channelName);
-    console.log('🔌 Current WebSocket state:', this.pusher.connection.state);
+    console.log('🔔 ========== SUBSCRIBING TO PRESENCE CHANNEL ==========');
+    console.log('🔔 Channel name:', channelName);
+    console.log('🔔 Conversation ID:', conversationId, 'Type:', typeof conversationId);
+    console.log('🔌 WebSocket state:', this.pusher.connection.state);
+    console.log('🔌 Socket ID:', this.pusher.connection.socket_id);
     
     if (this.channels.has(channelName)) {
       console.log('♻️ Channel already exists, reusing:', channelName);
@@ -223,15 +226,24 @@ class WebSocketService {
 
     // Handle subscription errors
     channel.bind('pusher:subscription_error', (error: any) => {
-      console.error('❌ Presence subscription error:', channelName, error);
+      console.error('❌ ========== PRESENCE SUBSCRIPTION ERROR ==========');
+      console.error('❌ Channel:', channelName);
+      console.error('❌ Error object:', JSON.stringify(error, null, 2));
+      console.error('❌ Error type:', error.type);
+      console.error('❌ Error status:', error.status);
+      console.error('❌ Error error:', error.error);
+      console.error('❌ Socket ID:', this.pusher?.connection.socket_id);
+      console.error('❌ ========== END PRESENCE ERROR ==========');
       if (onError) onError(error);
     });
 
     channel.bind('pusher:subscription_succeeded', (members: any) => {
-      console.log('✅ Presence subscription succeeded:', channelName);
+      console.log('✅ ========== PRESENCE SUBSCRIPTION SUCCEEDED ==========');
+      console.log('✅ Channel:', channelName);
       console.log('📊 Raw members object:', members);
       console.log('📊 Members.members:', members.members);
       console.log('📊 Members.count:', members.count);
+      console.log('✅ ========== END PRESENCE SUCCESS ==========');
       
       // Extract member list - Pusher uses user IDs as keys
       const memberList = Object.keys(members.members).map(userId => ({

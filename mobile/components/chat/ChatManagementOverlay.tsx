@@ -116,18 +116,30 @@ export const ChatManagementOverlay = ({
 
   // Fetch circle members and subscribe to presence when members section is opened
   useEffect(() => {
-    console.log('🔍 Members useEffect triggered - chat:', chat?.id, 'showMembers:', showMembers);
+    console.log('🔍 ========== CHATMANAGEMENTOVERLAY: Members Effect ==========');
+    console.log('🔍 Chat ID (conversation):', chat?.id, 'Type:', typeof chat?.id);
+    console.log('🔍 Circle ID:', chat?.circleId, 'Type:', typeof chat?.circleId);
+    console.log('🔍 Show Members:', showMembers);
+    
     if (!chat || chat.id === '1' || !showMembers) return;
+
+    // Ensure we have a valid circleId
+    if (!chat.circleId) {
+      console.error('❌ No circleId found for chat:', chat.id);
+      console.error('❌ Chat object:', JSON.stringify(chat, null, 2));
+      return;
+    }
 
     const fetchMembers = async () => {
       setIsLoadingMembers(true);
       try {
-        console.log('📡 Fetching members for circle:', chat.id);
-        const circleMembers = await getCircleMembers(parseInt(chat.id));
+        console.log('📡 Fetching members for circle:', chat.circleId, 'Type:', typeof chat.circleId);
+        const circleMembers = await getCircleMembers(chat.circleId);
         console.log('✅ Received members:', circleMembers, 'Count:', circleMembers.length);
         setMembers(circleMembers);
         
-        // Subscribe to presence via AuthContext
+        // Subscribe to presence via AuthContext (using conversation ID)
+        console.log('🔔 Subscribing to presence for conversation:', chat.id, 'Type:', typeof chat.id);
         subscribeToConversationPresence(chat.id);
       } catch (error) {
         console.error('Error fetching circle members:', error);

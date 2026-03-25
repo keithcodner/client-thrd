@@ -59,7 +59,7 @@ function NavigationGuard() {
     }
   }, [session, segments, isLoading]);
 
-  return <StatusBar style={currentTheme === "dark" ? "light" : "dark"} backgroundColor={currentTheme === 'dark' ? '#15110fff' : '#FFFFFF'} />;
+  return <StatusBar style={currentTheme === "dark" ? "light" : "dark"} backgroundColor={currentTheme === 'dark' ? '#15110fff' : '#9d9898'} />;
 }
 
 export default function RootLayout() {
