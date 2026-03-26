@@ -3,24 +3,48 @@ import axiosInstance from '@/config/axiosConfig';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+/**
+ * Payload sent to POST /calendar/events and PUT /calendar/events/:id
+ */
 export interface CalendarEventPayload {
-  title: string;
+  name: string;
   description?: string;
-  location?: string;
   start_at: string; // ISO 8601
   end_at: string;   // ISO 8601
   color?: string;   // hex e.g. "#ADC178"
-  all_day?: boolean;
 }
 
-export interface CalendarEventResponse extends CalendarEventPayload {
+/**
+ * Shape returned by the API for a single event record.
+ * Maps directly to the `event` table columns.
+ */
+export interface CalendarEventResponse {
   id: string;
-  user_id: number;
+  user_from_id: number;
+  event_group_id: number | null;
+  name: string;
+  event_date_time: string;
+  event_date_time_start_range: string; // used as start_at
+  event_date_time_end_range: string;   // used as end_at
+  color: string;
+  type: string;
+  status: string;
   created_at: string;
   updated_at: string;
+  // Convenience aliases populated by the service layer:
+  start_at: string;
+  end_at: string;
 }
 
 // ─── API service ──────────────────────────────────────────────────────────────
+
+/** Normalise raw API rows so start_at / end_at are always populated. */
+const normalise = (raw: any): CalendarEventResponse => ({
+  ...raw,
+  start_at: raw.start_at ?? raw.event_date_time_start_range ?? raw.event_date_time,
+  end_at:   raw.end_at   ?? raw.event_date_time_end_range   ?? raw.event_date_time,
+  color:    raw.color    ?? '#ADC178',
+});
 
 /**
  * Fetch all events for a given month.
@@ -33,7 +57,8 @@ export const fetchMonthEvents = async (
   const response = await axiosInstance.get('/calendar/events', {
     params: { year, month },
   });
-  return response.data.data ?? response.data;
+  const rows = response.data.data ?? response.data;
+  return rows.map(normalise);
 };
 
 /**
@@ -42,7 +67,7 @@ export const fetchMonthEvents = async (
  */
 export const fetchEvent = async (id: string): Promise<CalendarEventResponse> => {
   const response = await axiosInstance.get(`/calendar/events/${id}`);
-  return response.data.data ?? response.data;
+  return normalise(response.data.data ?? response.data);
 };
 
 /**
@@ -53,7 +78,7 @@ export const createCalendarEvent = async (
   payload: CalendarEventPayload
 ): Promise<CalendarEventResponse> => {
   const response = await axiosInstance.post('/calendar/events', payload);
-  return response.data.data ?? response.data;
+  return normalise(response.data.data ?? response.data);
 };
 
 /**
@@ -65,7 +90,7 @@ export const updateCalendarEvent = async (
   payload: Partial<CalendarEventPayload>
 ): Promise<CalendarEventResponse> => {
   const response = await axiosInstance.put(`/calendar/events/${id}`, payload);
-  return response.data.data ?? response.data;
+  return normalise(response.data.data ?? response.data);
 };
 
 /**

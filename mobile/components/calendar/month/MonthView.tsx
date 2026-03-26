@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Pressable,
@@ -13,6 +13,7 @@ import CalendarHeader from './CalendarHeader';
 import ViewTabs, { CalendarView } from './ViewTabs';
 import CalendarGrid from './CalendarGrid';
 import { CalendarEvent } from './DayCell';
+import { fetchMonthEvents } from '@/services/calendarService';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -20,20 +21,38 @@ const MONTH_NAMES = [
 ];
 
 interface MonthViewProps {
-  events?: CalendarEvent[];
   onDayPress?: (year: number, month: number, day: number) => void;
   onAddEvent?: () => void;
 }
 
-const MonthView = ({ events = [], onDayPress, onAddEvent }: MonthViewProps) => {
+const MonthView = ({ onDayPress, onAddEvent }: MonthViewProps) => {
   const colours = useThemeColours();
   const router = useRouter();
 
   const today = new Date();
   const [activeTab, setActiveTab] = useState<CalendarView>('month');
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
-  const [currentYear] = useState(today.getFullYear());
+  const [currentYear]  = useState(today.getFullYear());
   const [currentMonth] = useState(today.getMonth());
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+  // Load events for the current month and convert to CalendarEvent dots
+  useEffect(() => {
+    fetchMonthEvents(currentYear, currentMonth + 1)
+      .then((rows) => {
+        const converted: CalendarEvent[] = rows.map((e) => {
+          const d = new Date(e.start_at);
+          const pad = (n: number) => String(n).padStart(2, '0');
+          return {
+            id:    String(e.id),
+            color: e.color ?? '#ADC178',
+            date:  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+          };
+        });
+        setEvents(converted);
+      })
+      .catch(() => {}); // silent fail
+  }, [currentYear, currentMonth]);
 
   const handleTabChange = useCallback((tab: CalendarView) => {
     if (tab === 'month') return;
@@ -45,9 +64,12 @@ const MonthView = ({ events = [], onDayPress, onAddEvent }: MonthViewProps) => {
   const handleDayPress = useCallback(
     (year: number, month: number, day: number) => {
       setSelectedDay(day);
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const dateStr = `${year}-${pad(month + 1)}-${pad(day)}`;
+      router.push({ pathname: '/(app)/(tabs)/(calendar)/day', params: { date: dateStr } });
       onDayPress?.(year, month, day);
     },
-    [onDayPress]
+    [onDayPress, router]
   );
 
   const handleClose = useCallback(() => {

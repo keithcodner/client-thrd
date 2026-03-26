@@ -8,6 +8,7 @@ use App\Http\Controllers\Chat\ChatController;
 use App\Http\Controllers\Chat\ChatCircleController;
 use App\Http\Controllers\Notifications\NotificationsController;
 use App\Http\Controllers\CreditPaymentController;
+use App\Http\Controllers\Event\EventController;
 use \App\Http\Middleware\TrackUserActivity;
 use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
@@ -131,6 +132,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         //:::GET UNREAD COUNT:::
         Route::get('/notifications/unread-count', [NotificationsController::class, 'getUnreadCount'])->middleware(TrackUserActivity::class)->name('get-unread-count');
+    });
+
+    //:::::::::::::::::: CALENDAR / EVENT ROUTES::::::::::::::::::
+    Route::group([], function () {
+        Route::get('/calendar/events',       [EventController::class, 'index'])->name('calendar.events.index');
+        Route::get('/calendar/events/{id}',  [EventController::class, 'show'])->name('calendar.events.show');
+        Route::post('/calendar/events',      [EventController::class, 'store'])->name('calendar.events.store');
+        Route::put('/calendar/events/{id}',  [EventController::class, 'update'])->name('calendar.events.update');
+        Route::delete('/calendar/events/{id}', [EventController::class, 'destroy'])->name('calendar.events.destroy');
     });
 
     //:::::::::::::::::: TEMPLATE ROUTES::::::::::::::::::

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -14,6 +14,7 @@ import CalendarHeader from '@/components/calendar/month/CalendarHeader';
 import ViewTabs, { CalendarView } from '@/components/calendar/month/ViewTabs';
 import SuggestedOverlaps from '@/components/calendar/week/SuggestedOverlaps';
 import WeekDay, { WeekEvent } from '@/components/calendar/week/WeekDay';
+import { fetchMonthEvents } from '@/services/calendarService';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -31,9 +32,6 @@ function getWeekDates(referenceDate: Date): Date[] {
   });
 }
 
-// Dummy events — keyed by YYYY-MM-DD; replace with real API data
-const DUMMY_EVENTS: Record<string, WeekEvent[]> = {};
-
 // Main screen ──────────────────────────────────────────────────────────────
 export default function Week() {
   const colours = useThemeColours();
@@ -41,9 +39,37 @@ export default function Week() {
 
   const today = new Date();
   const [weekDates] = useState<Date[]>(() => getWeekDates(today));
+  const [eventMap, setEventMap] = useState<Record<string, WeekEvent[]>>({});
 
   const currentMonth = weekDates[0].getMonth();
-  const currentYear = weekDates[0].getFullYear();
+  const currentYear  = weekDates[0].getFullYear();
+
+  // Load real events for the week's month
+  useEffect(() => {
+    fetchMonthEvents(currentYear, currentMonth + 1)
+      .then((rows) => {
+        const map: Record<string, WeekEvent[]> = {};
+        rows.forEach((e) => {
+          const d = new Date(e.start_at);
+          const pad = (n: number) => String(n).padStart(2, '0');
+          const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+          if (!map[key]) map[key] = [];
+          const start = new Date(e.start_at);
+          const end   = new Date(e.end_at);
+          const fmt = (dt: Date) => {
+            let h = dt.getHours();
+            const m = dt.getMinutes().toString().padStart(2, '0');
+            const p = h >= 12 ? 'PM' : 'AM';
+            if (h > 12) h -= 12;
+            if (h === 0) h = 12;
+            return `${h}:${m} ${p}`;
+          };
+          map[key].push({ id: String(e.id), title: e.name, time: `${fmt(start)} – ${fmt(end)}`, color: e.color });
+        });
+        setEventMap(map);
+      })
+      .catch(() => {});
+  }, [currentYear, currentMonth]);
 
   const handleTabChange = useCallback((tab: CalendarView) => {
     if (tab === 'week') return;
@@ -57,13 +83,15 @@ export default function Week() {
   }, [router]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleDayPress = useCallback((_date: Date) => {
-    // TODO: navigate to day detail or open event creator
-  }, []);
+  const handleDayPress = useCallback((date: Date) => {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    router.push({ pathname: '/(app)/(tabs)/(calendar)/day', params: { date: dateStr } });
+  }, [router]);
 
   const getEventsForDate = (date: Date): WeekEvent[] => {
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    return DUMMY_EVENTS[key] ?? [];
+    return eventMap[key] ?? [];
   };
 
   return (

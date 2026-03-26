@@ -5,7 +5,7 @@ namespace App\Models\Event;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Core\FileEvent;
 use App\Models\PaymentTransactions\PaymentTransactionOrder;
-use App\Models\Transactions\;
+//use App\Models\Transactions\;
 use App\Models\Posts;
 use App\Models\User;
 
@@ -36,6 +36,7 @@ class Event extends Model
         'link',
         'isVisibleToOthers',
         'category',
+        'color',
         'created_at',
         'updated_at',
     ];
