@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Clock } from 'lucide-react-native';
+import { CircleCheck } from 'lucide-react-native';
 
 export interface OverlapSlot {
   id: string;
@@ -16,11 +16,11 @@ interface SuggestedOverlapCardProps {
 
 const SuggestedOverlapCard = ({ slot, colours }: SuggestedOverlapCardProps) => {
   return (
-    <View style={[styles.card, { backgroundColor: colours.card, borderColor: colours.border }]}>
+    <View style={[styles.card, { backgroundColor: colours.weekDayCardBackground, borderColor: colours.weekDayCardBorder }]}>
       <Text style={[styles.dayLabel, { color: colours.secondaryText }]}>{slot.dayLabel}</Text>
       <Text style={[styles.timeRange, { color: colours.text }]}>{slot.timeRange}</Text>
       <View style={styles.noteRow}>
-        <Clock size={12} color={colours.secondaryText} />
+        <CircleCheck size={12} color={colours.secondaryText} />
         <Text style={[styles.noteText, { color: colours.secondaryText }]}>{slot.memberNote}</Text>
       </View>
     </View>

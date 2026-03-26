@@ -28,7 +28,7 @@ const WeekDay = ({ date, events, onPress, colours }: WeekDayProps) => {
   return (
     <Pressable
       onPress={() => onPress(date)}
-      style={[styles.card, { backgroundColor: colours.card, borderColor: colours.border }]}
+      style={[styles.card, { backgroundColor: colours.weekDayCardBackground, borderColor: colours.weekDayCardBorder }]}
     >
       <View style={styles.content}>
         <View style={styles.dateBlock}>
@@ -58,10 +58,10 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginBottom: 10,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 18,
   },
   content: {
     flexDirection: 'row',

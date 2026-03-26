@@ -57,6 +57,7 @@ const SuggestedOverlaps = ({ overlaps = DUMMY_OVERLAPS, colours }: SuggestedOver
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 16,
+    marginTop: 16,
     marginBottom: 18,
     borderBottomWidth: 1,
     paddingBottom: 18,

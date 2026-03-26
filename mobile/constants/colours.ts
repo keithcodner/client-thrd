@@ -40,6 +40,8 @@ export const colours = {
     card: '#292524',
     text: '#fafaf9',
     secondaryText: '#a8a29e',
+    weekDayCardBorder: '#a8a29e',
+    weekDayCardBackground: '#1a1818',
     border: '#292524',
     
     // UI elements

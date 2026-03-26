@@ -133,6 +133,8 @@ export default function Week() {
 
       <ViewTabs activeTab="week" onTabChange={handleTabChange} colours={colours} />
 
+      <View style={[styles.separator, { backgroundColor: colours.border }]} />
+
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <SuggestedOverlaps colours={colours} />
 
@@ -159,6 +161,7 @@ export default function Week() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
+  separator: { height: 1 },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 100 },
   fabContainer: {
