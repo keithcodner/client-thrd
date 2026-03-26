@@ -35,6 +35,13 @@ const MonthView = ({ events = [], onDayPress, onAddEvent }: MonthViewProps) => {
   const [currentYear] = useState(today.getFullYear());
   const [currentMonth] = useState(today.getMonth());
 
+  const handleTabChange = useCallback((tab: CalendarView) => {
+    if (tab === 'month') return;
+    if (tab === 'week')  { router.replace('/(app)/(tabs)/(calendar)/week'); return; }
+    if (tab === 'day')   { router.replace('/(app)/(tabs)/(calendar)/day'); return; }
+    if (tab === 'list')  { router.replace('/(app)/(tabs)/(calendar)/list'); return; }
+  }, [router]);
+
   const handleDayPress = useCallback(
     (year: number, month: number, day: number) => {
       setSelectedDay(day);
@@ -60,7 +67,7 @@ const MonthView = ({ events = [], onDayPress, onAddEvent }: MonthViewProps) => {
 
       <ViewTabs
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         colours={colours}
       />
 

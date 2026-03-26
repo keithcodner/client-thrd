@@ -5,7 +5,7 @@ namespace App\Models\Event;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Core\FileEvent;
 use App\Models\PaymentTransactions\PaymentTransactionOrder;
-use App\Models\TradeTransactions\Trade;
+use App\Models\Transactions\;
 use App\Models\Posts;
 use App\Models\User;
 
@@ -18,7 +18,7 @@ class Event extends Model
     protected $fillable = [
         'user_from_id',
         'user_to_id',
-        'trade_id',
+        '_id',
         'order_id',
         'post_id',
         'file_store_event_id',
@@ -43,10 +43,6 @@ class Event extends Model
     /*
         Event Types:
         - Self Event: type = 'self_event', type_second = 'todo' // basically when a user makes a note for themselves
-        - Trade Event - Initiated: type = 'trade', type_second = 'initiation' // event dates that tell the init/prosp when the trade was initiated
-        - Trade Event - Completed: type = 'trade', type_second = 'completion' // event dates that tell the init/prosp when the trade will be completed
-        - Trade Event - Appoinment: type = 'trade', type_second = 'service_appointment' // event dates that tell the init when the appointment is scheduled
-        - Trade Event - Delivery: type = 'trade', type_second = 'service_delivery' // event dates that tell the prosp when the delivery is scheduled
 
     */
 
