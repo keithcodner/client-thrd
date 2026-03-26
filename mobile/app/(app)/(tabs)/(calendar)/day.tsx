@@ -10,6 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
+import { useTheme } from '@/context/ThemeContext';
 import CalendarHeader from '@/components/calendar/month/CalendarHeader';
 import ViewTabs, { CalendarView } from '@/components/calendar/month/ViewTabs';
 import DayHeader from '@/components/calendar/day/DayHeader';
@@ -35,6 +36,7 @@ const DEFAULT_SCROLL_HOUR = 8; // scroll to 8 AM on open
 
 export default function Day() {
   const colours = useThemeColours();
+  const { currentTheme } = useTheme();
   const router  = useRouter();
   const params  = useLocalSearchParams<{ date?: string }>();
 
@@ -116,7 +118,7 @@ export default function Day() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colours.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colours.background} />
+      <StatusBar barStyle={currentTheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colours.background} />
 
       <CalendarHeader
         monthName={MONTH_NAMES[selectedDate.getMonth()]}

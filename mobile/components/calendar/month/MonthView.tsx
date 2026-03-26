@@ -9,6 +9,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
+import { useTheme } from '@/context/ThemeContext';
 import CalendarHeader from './CalendarHeader';
 import ViewTabs, { CalendarView } from './ViewTabs';
 import CalendarGrid from './CalendarGrid';
@@ -27,6 +28,7 @@ interface MonthViewProps {
 
 const MonthView = ({ onDayPress, onAddEvent }: MonthViewProps) => {
   const colours = useThemeColours();
+  const { currentTheme } = useTheme();
   const router = useRouter();
 
   const today = new Date();
@@ -78,7 +80,7 @@ const MonthView = ({ onDayPress, onAddEvent }: MonthViewProps) => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colours.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colours.background} />
+      <StatusBar barStyle={currentTheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colours.background} />
 
       <CalendarHeader
         monthName={MONTH_NAMES[currentMonth]}

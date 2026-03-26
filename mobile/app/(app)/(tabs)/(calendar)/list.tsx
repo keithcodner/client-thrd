@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
+import { useTheme } from '@/context/ThemeContext';
 import CalendarHeader from '@/components/calendar/month/CalendarHeader';
 import ViewTabs, { CalendarView } from '@/components/calendar/month/ViewTabs';
 import ListEmptyState from '@/components/calendar/list/ListEmptyState';
@@ -40,6 +41,7 @@ function toDateKey(iso: string): string {
 
 export default function ListScreen() {
   const colours = useThemeColours();
+  const { currentTheme } = useTheme();
   const router  = useRouter();
 
   const today    = new Date();
@@ -127,7 +129,7 @@ export default function ListScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colours.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colours.background} />
+      <StatusBar barStyle={currentTheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colours.background} />
 
       <CalendarHeader
         monthName={MONTH_NAMES[today.getMonth()]}

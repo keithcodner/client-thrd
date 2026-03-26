@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
+import { useTheme } from '@/context/ThemeContext';
 import CalendarHeader from '@/components/calendar/month/CalendarHeader';
 import ViewTabs, { CalendarView } from '@/components/calendar/month/ViewTabs';
 import SuggestedOverlaps from '@/components/calendar/week/SuggestedOverlaps';
@@ -35,6 +36,7 @@ function getWeekDates(referenceDate: Date): Date[] {
 // Main screen ──────────────────────────────────────────────────────────────
 export default function Week() {
   const colours = useThemeColours();
+  const { currentTheme } = useTheme();
   const router = useRouter();
 
   const today = new Date();
@@ -120,7 +122,7 @@ export default function Week() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colours.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colours.background} />
+      <StatusBar barStyle={currentTheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colours.background} />
 
       <CalendarHeader
         monthName={MONTH_NAMES[currentMonth]}

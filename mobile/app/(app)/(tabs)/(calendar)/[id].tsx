@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useThemeColours } from "@/hooks/useThemeColours";
 
@@ -8,13 +8,13 @@ const CalendarDetail = () => {
   const { id } = useLocalSearchParams();
 
   return (
-    <View className="flex-1 bg-white dark:bg-gray-900">
-      <ScrollView className="flex-1">
-        <View className="p-4 mt-10">
-          <Text className="text-2xl font-bold text-gray-800 dark:text-white">
+    <View style={[styles.container, { backgroundColor: colours.background }]}>
+      <ScrollView style={styles.scroll}>
+        <View style={styles.content}>
+          <Text style={[styles.title, { color: colours.text }]}>
             Calendar Item #{id}
           </Text>
-          <Text className="text-gray-600 dark:text-gray-400 mt-2">
+          <Text style={[styles.subtitle, { color: colours.secondaryText }]}>
             Details for calendar item
           </Text>
         </View>
@@ -22,5 +22,13 @@ const CalendarDetail = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scroll:    { flex: 1 },
+  content:   { padding: 16, marginTop: 40 },
+  title:     { fontSize: 22, fontWeight: '700' },
+  subtitle:  { marginTop: 8, fontSize: 14 },
+});
 
 export default CalendarDetail;
