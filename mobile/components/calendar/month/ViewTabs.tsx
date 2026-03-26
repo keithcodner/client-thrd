@@ -19,45 +19,52 @@ interface ViewTabsProps {
 const ViewTabs = ({ activeTab, onTabChange, colours }: ViewTabsProps) => {
   return (
     <View style={styles.container}>
-      {TABS.map((tab) => {
-        const isActive = activeTab === tab.id;
-        return (
-          <Pressable
-            key={tab.id}
-            onPress={() => onTabChange(tab.id)}
-            style={[
-              styles.tab,
-              isActive
-                ? { backgroundColor: colours.text }
-                : { backgroundColor: 'transparent' },
-            ]}
-          >
-            <Text
+      <View style={[styles.tabsWrapper, { backgroundColor: colours.card }]}>
+        {TABS.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <Pressable
+              key={tab.id}
+              onPress={() => onTabChange(tab.id)}
               style={[
-                styles.tabText,
-                { color: isActive ? colours.background : colours.secondaryText },
+                styles.tab,
+                isActive
+                  ? { backgroundColor: colours.text }
+                  : { backgroundColor: 'transparent' },
               ]}
             >
-              {tab.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: isActive ? colours.background : colours.secondaryText },
+                ]}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     paddingHorizontal: 16,
     paddingBottom: 14,
-    gap: 8,
+  },
+  tabsWrapper: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    padding: 3,
+    gap: 2,
   },
   tab: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 7,
+    borderRadius: 6,
   },
   tabText: {
     fontSize: 12,

@@ -20,8 +20,12 @@ import {
   MessageSquare,
   Shield,
   ChevronRight,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react-native";
 import { useThemeColours } from "@/hooks/useThemeColours";
+import { useTheme } from "@/context/ThemeContext";
 import { useSession } from "@/context/AuthContext";
 
 interface ProfileOverlayProps {
@@ -31,6 +35,7 @@ interface ProfileOverlayProps {
 
 export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
   const colors = useThemeColours();
+  const { theme, setTheme } = useTheme();
   const { user, signOut } = useSession();
 
   const userName = user?.name || "James";
@@ -116,6 +121,34 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
               <TouchableOpacity style={[styles.exploreButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 <Text style={[styles.exploreText, { color: colors.text }]}>EXPLORE NOW</Text>
               </TouchableOpacity>
+            </View>
+
+            {/* Appearance */}
+            <Text style={[styles.controlTitle, { color: colors.secondaryText }]}>APPEARANCE</Text>
+
+            <View style={[styles.themeRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              {([ 
+                { id: 'light',  label: 'LIGHT',  Icon: Sun },
+                { id: 'dark',   label: 'DARK',   Icon: Moon },
+                { id: 'system', label: 'SYSTEM', Icon: Monitor },
+              ] as const).map(({ id, label, Icon }) => {
+                const isActive = theme === id;
+                return (
+                  <TouchableOpacity
+                    key={id}
+                    onPress={() => setTheme(id)}
+                    style={[
+                      styles.themeOption,
+                      isActive && { backgroundColor: colors.text },
+                    ]}
+                  >
+                    <Icon size={15} color={isActive ? colors.background : colors.secondaryText} />
+                    <Text style={[styles.themeLabel, { color: isActive ? colors.background : colors.secondaryText }]}>
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
 
             {/* Control Center */}
@@ -360,6 +393,31 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 12,
     letterSpacing: 1,
+  },
+
+  themeRow: {
+    flexDirection: "row",
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 3,
+    gap: 2,
+    marginBottom: 28,
+  },
+
+  themeOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    paddingVertical: 9,
+    borderRadius: 7,
+  },
+
+  themeLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 0.8,
   },
 });
 
