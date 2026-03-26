@@ -1,4 +1,80 @@
 import { parse, isValid } from 'date-fns';
+import axiosInstance from '@/config/axiosConfig';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface CalendarEventPayload {
+  title: string;
+  description?: string;
+  location?: string;
+  start_at: string; // ISO 8601
+  end_at: string;   // ISO 8601
+  color?: string;   // hex e.g. "#ADC178"
+  all_day?: boolean;
+}
+
+export interface CalendarEventResponse extends CalendarEventPayload {
+  id: string;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── API service ──────────────────────────────────────────────────────────────
+
+/**
+ * Fetch all events for a given month.
+ * GET /calendar/events?year=YYYY&month=MM
+ */
+export const fetchMonthEvents = async (
+  year: number,
+  month: number // 1-indexed
+): Promise<CalendarEventResponse[]> => {
+  const response = await axiosInstance.get('/calendar/events', {
+    params: { year, month },
+  });
+  return response.data.data ?? response.data;
+};
+
+/**
+ * Fetch a single event by ID.
+ * GET /calendar/events/:id
+ */
+export const fetchEvent = async (id: string): Promise<CalendarEventResponse> => {
+  const response = await axiosInstance.get(`/calendar/events/${id}`);
+  return response.data.data ?? response.data;
+};
+
+/**
+ * Create a new calendar event.
+ * POST /calendar/events
+ */
+export const createCalendarEvent = async (
+  payload: CalendarEventPayload
+): Promise<CalendarEventResponse> => {
+  const response = await axiosInstance.post('/calendar/events', payload);
+  return response.data.data ?? response.data;
+};
+
+/**
+ * Update an existing calendar event.
+ * PUT /calendar/events/:id
+ */
+export const updateCalendarEvent = async (
+  id: string,
+  payload: Partial<CalendarEventPayload>
+): Promise<CalendarEventResponse> => {
+  const response = await axiosInstance.put(`/calendar/events/${id}`, payload);
+  return response.data.data ?? response.data;
+};
+
+/**
+ * Delete a calendar event.
+ * DELETE /calendar/events/:id
+ */
+export const deleteCalendarEvent = async (id: string): Promise<void> => {
+  await axiosInstance.delete(`/calendar/events/${id}`);
+};
 
 /**
  * Helper to parse loose date/time strings from AI into Date objects
