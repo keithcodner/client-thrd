@@ -38,8 +38,9 @@ export default function Day() {
   const router  = useRouter();
   const params  = useLocalSearchParams<{ date?: string }>();
 
-  // Parse date from route param, fall back to today
-  const selectedDate = params.date ? new Date(params.date) : new Date();
+  // Parse date from route param — append T00:00:00 so JS treats it as local midnight,
+  // not UTC midnight (which shifts the date back by one day in timezones behind UTC).
+  const selectedDate = params.date ? new Date(`${params.date}T00:00:00`) : new Date();
 
   const timelineRef = useRef<ScrollView>(null);
 

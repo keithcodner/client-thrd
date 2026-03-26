@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useSession } from "@/context/AuthContext";
 import { useProfileOverlay } from "@/context/ProfileOverlayContext";
@@ -21,6 +21,36 @@ const HomeScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateCircleModal, setShowCreateCircleModal] = useState(false);
   const [isCreatingCircle, setIsCreatingCircle] = useState(false);
+
+  // Refresh circles silently (no loading spinner — called on every focus)
+  const refreshCircles = useCallback(async () => {
+    try {
+      const circlesRes = await getUserCircleData(false).catch(() => ({ circles: [] }));
+      const userCircles = circlesRes.circles || [];
+      const thrdChat = {
+        id: '1',
+        conversation_id: '1',
+        name: 'THRD',
+        description: 'System updates and announcements',
+        customization: { headerBanner: null },
+        isPinned: true,
+      };
+      const formattedCircles = [
+        thrdChat,
+        ...userCircles.slice(0, 9).map((circle: any) => ({
+          id: circle.id?.toString() || '',
+          conversation_id: circle.conversation_id?.toString() || circle.id?.toString() || '',
+          name: circle.name || 'Unnamed Circle',
+          description: circle.description || '',
+          customization: { headerBanner: circle.customization?.headerBanner || null },
+          isPinned: false,
+        })),
+      ];
+      setGroups(formattedCircles);
+    } catch {
+      // fail silently — existing circles remain shown
+    }
+  }, []);
 
   // Fetch notification count
   const fetchNotificationCount = async () => {
@@ -48,33 +78,8 @@ const HomeScreen = () => {
 
         setSpaces(spacesRes.data.data || spacesRes.data || []);
         
-        // Format circles data - always include THRD system chat first, then latest 9 user circles
-        const userCircles = circlesRes.circles || [];
-        const thrdChat = {
-          id: '1',
-          conversation_id: '1',
-          name: 'THRD',
-          description: 'System updates and announcements',
-          customization: { headerBanner: null },
-          isPinned: true,
-        };
-        
-        // Take the latest 9 circles (they're already sorted by most recent)
-        const formattedCircles = [
-          thrdChat,
-          ...userCircles.slice(0, 9).map((circle: any) => ({
-            id: circle.id?.toString() || '',
-            conversation_id: circle.conversation_id?.toString() || circle.id?.toString() || '',
-            name: circle.name || 'Unnamed Circle',
-            description: circle.description || '',
-            customization: {
-              headerBanner: circle.customization?.headerBanner || null,
-            },
-            isPinned: false,
-          }))
-        ];
-        
-        setGroups(formattedCircles);
+        // Circles are handled by refreshCircles — reuse the same logic
+        await refreshCircles();
         setTodos(todosRes.data.data || todosRes.data || []);
         
         // Fetch notification count
@@ -91,13 +96,14 @@ const HomeScreen = () => {
     }
   }, [currentUser]);
 
-  // Refresh notification count when screen is focused
+  // Refresh circles + notification count every time this tab is focused
   useFocusEffect(
     React.useCallback(() => {
       if (currentUser) {
+        refreshCircles();
         fetchNotificationCount();
       }
-    }, [currentUser])
+    }, [currentUser, refreshCircles])
   );
 
   // Listen for real-time notifications and update count
