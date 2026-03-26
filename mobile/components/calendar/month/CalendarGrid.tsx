@@ -51,8 +51,8 @@ const CalendarGrid = ({
   const rows = Array.from({ length: numRows }, (_, i) => cells.slice(i * 7, i * 7 + 7));
 
   return (
-    <View style={[styles.container, { borderColor: colours.border }]}>
-      {/* Day header labels */}
+    <View style={styles.wrapper}>
+      {/* Day header labels — outside the bordered grid */}
       <View style={styles.headerRow}>
         {DAY_LABELS.map((label, i) => (
           <View key={i} style={styles.headerCell}>
@@ -63,35 +63,39 @@ const CalendarGrid = ({
         ))}
       </View>
 
-      {/* Calendar rows */}
-      {rows.map((row, rowIndex) => (
-        <View key={rowIndex} style={styles.row}>
-          {row.map((cell, colIndex) => (
-            <DayCell
-              key={colIndex}
-              day={cell.day}
-              isCurrentMonth={cell.isCurrentMonth}
-              isToday={
-                cell.isCurrentMonth &&
-                cell.day === today.getDate() &&
-                month === today.getMonth() &&
-                year === today.getFullYear()
-              }
-              isSelected={cell.isCurrentMonth && cell.day === selectedDay}
-              events={cell.isCurrentMonth ? getEventsForDay(cell.day) : []}
-              onPress={(day) => onDayPress?.(year, month, day)}
-              colours={colours}
-            />
-          ))}
-        </View>
-      ))}
+      <View style={[styles.container, { borderColor: colours.border }]}>
+        {/* Calendar rows */}
+        {rows.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.row}>
+            {row.map((cell, colIndex) => (
+              <DayCell
+                key={colIndex}
+                day={cell.day}
+                isCurrentMonth={cell.isCurrentMonth}
+                isToday={
+                  cell.isCurrentMonth &&
+                  cell.day === today.getDate() &&
+                  month === today.getMonth() &&
+                  year === today.getFullYear()
+                }
+                isSelected={cell.isCurrentMonth && cell.day === selectedDay}
+                events={cell.isCurrentMonth ? getEventsForDay(cell.day) : []}
+                onPress={(day) => onDayPress?.(year, month, day)}
+                colours={colours}
+              />
+            ))}
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     marginHorizontal: 16,
+  },
+  container: {
     borderRadius: 16,
     borderWidth: 1,
     paddingBottom: 12,
@@ -99,8 +103,9 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
-    paddingTop: 12,
+    paddingHorizontal: 0,
     paddingBottom: 6,
+    paddingTop: 4,
   },
   headerCell: {
     flex: 1,

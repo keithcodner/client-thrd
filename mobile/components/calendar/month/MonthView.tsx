@@ -14,7 +14,8 @@ import CalendarHeader from './CalendarHeader';
 import ViewTabs, { CalendarView } from './ViewTabs';
 import CalendarGrid from './CalendarGrid';
 import { CalendarEvent } from './DayCell';
-import { fetchMonthEvents } from '@/services/calendarService';
+import CreateTimeBlock from '@/components/calendar/CreateTimeBlock';
+import { fetchMonthEvents, createCalendarEvent } from '@/services/calendarService';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -37,9 +38,9 @@ const MonthView = ({ onDayPress, onAddEvent }: MonthViewProps) => {
   const [currentYear]  = useState(today.getFullYear());
   const [currentMonth] = useState(today.getMonth());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [showCreate, setShowCreate] = useState(false);
 
-  // Load events for the current month and convert to CalendarEvent dots
-  useEffect(() => {
+  const loadEvents = useCallback(() => {
     fetchMonthEvents(currentYear, currentMonth + 1)
       .then((rows) => {
         const converted: CalendarEvent[] = rows.map((e) => {
@@ -53,8 +54,18 @@ const MonthView = ({ onDayPress, onAddEvent }: MonthViewProps) => {
         });
         setEvents(converted);
       })
-      .catch(() => {}); // silent fail
+      .catch(() => {});
   }, [currentYear, currentMonth]);
+
+  const handleCreate = useCallback(async (payload: Parameters<typeof createCalendarEvent>[0]) => {
+    await createCalendarEvent(payload);
+    loadEvents();
+  }, [loadEvents]);
+
+  // Load events for the current month and convert to CalendarEvent dots
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   const handleTabChange = useCallback((tab: CalendarView) => {
     if (tab === 'month') return;
@@ -109,12 +120,23 @@ const MonthView = ({ onDayPress, onAddEvent }: MonthViewProps) => {
       {/* FAB */}
       <View style={styles.fabContainer}>
         <Pressable
-          onPress={onAddEvent}
+          onPress={() => setShowCreate(true)}
           style={[styles.fab, { backgroundColor: colours.card }]}
         >
           <Plus size={24} color={colours.text} />
         </Pressable>
       </View>
+
+      <CreateTimeBlock
+        visible={showCreate}
+        selectedDate={
+          selectedDay
+            ? new Date(currentYear, currentMonth, selectedDay)
+            : today
+        }
+        onClose={() => setShowCreate(false)}
+        onSave={handleCreate}
+      />
     </SafeAreaView>
   );
 };

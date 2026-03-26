@@ -10,8 +10,10 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { X, Clock } from 'lucide-react-native';
 import { useThemeColours } from '@/hooks/useThemeColours';
+import { useTheme } from '@/context/ThemeContext';
 import TimePickerModal, {
   TimeValue,
   formatTimeValue,
@@ -30,6 +32,7 @@ interface CreateTimeBlockProps {
 
 const CreateTimeBlock = ({ visible, selectedDate, onClose, onSave }: CreateTimeBlockProps) => {
   const colours = useThemeColours();
+  const { currentTheme } = useTheme();
 
   const [label, setLabel]         = useState('');
   const [startTime, setStartTime] = useState<TimeValue>(DEFAULT_START);
@@ -37,7 +40,6 @@ const CreateTimeBlock = ({ visible, selectedDate, onClose, onSave }: CreateTimeB
   const [pickerFor, setPickerFor] = useState<'start' | 'end' | null>(null);
   const [saving, setSaving]       = useState(false);
   const [error, setError]         = useState<string | null>(null);
-
   const reset = () => {
     setLabel('');
     setStartTime(DEFAULT_START);
@@ -77,75 +79,81 @@ const CreateTimeBlock = ({ visible, selectedDate, onClose, onSave }: CreateTimeB
     <>
       <Modal
         transparent
-        animationType="slide"
+        animationType="fade"
         visible={visible && pickerFor === null}
         onRequestClose={handleClose}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <BlurView
+          intensity={50}
+          tint={currentTheme === 'dark' ? 'dark' : 'light'}
           style={styles.backdrop}
         >
           <Pressable style={StyleSheet.absoluteFillObject} onPress={handleClose} />
-          <View style={[styles.sheet, { backgroundColor: colours.card, borderColor: colours.border }]}>
-            {/* Header */}
-            <View style={styles.sheetHeader}>
-              <Text style={[styles.sheetTitle, { color: colours.text }]}>Add Time Block</Text>
-              <Pressable onPress={handleClose} hitSlop={8}>
-                <X size={20} color={colours.secondaryText} />
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.kav}
+          >
+            <View style={[styles.sheet, { backgroundColor: colours.card, borderColor: colours.border }]}>
+              {/* Header */}
+              <View style={styles.sheetHeader}>
+                <Text style={[styles.sheetTitle, { color: colours.text }]}>Add Time Block</Text>
+                <Pressable onPress={handleClose} hitSlop={8}>
+                  <X size={20} color={colours.secondaryText} />
+                </Pressable>
+              </View>
+
+              {/* Label */}
+              <Text style={[styles.fieldLabel, { color: colours.secondaryText }]}>LABEL (REST, STUDIO, WORK)</Text>
+              <TextInput
+                value={label}
+                onChangeText={setLabel}
+                placeholder="Focus Time"
+                placeholderTextColor={colours.secondaryText + '88'}
+                style={[styles.input, { color: colours.text, borderColor: colours.stone500, backgroundColor: colours.surface }]}
+                returnKeyType="done"
+              />
+
+              {/* Time row */}
+              <View style={styles.timeRow}>
+                <View style={styles.timeField}>
+                  <Text style={[styles.fieldLabel, { color: colours.secondaryText }]}>STARTS</Text>
+                  <Pressable
+                    onPress={() => setPickerFor('start')}
+                    style={[styles.timePicker, { borderColor: colours.stone500, backgroundColor: colours.surface }]}
+                  >
+                    <Text style={[styles.timeText, { color: colours.text }]}>{formatTimeValue(startTime)}</Text>
+                    <Clock size={16} color={colours.secondaryText} />
+                  </Pressable>
+                </View>
+                <View style={styles.timeField}>
+                  <Text style={[styles.fieldLabel, { color: colours.secondaryText }]}>ENDS</Text>
+                  <Pressable
+                    onPress={() => setPickerFor('end')}
+                    style={[styles.timePicker, { borderColor: colours.stone500, backgroundColor: colours.surface }]}
+                  >
+                    <Text style={[styles.timeText, { color: colours.text }]}>{formatTimeValue(endTime)}</Text>
+                    <Clock size={16} color={colours.secondaryText} />
+                  </Pressable>
+                </View>
+              </View>
+
+              {error ? (
+                <Text style={[styles.errorText, { color: colours.error }]}>{error}</Text>
+              ) : null}
+
+              {/* Save */}
+              <Pressable
+                onPress={handleSave}
+                disabled={saving}
+                style={[styles.saveBtn, { backgroundColor: colours.surface, borderColor: colours.stone500 }]}
+              >
+                {saving
+                  ? <ActivityIndicator color={colours.text} />
+                  : <Text style={[styles.saveBtnText, { color: colours.text }]}>Save Block</Text>}
               </Pressable>
             </View>
-
-            {/* Label */}
-            <Text style={[styles.fieldLabel, { color: colours.secondaryText }]}>LABEL (REST, STUDIO, WORK)</Text>
-            <TextInput
-              value={label}
-              onChangeText={setLabel}
-              placeholder="Focus Time"
-              placeholderTextColor={colours.secondaryText + '88'}
-              style={[styles.input, { color: colours.text, borderColor: colours.border, backgroundColor: colours.surface }]}
-              returnKeyType="done"
-            />
-
-            {/* Time row */}
-            <View style={styles.timeRow}>
-              <View style={styles.timeField}>
-                <Text style={[styles.fieldLabel, { color: colours.secondaryText }]}>STARTS</Text>
-                <Pressable
-                  onPress={() => setPickerFor('start')}
-                  style={[styles.timePicker, { borderColor: colours.border, backgroundColor: colours.surface }]}
-                >
-                  <Text style={[styles.timeText, { color: colours.text }]}>{formatTimeValue(startTime)}</Text>
-                  <Clock size={16} color={colours.secondaryText} />
-                </Pressable>
-              </View>
-              <View style={styles.timeField}>
-                <Text style={[styles.fieldLabel, { color: colours.secondaryText }]}>ENDS</Text>
-                <Pressable
-                  onPress={() => setPickerFor('end')}
-                  style={[styles.timePicker, { borderColor: colours.border, backgroundColor: colours.surface }]}
-                >
-                  <Text style={[styles.timeText, { color: colours.text }]}>{formatTimeValue(endTime)}</Text>
-                  <Clock size={16} color={colours.secondaryText} />
-                </Pressable>
-              </View>
-            </View>
-
-            {error ? (
-              <Text style={[styles.errorText, { color: colours.error }]}>{error}</Text>
-            ) : null}
-
-            {/* Save */}
-            <Pressable
-              onPress={handleSave}
-              disabled={saving}
-              style={[styles.saveBtn, { backgroundColor: colours.text }]}
-            >
-              {saving
-                ? <ActivityIndicator color={colours.background} />
-                : <Text style={[styles.saveBtnText, { color: colours.background }]}>Save Block</Text>}
-            </Pressable>
-          </View>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </BlurView>
       </Modal>
 
       {/* Time picker sub-modal */}
@@ -168,15 +176,18 @@ const CreateTimeBlock = ({ visible, selectedDate, onClose, onSave }: CreateTimeB
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: '#00000066',
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  kav: {
+    width: '100%',
   },
   sheet: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24,
     borderWidth: 1,
     padding: 24,
-    paddingBottom: 36,
+    paddingBottom: 28,
   },
   sheetHeader: {
     flexDirection: 'row',
@@ -228,6 +239,7 @@ const styles = StyleSheet.create({
   },
   saveBtn: {
     borderRadius: 14,
+    borderWidth: 1,
     paddingVertical: 16,
     alignItems: 'center',
   },

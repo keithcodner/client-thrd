@@ -19,7 +19,7 @@ interface ViewTabsProps {
 const ViewTabs = ({ activeTab, onTabChange, colours }: ViewTabsProps) => {
   return (
     <View style={styles.container}>
-      <View style={[styles.tabsWrapper, { backgroundColor: colours.card }]}>
+      <View style={[styles.tabsWrapper, { backgroundColor: colours.stone950 }]}>
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -29,14 +29,14 @@ const ViewTabs = ({ activeTab, onTabChange, colours }: ViewTabsProps) => {
               style={[
                 styles.tab,
                 isActive
-                  ? { backgroundColor: colours.text }
+                  ? { backgroundColor: colours.stone800 }
                   : { backgroundColor: 'transparent' },
               ]}
             >
               <Text
                 style={[
                   styles.tabText,
-                  { color: isActive ? colours.background : colours.secondaryText },
+                  { color: isActive ? colours.text : colours.secondaryText },
                 ]}
               >
                 {tab.label}
@@ -52,7 +52,10 @@ const ViewTabs = ({ activeTab, onTabChange, colours }: ViewTabsProps) => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingBottom: 14,
+    paddingBottom: 30,
+    borderBottomWidth: 1,
+    borderBottomColor: '#a8a29e',
+    marginBottom: 18,
   },
   tabsWrapper: {
     flexDirection: 'row',

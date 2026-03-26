@@ -15,7 +15,8 @@ import CalendarHeader from '@/components/calendar/month/CalendarHeader';
 import ViewTabs, { CalendarView } from '@/components/calendar/month/ViewTabs';
 import SuggestedOverlaps from '@/components/calendar/week/SuggestedOverlaps';
 import WeekDay, { WeekEvent } from '@/components/calendar/week/WeekDay';
-import { fetchMonthEvents } from '@/services/calendarService';
+import CreateTimeBlock from '@/components/calendar/CreateTimeBlock';
+import { fetchMonthEvents, createCalendarEvent } from '@/services/calendarService';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -42,6 +43,7 @@ export default function Week() {
   const today = new Date();
   const [weekDates] = useState<Date[]>(() => getWeekDates(today));
   const [eventMap, setEventMap] = useState<Record<string, WeekEvent[]>>({});
+  const [showCreate, setShowCreate] = useState(false);
 
   const currentMonth = weekDates[0].getMonth();
   const currentYear  = weekDates[0].getFullYear();
@@ -90,6 +92,34 @@ export default function Week() {
     if (tab === 'day')   { router.replace('/(app)/(tabs)/(calendar)/day'); return; }
     if (tab === 'list')  { router.replace('/(app)/(tabs)/(calendar)/list'); return; }
   }, [router]);
+
+  const handleCreate = useCallback(async (payload: Parameters<typeof createCalendarEvent>[0]) => {
+    await createCalendarEvent(payload);
+    // Reload events after creation
+    fetchMonthEvents(currentYear, currentMonth + 1)
+      .then((rows) => {
+        const map: Record<string, WeekEvent[]> = {};
+        rows.forEach((e) => {
+          const d = new Date(e.start_at);
+          const pad = (n: number) => String(n).padStart(2, '0');
+          const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+          if (!map[key]) map[key] = [];
+          const start = new Date(e.start_at);
+          const end   = new Date(e.end_at);
+          const fmt = (dt: Date) => {
+            let h = dt.getHours();
+            const m = dt.getMinutes().toString().padStart(2, '0');
+            const p = h >= 12 ? 'PM' : 'AM';
+            if (h > 12) h -= 12;
+            if (h === 0) h = 12;
+            return `${h}:${m} ${p}`;
+          };
+          map[key].push({ id: String(e.id), title: e.name, time: `${fmt(start)} – ${fmt(end)}`, color: e.color });
+        });
+        setEventMap(map);
+      })
+      .catch(() => {});
+  }, [currentYear, currentMonth]);
 
   // Handle pressing on a day to view its details
   const handleClose = useCallback(() => {
@@ -151,10 +181,20 @@ export default function Week() {
 
       {/* FAB */}
       <View style={styles.fabContainer}>
-        <Pressable style={[styles.fab, { backgroundColor: colours.card }]}>
+        <Pressable
+          onPress={() => setShowCreate(true)}
+          style={[styles.fab, { backgroundColor: colours.card }]}
+        >
           <Plus size={24} color={colours.text} />
         </Pressable>
       </View>
+
+      <CreateTimeBlock
+        visible={showCreate}
+        selectedDate={today}
+        onClose={() => setShowCreate(false)}
+        onSave={handleCreate}
+      />
     </SafeAreaView>
   );
 }
