@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: 5,
   },
   dayCircle: {
     width: 32,

@@ -26,7 +26,7 @@ const CalendarGrid = ({
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-  // Build a flat array of 42 cells (6 weeks)
+  // Build cells dynamically: 5 rows (35 cells) when possible, 6 rows (42) otherwise
   const cells: { day: number; isCurrentMonth: boolean }[] = [];
 
   for (let i = firstDayOfWeek - 1; i >= 0; i--) {
@@ -35,7 +35,9 @@ const CalendarGrid = ({
   for (let d = 1; d <= daysInMonth; d++) {
     cells.push({ day: d, isCurrentMonth: true });
   }
-  const remaining = 42 - cells.length;
+  const numRows = Math.ceil(cells.length / 7);
+  const totalCells = numRows * 7;
+  const remaining = totalCells - cells.length;
   for (let d = 1; d <= remaining; d++) {
     cells.push({ day: d, isCurrentMonth: false });
   }
@@ -46,7 +48,7 @@ const CalendarGrid = ({
     return events.filter((e) => e.date === dateStr);
   };
 
-  const rows = Array.from({ length: 6 }, (_, i) => cells.slice(i * 7, i * 7 + 7));
+  const rows = Array.from({ length: numRows }, (_, i) => cells.slice(i * 7, i * 7 + 7));
 
   return (
     <View style={[styles.container, { borderColor: colours.border }]}>
@@ -92,7 +94,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 16,
     borderWidth: 1,
-    paddingBottom: 8,
+    paddingBottom: 12,
     overflow: 'hidden',
   },
   headerRow: {

@@ -33,12 +33,12 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   monthTitle: {
-    fontSize: 34,
+    fontSize: 36,
     fontWeight: '700',
-    lineHeight: 38,
+    lineHeight: 40,
   },
   yearText: {
-    fontSize: 14,
+    fontSize: 13,
     marginTop: 2,
   },
   closeButton: {
