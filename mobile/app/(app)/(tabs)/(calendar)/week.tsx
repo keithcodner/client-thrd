@@ -46,16 +46,22 @@ export default function Week() {
 
   // Load real events for the week's month
   useEffect(() => {
+
+    // Fetch all events for the month, then group by date
     fetchMonthEvents(currentYear, currentMonth + 1)
       .then((rows) => {
         const map: Record<string, WeekEvent[]> = {};
         rows.forEach((e) => {
           const d = new Date(e.start_at);
+
+          // We only care about events that fall within this week
           const pad = (n: number) => String(n).padStart(2, '0');
           const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
           if (!map[key]) map[key] = [];
           const start = new Date(e.start_at);
           const end   = new Date(e.end_at);
+
+          // Format time range as "H:MM AM/PM – H:MM AM/PM"
           const fmt = (dt: Date) => {
             let h = dt.getHours();
             const m = dt.getMinutes().toString().padStart(2, '0');
@@ -64,13 +70,18 @@ export default function Week() {
             if (h === 0) h = 12;
             return `${h}:${m} ${p}`;
           };
+
+          // Add to this date's events
           map[key].push({ id: String(e.id), title: e.name, time: `${fmt(start)} – ${fmt(end)}`, color: e.color });
         });
+
+        // Sort events within each day by start time
         setEventMap(map);
       })
       .catch(() => {});
   }, [currentYear, currentMonth]);
 
+  // Handle tab changes
   const handleTabChange = useCallback((tab: CalendarView) => {
     if (tab === 'week') return;
     if (tab === 'month') { router.replace('/(app)/(tabs)/(calendar)/'); return; }
@@ -78,19 +89,32 @@ export default function Week() {
     if (tab === 'list')  { router.replace('/(app)/(tabs)/(calendar)/list'); return; }
   }, [router]);
 
+  // Handle pressing on a day to view its details
   const handleClose = useCallback(() => {
     router.back();
   }, [router]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Handle pressing on a day to view its details
   const handleDayPress = useCallback((date: Date) => {
+    
+    // Convert date to "YYYY-MM-DD" format for route param
     const pad = (n: number) => String(n).padStart(2, '0');
+
+    // For example, if date is 2024-07-21, this will produce "2024-07-21"
     const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
+    // Navigate to the day view, passing the date as a route param
     router.push({ pathname: '/(app)/(tabs)/(calendar)/day', params: { date: dateStr } });
   }, [router]);
 
+  // Helper to get events for a specific date
   const getEventsForDate = (date: Date): WeekEvent[] => {
+
+    // Convert date to "YYYY-MM-DD" format to look up in eventMap
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+    // Return events for this date, or empty array if none
     return eventMap[key] ?? [];
   };
 
