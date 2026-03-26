@@ -1,0 +1,36 @@
+appId: com.anonymous.mobile
+tags:
+  - auth
+  - smoke
+---
+# ---------------------------------------------------------------------------
+# Flow: Successful login
+# ---------------------------------------------------------------------------
+- launchApp:
+    clearState: true
+
+# Wait for the login screen to be visible
+- assertVisible: "Login"
+
+# Enter credentials
+- tapOn:
+    id: "login-email-input"
+- clearText
+- inputText: "${TEST_EMAIL}"
+
+- tapOn:
+    id: "login-password-input"
+- clearText
+- inputText: "${TEST_PASSWORD}"
+
+# Dismiss keyboard and tap login
+- hideKeyboard
+- tapOn:
+    id: "login-submit-button"
+
+# Assert landing on the home/dashboard screen
+# Adjust the text/id to match whatever your first authenticated screen shows
+- assertVisible:
+    text: ".*"           # fallback — replace with a real landmark below
+    enabled: true
+- assertNotVisible: "Login"

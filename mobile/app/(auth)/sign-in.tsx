@@ -98,6 +98,7 @@ const Login = () => {
             USERNAME
           </Text>
           <TextInput
+            testID="login-email-input"
             value={data.username}
             onChangeText={(value) => handleChange("username", value)}
             placeholder="Enter your username"
@@ -128,6 +129,7 @@ const Login = () => {
             PASSWORD
           </Text>
           <TextInput
+            testID="login-password-input"
             value={data.password}
             onChangeText={(value) => handleChange("password", value)}
             placeholder="Enter your password"
@@ -146,6 +148,7 @@ const Login = () => {
 
         {/* Login Button */}
         <TouchableOpacity
+          testID="login-submit-button"
           onPress={handleLogin}
           disabled={loading}
           style={{

@@ -1,0 +1,4 @@
+appId: com.anonymous.mobile
+flows:
+  - login_success.yaml
+  - login_failure.yaml

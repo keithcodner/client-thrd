@@ -1,0 +1,30 @@
+appId: com.anonymous.mobile
+tags:
+  - auth
+  - negative
+---
+# ---------------------------------------------------------------------------
+# Flow: Failed login — wrong password
+# ---------------------------------------------------------------------------
+- launchApp:
+    clearState: true
+
+- assertVisible: "Login"
+
+- tapOn:
+    id: "login-email-input"
+- clearText
+- inputText: "nobody@example.com"
+
+- tapOn:
+    id: "login-password-input"
+- clearText
+- inputText: "wrongpassword"
+
+- hideKeyboard
+- tapOn:
+    id: "login-submit-button"
+
+# An Alert or inline error should appear; we stay on the login screen
+- assertVisible: "Error"
+- assertVisible: "Login"

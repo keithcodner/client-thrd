@@ -38,8 +38,8 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
   const { theme, setTheme } = useTheme();
   const { user, signOut } = useSession();
 
-  const userName = user?.name || "James";
-  const userHandle = user?.email?.split("@")[0] || "jbond";
+  const userName = user?.name || "";
+  const userHandle = user?.email?.split("@")[0] || "";
 
   const initials = userName
     .split(" ")
