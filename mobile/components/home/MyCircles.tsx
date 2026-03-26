@@ -28,7 +28,7 @@ export const MyCircles = ({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        <Text style={[styles.sectionTitle, { color: colors.textLight }]}>
           MY CIRCLES
         </Text>
         <Pressable onPress={() => onNavigate("explore")}>

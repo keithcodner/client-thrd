@@ -1,12 +1,15 @@
 export const colours = {
   light: {
     // Base colors
-    background: '#FFFFFF',
+    background: '#ffffff',
     chatBackground: '#fafaf9',
     surface: '#fafaf9',
     card: '#f5f5f4',
     text: '#1c1917',
+    textLight: '#8a8887',
     secondaryText: '#78716c',
+    weekDayCardBorder: '#a8a29e',
+    weekDayCardBackground: '#ffffff',
     border: '#e7e5e4',
     
     // UI elements
@@ -30,6 +33,9 @@ export const colours = {
     stone900: '#1c1917',
     stone950: '#e2e0de',
 
+    // Component-specific
+    homePlanCardBorderColor: '#34422a',
+
     // Card gradients
     cardGradient: ['#f5f5f4', '#e7e5e4'],
   },
@@ -40,6 +46,7 @@ export const colours = {
     surface: '#1c1917',
     card: '#292524',
     text: '#fafaf9',
+    textLight: '#8a8887',
     secondaryText: '#a8a29e',
     weekDayCardBorder: '#a8a29e',
     weekDayCardBackground: '#1a1818',
@@ -65,6 +72,9 @@ export const colours = {
     stone800: '#292524',
     stone900: '#1c1917',
     stone950: '#0c0a09',
+
+    // Component-specific
+    homePlanCardBorderColor: '#34422a',
 
     // Card gradients
     cardGradient: ['#292524', '#1c1917'],

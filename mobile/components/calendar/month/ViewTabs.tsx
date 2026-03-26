@@ -36,7 +36,7 @@ const ViewTabs = ({ activeTab, onTabChange, colours }: ViewTabsProps) => {
               <Text
                 style={[
                   styles.tabText,
-                  { color: isActive ? colours.text : colours.secondaryText },
+                  { color: isActive ? colours.stone50 : colours.secondaryText },
                 ]}
               >
                 {tab.label}

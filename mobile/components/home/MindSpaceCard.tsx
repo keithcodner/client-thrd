@@ -13,7 +13,7 @@ export const MindSpaceCard = ({
 }: MindSpaceCardProps) => {
   return (
     <Pressable
-      style={[styles.mindSpaceCard, { backgroundColor: colors.card }]}
+      style={[styles.mindSpaceCard, { backgroundColor: colors.card, borderColor: colors.accent }]}
       onPress={onPress}
     >
       <View style={[styles.mindSpaceIcon, { backgroundColor: colors.surface }]}>
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     gap: 12,
     borderWidth: 1,
-    borderColor: "#34422a",
+    //borderColor: "#34422a",
   },
 
   mindSpaceIcon: {

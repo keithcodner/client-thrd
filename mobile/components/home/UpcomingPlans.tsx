@@ -47,7 +47,7 @@ export const UpcomingPlans = ({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        <Text style={[styles.sectionTitle, { color: colors.textLight }]}>
           UPCOMING PLANS
         </Text>
         <Pressable onPress={() => onNavigate("calendar")}>
@@ -64,7 +64,7 @@ export const UpcomingPlans = ({
           return (
             <Pressable
               key={todo.id}
-              style={[styles.todoCard, { backgroundColor: colors.card }]}
+              style={[styles.todoCard, { backgroundColor: colors.card }, { borderColor: colors.accent }]}
             >
               <View style={[styles.todoDate, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.surface }]}>
                 <Text style={[styles.todoDateText, { color: colors.accent }]}>
@@ -128,7 +128,6 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: "#34422a",
   },
 
   todoDate: {
