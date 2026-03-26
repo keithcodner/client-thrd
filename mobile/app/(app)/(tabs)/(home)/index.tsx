@@ -77,9 +77,29 @@ const HomeScreen = () => {
         ]);
 
         setSpaces(spacesRes.data.data || spacesRes.data || []);
-        
-        // Circles are handled by refreshCircles — reuse the same logic
-        await refreshCircles();
+
+        // Format circles from the already-fetched circlesRes
+        const userCircles = circlesRes.circles || [];
+        const thrdChat = {
+          id: '1',
+          conversation_id: '1',
+          name: 'THRD',
+          description: 'System updates and announcements',
+          customization: { headerBanner: null },
+          isPinned: true,
+        };
+        setGroups([
+          thrdChat,
+          ...userCircles.slice(0, 9).map((circle: any) => ({
+            id: circle.id?.toString() || '',
+            conversation_id: circle.conversation_id?.toString() || circle.id?.toString() || '',
+            name: circle.name || 'Unnamed Circle',
+            description: circle.description || '',
+            customization: { headerBanner: circle.customization?.headerBanner || null },
+            isPinned: false,
+          })),
+        ]);
+
         setTodos(todosRes.data.data || todosRes.data || []);
         
         // Fetch notification count

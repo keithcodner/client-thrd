@@ -201,8 +201,17 @@ export const getConversationMessages = async (
       messages: response.data.messages || [],
       hasMore: response.data.messages?.length >= limit,
     };
-  } catch (error) {
-    console.error("Error fetching conversation messages:", error);
+  } catch (error: any) {
+    // Log enough detail to diagnose without needing repro
+    const status   = error?.response?.status;
+    const resData  = error?.response?.data;
+    const message  = error?.message;
+    console.error('❌ getConversationMessages failed', {
+      conversationId,
+      status,
+      message,
+      responseData: resData,
+    });
     throw error;
   }
 };

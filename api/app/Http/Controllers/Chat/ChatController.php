@@ -193,6 +193,13 @@ class ChatController extends Controller
 
     public function getConversationChats(Request $request)
     {
+        Log::info('getConversationChats: request received', [
+            'user_id'         => Auth::id(),
+            'conversation_id' => $request->input('conversation_id'),
+            'limit'           => $request->input('limit'),
+            'offset'          => $request->input('offset'),
+        ]);
+
         try {
             $user = Auth::user();
 

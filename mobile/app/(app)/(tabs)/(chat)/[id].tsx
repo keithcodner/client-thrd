@@ -428,9 +428,16 @@ const ChatDetail = () => {
             setHasMore(false);
           }
         }
-      } catch (error) {
-        console.error('Error loading messages:', error);
-        // On error, set empty messages array
+      } catch (error: any) {
+        const status  = error?.response?.status;
+        const resData = error?.response?.data;
+        console.error('❌ loadMessages failed', {
+          chatId,
+          status,
+          responseData: resData,
+          message: error?.message,
+          stack: error?.stack,
+        });
         setMessages([]);
         setHasMore(false);
       } finally {

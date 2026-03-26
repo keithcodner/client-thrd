@@ -221,8 +221,12 @@ export const getCachedMessages = async (conversationId: number): Promise<any[] |
       age: Math.round(age / 1000) + 's' 
     });
     return cacheData.data;
-  } catch (error) {
-    console.error('Error getting cached messages:', error);
+  } catch (error: any) {
+    // Log with enough context to distinguish "no user" from genuine storage errors
+    console.error('❌ getCachedMessages error', {
+      conversationId,
+      message: error?.message,
+    });
     return null;
   }
 };
