@@ -29,7 +29,7 @@ const SuggestedOverlapCard = ({ slot, colours }: SuggestedOverlapCardProps) => {
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
+    width: 160,
     borderRadius: 12,
     borderWidth: 1,
     padding: 12,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Sparkles } from 'lucide-react-native';
 import SuggestedOverlapCard, { OverlapSlot } from './SuggestedOverlapCard';
 
@@ -40,11 +40,15 @@ const SuggestedOverlaps = ({ overlaps = DUMMY_OVERLAPS, colours }: SuggestedOver
           No suggested overlaps for this week yet.
         </Text>
       ) : (
-        <View style={styles.cardsRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.cardsRow}
+        >
           {overlaps.map((slot) => (
             <SuggestedOverlapCard key={slot.id} slot={slot} colours={colours} />
           ))}
-        </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -69,8 +73,8 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   cardsRow: {
-    flexDirection: 'row',
     gap: 10,
+    paddingRight: 4,
   },
   emptyText: {
     fontSize: 13,
