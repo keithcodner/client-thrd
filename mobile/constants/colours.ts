@@ -28,6 +28,7 @@ export const colours = {
     stone500: '#78716c',
     stone800: '#292524',
     stone900: '#1c1917',
+    stone950: '#e2e0de',
 
     // Card gradients
     cardGradient: ['#f5f5f4', '#e7e5e4'],

@@ -44,19 +44,31 @@ export default function Day() {
   // not UTC midnight (which shifts the date back by one day in timezones behind UTC).
   const selectedDate = params.date ? new Date(`${params.date}T00:00:00`) : new Date();
 
+  // Ref to the timeline ScrollView, so we can scroll to a reasonable hour on load
   const timelineRef = useRef<ScrollView>(null);
 
+  // State for this screen
   const [events, setEvents]               = useState<DayEvent[]>([]);
+
+  // State for modals
   const [showCreate, setShowCreate]       = useState(false);
+  
+  // The event currently being edited — passed to EditTimeBlock. Null means no edit modal shown.
   const [editingEvent, setEditingEvent]   = useState<DayEvent | null>(null);
 
+  // Format date as YYYY-MM-DD for easy comparisons and API calls
   const pad = (n: number) => String(n).padStart(2, '0');
+  
+  // Memoized string for the selected date, so it can be a useEffect dependency without causing infinite loops
   const todayStr = `${selectedDate.getFullYear()}-${pad(selectedDate.getMonth() + 1)}-${pad(selectedDate.getDate())}`;
 
   // Load events for this day's month
   const loadEvents = useCallback(async () => {
     try {
+
+      // Fetch all events for the month, then filter down to this day
       const data = await fetchMonthEvents(selectedDate.getFullYear(), selectedDate.getMonth() + 1);
+
       // Filter down to this specific day
       const dayEvents: DayEvent[] = data
         .filter((e) => {
@@ -80,6 +92,7 @@ export default function Day() {
     }
   }, [todayStr]);
 
+  // Load events on mount and whenever the selected date changes
   useEffect(() => {
     loadEvents();
     // Scroll to a reasonable starting hour
@@ -88,6 +101,7 @@ export default function Day() {
     }, 200);
   }, [loadEvents]);
 
+  //
   const handleTabChange = useCallback((tab: CalendarView) => {
     if (tab === 'day') return;
     if (tab === 'month') { router.replace('/(app)/(tabs)/(calendar)/'); return; }
@@ -95,22 +109,27 @@ export default function Day() {
     if (tab === 'list')  { router.replace('/(app)/(tabs)/(calendar)/list'); return; }
   }, [router]);
 
+  // Handlers for Create and Edit modals  
   const handleClose = useCallback(() => router.back(), [router]);
 
+  // Navigate to weekly view, passing the current date as a param
   const handleWeeklyView = useCallback(() => {
     router.replace('/(app)/(tabs)/(calendar)/week');
   }, [router]);
 
+  // After creating an event, reload the month's events to show the new one (the API doesn't return the created event, so we have to re-fetch)
   const handleCreate = useCallback(async (payload: { name: string; start_at: string; end_at: string; color: string }) => {
     await createCalendarEvent(payload);
     await loadEvents();
   }, [loadEvents]);
 
+  // After updating or deleting an event, reload the month's events to show the changes
   const handleUpdate = useCallback(async (id: string, payload: { name: string; start_at: string; end_at: string; color: string }) => {
     await updateCalendarEvent(id, payload);
     await loadEvents();
   }, [loadEvents]);
 
+  // After deleting an event, reload the month's events to show the changes
   const handleDelete = useCallback(async (id: string) => {
     await deleteCalendarEvent(id);
     await loadEvents();

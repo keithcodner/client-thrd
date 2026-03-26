@@ -18,7 +18,7 @@ interface ViewTabsProps {
 
 const ViewTabs = ({ activeTab, onTabChange, colours }: ViewTabsProps) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { borderBottomColor: colours.border }]}>
       <View style={[styles.tabsWrapper, { backgroundColor: colours.stone950 }]}>
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -54,13 +54,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 30,
     borderBottomWidth: 1,
-    borderBottomColor: '#a8a29e',
     marginBottom: 18,
   },
   tabsWrapper: {
     flexDirection: 'row',
     borderRadius: 8,
-    padding: 3,
+    padding: 5,
     gap: 2,
   },
   tab: {
