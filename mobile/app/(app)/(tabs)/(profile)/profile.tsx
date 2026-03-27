@@ -63,7 +63,7 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <BlurView intensity={100} tint="dark" style={styles.blurContainer}>
-        <View style={[styles.modalContent, { backgroundColor: colors.background === '#FFFFFF' ? 'rgba(255,255,255,0.92)' : 'rgba(18,18,18,0.92)', borderColor: colors.border }]}>
+        <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
           {/* Top Buttons */}
           <View style={styles.topButtons}>
             <TouchableOpacity style={styles.iconButton}>
