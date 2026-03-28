@@ -39,10 +39,10 @@ export const DiscoverCard = ({
       </View>
 
       <View style={styles.discoverContent}>
-        <Text style={[styles.discoverTitle, { color: colors.text, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' }]}>
+        <Text style={[styles.discoverTitle, { color: '#ffffff', fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' }]}>
           Discover what's on this week.
         </Text>
-        <Text style={[styles.discoverSubtitle, { color: colors.text }]}>
+        <Text style={[styles.discoverSubtitle, { color: '#ffffff' }]}>
           {trendingSpace
             ? `Check out ${trendingSpace.name}...`
             : "See local spaces"}

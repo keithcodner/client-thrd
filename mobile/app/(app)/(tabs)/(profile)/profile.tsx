@@ -24,6 +24,7 @@ import {
   Moon,
   Monitor,
 } from "lucide-react-native";
+import { useRouter } from 'expo-router';
 import { useThemeColours } from "@/hooks/useThemeColours";
 import { useTheme } from "@/context/ThemeContext";
 import { useSession } from "@/context/AuthContext";
@@ -35,6 +36,7 @@ interface ProfileOverlayProps {
 
 export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
   const colors = useThemeColours();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { user, signOut } = useSession();
 
@@ -58,6 +60,10 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
         { text: "Logout", style: "destructive", onPress: () => signOut?.() },
       ]);
     }
+  };
+
+  const handleSupportClick = () => {
+    router.push(`/(app)/(help-center)`);
   };
 
   return (
@@ -97,7 +103,7 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
                 <Text style={[styles.actionText, { color: colors.secondaryText }]}>MY PLANNER</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.actionButton, { borderColor: colors.border, backgroundColor: colors.card }]}>
+              <TouchableOpacity style={[styles.actionButton, { borderColor: colors.border, backgroundColor: colors.card }]} onPress={handleSupportClick}>
                 <View style={styles.iconCircleBlue}>
                   <Clock size={18} color="#3BA6FF" />
                 </View>

@@ -92,31 +92,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         //:::GET CIRCLE MEMBERS:::
         Route::post('/get-circle-members', [ChatCircleController::class, 'getCircleMembers'])->middleware(TrackUserActivity::class)->name('get-circle-members');
-
-        // Route::get('/get-conversations', [ChatController::class, 'getConversations'])->middleware(TrackUserActivity::class)->name('get-conversations');
-        // Route::get('/poll-chat', [ChatController::class, 'pollChat'])->middleware(TrackUserActivity::class)->name('poll-chat');
-
-        // Route::post('/chat-init-circle', [ChatController::class, 'chatInit_circle'])->middleware(TrackUserActivity::class)->name('chat-init-circle');
-        // Route::post('/chat-init-network', [ChatController::class, 'chatInit_MyNetwork'])->middleware(TrackUserActivity::class)->name('chat-init-network');
-        // Route::post('/check-user-conversation', [ChatController::class, 'hasAlreadyMessagedUser'])->middleware(TrackUserActivity::class)->name('check-user-conversation');
-        // Route::post('/chat-new', [ChatController::class, 'chatNewConverse'])->middleware(TrackUserActivity::class)->name('chat-new');
-        // Route::post('/chat-is-read', [ChatController::class, 'checkIfOtherChatIsRead_deprecated'])->middleware(TrackUserActivity::class)->name('chat-is-read');
-        // Route::get('/get-unread-conversations-count', [ChatController::class, 'checkIfOtherChatIsRead'])->name('get-unread-conversations-count');
-        // Route::post('/conv-click', [ChatController::class, 'chatConverseClick'])->middleware(TrackUserActivity::class)->name('conv-click');
-        // Route::post('/conv-details', [ChatController::class, 'chatUserDetails'])->middleware(TrackUserActivity::class)->name('conv-details');
-        // Route::post('/conv-delete', [ChatController::class, 'destoryConversation'])->middleware(TrackUserActivity::class)->name('conv-delete');
-        // Route::post('/conv-count', [ChatController::class, 'getConversationCount'])->middleware(TrackUserActivity::class)->name('conv-count');
-
-        //:::WEB CHAT CATEGORY GROUP ROUTES:::
-        // Route::post('/add-chat-category-group', [ChatController::class, 'addChatCategoryGroup'])->middleware(TrackUserActivity::class)->name('add-chat-category-group');
-        // Route::post('/update-chat-category-group', [ChatController::class, 'updateChatCategoryGroup'])->middleware(TrackUserActivity::class)->name('update-chat-category-group');
-        // Route::post('/delete-chat-category-group', [ChatController::class, 'deleteChatCategoryGroup'])->middleware(TrackUserActivity::class)->name('delete-chat-category-group');
-
-        //:::WEB CHAT CATEGORY GROUP TRACKING ROUTES:::
-        // Route::post('/add-convo-to-convo-category', [ChatController::class, 'addConvoToConvoCategory'])->middleware(TrackUserActivity::class)->name('add-convo-to-convo-category');
-        // Route::post('/remove-convo-from-convo-category', [ChatController::class, 'removeConvoFromConvoCategory'])->middleware(TrackUserActivity::class)->name('remove-convo-from-convo-category');
-        // Route::post('/reset-conversations-to-default-conversation-category', [ChatController::class, 'resetConversationsToDefaultConversationCategory'])->middleware(TrackUserActivity::class)->name('reset-conversations-to-default-conversation-category');
-        // Route::post('/update-expand-state', [ChatController::class, 'updateExpandState'])->middleware(TrackUserActivity::class)->name('update-expand-state');
     });
 
     //:::::::::::::::::: NOTIFICATION ROUTES::::::::::::::::::
