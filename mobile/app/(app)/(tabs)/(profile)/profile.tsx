@@ -63,7 +63,9 @@ export const ProfileOverlay = ({ visible, onClose }: ProfileOverlayProps) => {
   };
 
   const handleSupportClick = () => {
-    router.push(`/(app)/(help-center)`);
+    //router.push(`/(app)/(help-center)`);
+    router.push('/(app)/(help-center)');
+    onClose();
   };
 
   return (

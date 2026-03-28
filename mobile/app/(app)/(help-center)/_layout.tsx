@@ -1,20 +1,15 @@
+import React from "react";
 import { Stack } from "expo-router";
-import { useThemeColours } from "@/hooks/useThemeColours";
 
-export default function CalendarLayout() {
-  const colours = useThemeColours();
-
+export default function HelpCenterLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false,
-        contentStyle: {
-          backgroundColor: colours.background,
-        },
+        headerShown: false, // <- hide the native header completely
       }}
     >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="index" />
+      <Stack.Screen name="[id]" />
     </Stack>
   );
 }
