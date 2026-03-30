@@ -257,7 +257,7 @@ docker run -p 6001:6001 -v $(pwd)/soketi.config.json:/app/config.json \
 ```php
 'allowed_origins' => [
     'http://localhost:8081',   // Expo web (development)
-    'http://10.0.0.12:8081',   // Expo mobile (development - your IP)
+    'http://192.168.2.11:8081',   // Expo mobile (development - your IP)
     // Add production domains here
 ],
 
@@ -355,7 +355,7 @@ Access to fetch at 'http://localhost:8000/broadcasting/auth' from origin
    ```php
    'allowed_origins' => [
        'http://localhost:8081',
-       'http://10.0.0.12:8081',  // Your local network IP
+       'http://192.168.2.11:8081',  // Your local network IP
    ],
    ```
 

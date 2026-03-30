@@ -57,7 +57,11 @@ const MonthView = ({ onDayPress, onAddEvent }: MonthViewProps) => {
       .catch(() => {});
   }, [currentYear, currentMonth]);
 
-  const handleCreate = useCallback(async (payload: Parameters<typeof createCalendarEvent>[0]) => {
+  // Handler for when a new event is created in the CreateTimeBlock modal
+  const handleCreate = useCallback(
+    // We return a promise here so that the CreateTimeBlock can show a loading state until the event is saved and the calendar is refreshed
+    async (payload: Parameters<typeof createCalendarEvent>[0]
+  ) => {
     await createCalendarEvent(payload);
     loadEvents();
   }, [loadEvents]);

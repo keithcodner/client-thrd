@@ -1196,8 +1196,8 @@ After starting queue worker, Soketi logs should show:
 ### Issue 2: WebSocket Connection Fails on Web Platform
 
 **Symptoms:**
-- Android connects successfully (IP: `10.0.0.12:6001`)
-- Web shows: `WebSocket connection to 'ws://10.0.0.12:6001/app/thrd-app-key' failed`
+- Android connects successfully (IP: `192.168.2.11:6001`)
+- Web shows: `WebSocket connection to 'ws://192.168.2.11:6001/app/thrd-app-key' failed`
 - Browser cannot reach mobile IP address
 
 **Root Cause:**
@@ -1214,14 +1214,14 @@ export const getWebSocketHost = () => {
   if (Platform.OS === 'web') {
     return 'localhost';
   }
-  return '10.0.0.12'; // Your local network IP
+  return '192.168.2.11'; // Your local network IP
 };
 
 export const getApiUrl = () => {
   if (Platform.OS === 'web') {
     return 'http://localhost:8000';
   }
-  return 'http://10.0.0.12:8000';
+  return 'http://192.168.2.11:8000';
 };
 
 export const PUSHER_CONFIG = {
@@ -1244,7 +1244,7 @@ Ensure `api/config/cors.php` allows web origin:
 ```php
 'allowed_origins' => [
     'http://localhost:8081',  // Web
-    'http://10.0.0.12:8081',  // Mobile
+    'http://192.168.2.11:8081',  // Mobile
 ],
 ```
 
@@ -1631,7 +1631,7 @@ curl -H "Origin: http://localhost:8081" \
 | Error | Cause | Solution |
 |-------|-------|----------|
 | `Cannot read properties of undefined (reading 'enabled')` | Soketi config format error | Use dot-notation: `"appManager.array.apps"` |
-| `WebSocket connection to 'ws://10.0.0.12:6001' failed` | Wrong host for web | Use `localhost` for web, IP for mobile |
+| `WebSocket connection to 'ws://192.168.2.11:6001' failed` | Wrong host for web | Use `localhost` for web, IP for mobile |
 | `Received false for non-boolean attribute collapsable` | RN Web SSR warning | Add console filters in metro.config.js |
 | `expo-secure-store is not available on web` | Platform-specific API | Use storage utility with Platform.OS check |
 | Messages don't appear in real-time | No queue worker | Start `php artisan queue:work` or use sync |
